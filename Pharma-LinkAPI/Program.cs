@@ -1,5 +1,9 @@
+using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
 using Pharma_LinkAPI.Data;
+using Pharma_LinkAPI.Identity;
+using System;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -12,8 +16,21 @@ builder.Services.AddSwaggerGen();
 builder.Services.AddDbContext<AppDbContext>(options =>
     options.UseSqlServer(builder.Configuration.GetConnectionString("PharmaLinkDB")));
 
-var app = builder.Build();
+builder.Services.AddIdentity<AppUser, AppRole>(options =>
+{
+    options.Password.RequireDigit = false;
+    options.Password.RequireLowercase = false;
+    options.Password.RequireUppercase = false;
+    options.Password.RequireNonAlphanumeric = false;
+    options.Password.RequiredLength = 6;
+})
+    .AddEntityFrameworkStores<AppDbContext>()
+    .AddDefaultTokenProviders()
+    .AddUserStore<UserStore<AppUser, AppRole, AppDbContext, Guid>>()
+    .AddRoleStore<RoleStore<AppRole, AppDbContext, Guid>>();
 
+var app = builder.Build();
+app.UseStaticFiles();
 // Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())
 {
@@ -22,7 +39,9 @@ if (app.Environment.IsDevelopment())
 }
 
 app.UseHttpsRedirection();
+app.UseCors();
 
+app.UseAuthentication();
 app.UseAuthorization();
 
 app.MapControllers();
