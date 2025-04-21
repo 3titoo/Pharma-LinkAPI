@@ -10,7 +10,7 @@ namespace Pharma_LinkAPI.DTO
         [Required]
         public string? Address { get; set; }
         [Required]
-        [RegularExpression(@"^[0-9]{11}$", ErrorMessage = "Phone number must be 10 digits.")]
+        [RegularExpression(@"^[0-9]{11}$", ErrorMessage = "Phone number must be 11 digits.")]
         public string? PhoneNumber { get; set; }
         [Required]
         [EmailAddress(ErrorMessage = "Invalid email address.")]
