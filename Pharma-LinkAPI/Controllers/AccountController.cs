@@ -24,16 +24,10 @@ namespace Pharma_LinkAPI.Controllers
             _signInManager = signInManager;
             _env = env;
 
-            if (!_roleManager.RoleExistsAsync("Pharmacy").Result)
+            if (!_roleManager.RoleExistsAsync($"{SD.Role_Pharmacy}").Result)
             {
                 var role = new AppRole { Name = $"{SD.Role_Pharmacy}" };
                 _roleManager.CreateAsync(role).Wait();
-
-                var role2 = new AppRole { Name = $"{SD.Role_Admin}" };
-                _roleManager.CreateAsync(role2).Wait();
-
-                var role3 = new AppRole { Name = $"{SD.Role_Company}" };
-                _roleManager.CreateAsync(role3).Wait();
             }
         }
 

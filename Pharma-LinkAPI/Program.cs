@@ -7,6 +7,17 @@ using System;
 
 var builder = WebApplication.CreateBuilder(args);
 
+builder.Services.AddCors(options =>
+{
+    options.AddPolicy("AllowAngularLocalhost",
+        builder =>
+        {
+            builder.WithOrigins("http://localhost:4200") // Allow Angular's localhost
+                   .AllowAnyMethod() // Allow any HTTP method (GET, POST, etc.)
+                   .AllowAnyHeader(); // Allow any headers
+        });
+});
+
 // Add services to the container.
 
 builder.Services.AddControllers();
