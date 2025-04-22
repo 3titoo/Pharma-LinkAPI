@@ -1,22 +1,14 @@
+using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.IdentityModel.Tokens;
 using Pharma_LinkAPI.Data;
 using Pharma_LinkAPI.Identity;
 using System;
+using System.Text;
 
 var builder = WebApplication.CreateBuilder(args);
-
-builder.Services.AddCors(options =>
-{
-    options.AddPolicy("AllowAngularLocalhost",
-        builder =>
-        {
-            builder.WithOrigins("http://localhost:4200") // Allow Angular's localhost
-                   .AllowAnyMethod() // Allow any HTTP method (GET, POST, etc.)
-                   .AllowAnyHeader(); // Allow any headers
-        });
-});
 
 // Add services to the container.
 
@@ -39,6 +31,9 @@ builder.Services.AddIdentity<AppUser, AppRole>(options =>
     .AddDefaultTokenProviders()
     .AddUserStore<UserStore<AppUser, AppRole, AppDbContext, Guid>>()
     .AddRoleStore<RoleStore<AppRole, AppDbContext, Guid>>();
+
+
+
 
 var app = builder.Build();
 app.UseStaticFiles();

@@ -24,8 +24,11 @@ namespace Pharma_LinkAPI.DTO
         public string? LicenseNumber { get; set; }
 
         [Required]
-        [Remote(action: "IsUserNameInUse", controller: "Account", ErrorMessage = "User name is already in use")]
+        //[Remote(action: "IsUserNameInUse", controller: "Account", ErrorMessage = "User name is already in use")]
         public string? UserName { get; set; }
+
+        [Required]
+        public IFormFile? file { get; set; }
 
     }
 }

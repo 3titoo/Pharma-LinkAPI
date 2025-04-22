@@ -9,7 +9,6 @@ namespace Pharma_LinkAPI.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
-    [AllowAnonymous]
     public class AccountController : ControllerBase
     {
         private readonly UserManager<AppUser> _userManager;
@@ -32,13 +31,14 @@ namespace Pharma_LinkAPI.Controllers
         }
 
         [HttpPost("PhRegister")]
-        public async Task<IActionResult> Register(PharmacyRegisterDTO pharmacyRegisterDTO,IFormFile? file)
+        public async Task<IActionResult> Register(PharmacyRegisterDTO pharmacyRegisterDTO)
         {
             if (!ModelState.IsValid)
             {
                 string errors = string.Join(", ", ModelState.Values.SelectMany(v => v.Errors).Select(e => e.ErrorMessage));
                 return BadRequest(errors);
             }
+            var file = pharmacyRegisterDTO.file;
 
             #region File
             if (file == null || file.Length == 0)
@@ -79,7 +79,7 @@ namespace Pharma_LinkAPI.Controllers
             return BadRequest(error);
         }
 
-        [HttpGet]
+        [HttpGet("Email")]
         public async Task<IActionResult> IsEmailInUse(string email)
         {
             var user = await _userManager.FindByEmailAsync(email);
@@ -90,7 +90,7 @@ namespace Pharma_LinkAPI.Controllers
             return Ok($"Email {email} is already in use");
         }
 
-        [HttpGet]
+        [HttpGet("Name")]
         public async Task<IActionResult> IsUserNameInUse(string userName)
         {
             var user = await _userManager.FindByNameAsync(userName);

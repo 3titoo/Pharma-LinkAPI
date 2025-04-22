@@ -8,6 +8,7 @@ namespace Pharma_LinkAPI.Data
     {
         public AppDbContext(DbContextOptions<AppDbContext> options) : base(options)
         {
+
         }
 
 
