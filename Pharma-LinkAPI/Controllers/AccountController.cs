@@ -14,20 +14,12 @@ namespace Pharma_LinkAPI.Controllers
         private readonly UserManager<AppUser> _userManager;
         private readonly RoleManager<AppRole> _roleManager;
         private readonly SignInManager<AppUser> _signInManager;
-        private readonly IWebHostEnvironment _env;
 
         public AccountController(UserManager<AppUser> userManager, RoleManager<AppRole> roleManager, SignInManager<AppUser> signInManager, IWebHostEnvironment env)
         {
             _userManager = userManager;
             _roleManager = roleManager;
             _signInManager = signInManager;
-            _env = env;
-
-            if (!_roleManager.RoleExistsAsync($"{SD.Role_Pharmacy}").Result)
-            {
-                var role = new AppRole { Name = $"{SD.Role_Pharmacy}" };
-                _roleManager.CreateAsync(role).Wait();
-            }
         }
 
         [HttpPost("PhRegister")]

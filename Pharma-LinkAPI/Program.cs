@@ -29,8 +29,8 @@ builder.Services.AddIdentity<AppUser, AppRole>(options =>
 })
     .AddEntityFrameworkStores<AppDbContext>()
     .AddDefaultTokenProviders()
-    .AddUserStore<UserStore<AppUser, AppRole, AppDbContext, Guid>>()
-    .AddRoleStore<RoleStore<AppRole, AppDbContext, Guid>>();
+    .AddUserStore<UserStore<AppUser, AppRole, AppDbContext, int>>()
+    .AddRoleStore<RoleStore<AppRole, AppDbContext, int>>();
 
 
 
