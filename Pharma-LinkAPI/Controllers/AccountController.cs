@@ -10,6 +10,7 @@ namespace Pharma_LinkAPI.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
+    [AllowAnonymous]
     public class AccountController : ControllerBase
     {
         private readonly UserManager<AppUser> _userManager;
@@ -24,6 +25,12 @@ namespace Pharma_LinkAPI.Controllers
             _signInManager = signInManager;
             _jwtService = jwtService;
         }
+
+        /// <summary>
+        /// test
+        /// </summary>
+        /// <param name="pharmacyRegisterDTO"></param>
+        /// <returns></returns>
 
         [HttpPost("PhRegister")]
         public async Task<ActionResult<AuthentcationResponse>> Register(PharmacyRegisterDTO pharmacyRegisterDTO)
@@ -195,7 +202,71 @@ namespace Pharma_LinkAPI.Controllers
             return NoContent();
         }
 
+        [HttpPut("ChangePassword")]
+        public async Task<IActionResult> ChangePassword(ChangePassDTO changePasswordDTO)
+        {
+            if (!ModelState.IsValid)
+            {
+                string errors = string.Join(", ", ModelState.Values.SelectMany(v => v.Errors).Select(e => e.ErrorMessage));
+                return BadRequest(errors);
+            }
+            var user = await _userManager.FindByNameAsync(changePasswordDTO.username);
+            if (user == null)
+            {
+                return NotFound("User not found.");
+            }
+            var result = await _userManager.ChangePasswordAsync(user, changePasswordDTO.OldPassword, changePasswordDTO.NewPassword);
+            if (result.Succeeded)
+            {
+                return Ok("Password changed successfully.");
+            }
+            string error = string.Join(" | ", result.Errors.Select(x => x.Description));
+            return BadRequest(error);
+        }
+
+        [HttpPut("ChangePhoneNumber")]
+        public async Task<IActionResult> ChangePhoneNumber(ChangePhoneDTO changePhoneDTO)
+        {
+            if (!ModelState.IsValid)
+            {
+                string errors = string.Join(", ", ModelState.Values.SelectMany(v => v.Errors).Select(e => e.ErrorMessage));
+                return BadRequest(errors);
+            }
+            var user = await _userManager.FindByNameAsync(changePhoneDTO.username);
+            if (user == null)
+            {
+                return NotFound("User not found.");
+            }
+            user.PhoneNumber = changePhoneDTO.NewPhone;
+            var result = await _userManager.UpdateAsync(user);
+            if (result.Succeeded)
+            {
+                return Ok("Phone number changed successfully.");
+            }
+            string error = string.Join(" | ", result.Errors.Select(x => x.Description));
+            return BadRequest(error);
+        }
 
 
+        [HttpDelete("DeleteUser")]
+        public async Task<IActionResult> DeleteUser(string userName)
+        {
+            if (string.IsNullOrEmpty(userName))
+            {
+                return BadRequest("User name is required.");
+            }
+            var user = await _userManager.FindByNameAsync(userName);
+            if (user == null)
+            {
+                return NotFound("User not found.");
+            }
+            var result = await _userManager.DeleteAsync(user);
+            if (result.Succeeded)
+            {
+                return Ok("User deleted successfully.");
+            }
+            string error = string.Join(" | ", result.Errors.Select(x => x.Description));
+            return BadRequest(error);
+        }
     }
 }
