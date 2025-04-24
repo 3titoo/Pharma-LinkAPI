@@ -2,6 +2,7 @@
 using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
 using Pharma_LinkAPI.Identity;
+using Pharma_LinkAPI.Models;
 using Pharma_LinkAPI.Services;
 using System.Reflection.Emit;
 
@@ -15,6 +16,8 @@ namespace Pharma_LinkAPI.Data
         {
 
         }
+
+        public DbSet<Request> Requests { get; set; }
 
         protected override void OnModelCreating(ModelBuilder builder)
         {
