@@ -19,7 +19,6 @@ namespace Pharma_LinkAPI.Data
 
         public DbSet<Request> Requests { get; set; }
         public DbSet<Medicine> Medicines { get; set; }
-
         public DbSet<Review> Reviews { get; set; }
 
 
@@ -53,16 +52,16 @@ namespace Pharma_LinkAPI.Data
 
             #region Review
             builder.Entity<Review>()
-           .HasOne(r => r.company)
-           .WithMany(u => u.ReviewsReceived)
-           .HasForeignKey(r => r.CompanyId)
-           .OnDelete(DeleteBehavior.Restrict);
+            .HasOne(r => r.pharmacy)
+            .WithMany(p => p.ReviewsGiven)
+            .HasForeignKey(r => r.PharmacyId)
+            .OnDelete(DeleteBehavior.Restrict);       
 
             builder.Entity<Review>()
-            .HasOne(r => r.pharmacy)
-            .WithMany(u => u.ReviewsGiven)
-            .HasForeignKey(r => r.PharmacyId)
-            .OnDelete(DeleteBehavior.Restrict);
+            .HasOne(r => r.company)
+            .WithMany(c => c.ReviewsReceived)
+            .HasForeignKey(r => r.CompanyId)
+            .OnDelete(DeleteBehavior.Cascade);
             #endregion
         }
 

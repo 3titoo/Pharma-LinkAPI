@@ -2,6 +2,7 @@
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
+using Pharma_LinkAPI.Data;
 using Pharma_LinkAPI.DTO.AccountDTO;
 using Pharma_LinkAPI.Identity;
 using Pharma_LinkAPI.Services.JWT;
@@ -17,13 +18,15 @@ namespace Pharma_LinkAPI.Controllers
         private readonly RoleManager<AppRole> _roleManager;
         private readonly SignInManager<AppUser> _signInManager;
         private readonly IJwtService _jwtService;
+        private readonly AppDbContext _context;
 
-        public AccountController(UserManager<AppUser> userManager, RoleManager<AppRole> roleManager, SignInManager<AppUser> signInManager, IWebHostEnvironment env,IJwtService jwtService)
+        public AccountController(UserManager<AppUser> userManager, RoleManager<AppRole> roleManager, SignInManager<AppUser> signInManager, IWebHostEnvironment env,IJwtService jwtService,AppDbContext appDb)
         {
             _userManager = userManager;
             _roleManager = roleManager;
             _signInManager = signInManager;
             _jwtService = jwtService;
+            _context = appDb;
         }
 
         [HttpPost("PhRegister")]
@@ -254,6 +257,26 @@ namespace Pharma_LinkAPI.Controllers
             {
                 return NotFound("User not found.");
             }
+
+            if(user.Role == SD.Role_Pharmacy)
+            {
+                if (user.pdfPath != null)
+                {
+                    var filePath = Path.Combine(Directory.GetCurrentDirectory(), user.pdfPath);
+                    if (System.IO.File.Exists(filePath))
+                    {
+                        System.IO.File.Delete(filePath);
+                    }
+                }
+                var reviews = _context.Reviews.Where(r => r.PharmacyId == user.Id).ToList();
+
+                if (reviews != null)
+                {
+                    _context.Reviews.RemoveRange(reviews);
+                    await _context.SaveChangesAsync();
+                }
+            }
+
             var result = await _userManager.DeleteAsync(user);
             if (result.Succeeded)
             {
