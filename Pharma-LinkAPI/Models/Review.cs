@@ -10,9 +10,9 @@ namespace Pharma_LinkAPI.Models
         [Key]
         public int Id { get; set; }
         [Required]
-        public int PharmacyId { get; set; }
+        public int? PharmacyId { get; set; }
         [Required]
-        public int CompanyId { get; set; }
+        public int? CompanyId { get; set; }
 
 
         [Required]
@@ -29,6 +29,6 @@ namespace Pharma_LinkAPI.Models
 
         [ForeignKey("CompanyId")]
         [ValidateNever]
-        public AppUser? companies { get; set; }
+        public AppUser? company { get; set; }
     }
 }

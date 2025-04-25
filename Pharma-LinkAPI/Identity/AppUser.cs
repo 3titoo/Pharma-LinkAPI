@@ -1,4 +1,5 @@
 ﻿using Microsoft.AspNetCore.Identity;
+using Pharma_LinkAPI.Models;
 using System.ComponentModel.DataAnnotations;
 
 namespace Pharma_LinkAPI.Identity
@@ -10,5 +11,8 @@ namespace Pharma_LinkAPI.Identity
         public string? Name { get; set; }
         public string? Role { get; set; }
         public string? pdfPath { get; set; }
+
+        public ICollection<Review>? ReviewsGiven { get; set; } // for pharmacy
+        public ICollection<Review>? ReviewsReceived { get; set; } // for company
     }
 }

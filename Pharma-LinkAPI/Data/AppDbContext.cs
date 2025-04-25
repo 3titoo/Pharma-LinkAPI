@@ -18,6 +18,10 @@ namespace Pharma_LinkAPI.Data
         }
 
         public DbSet<Request> Requests { get; set; }
+        public DbSet<Medicine> Medicines { get; set; }
+
+        public DbSet<Review> Reviews { get; set; }
+
 
         protected override void OnModelCreating(ModelBuilder builder)
         {
@@ -45,6 +49,20 @@ namespace Pharma_LinkAPI.Data
                     NormalizedName = SD.Role_Company.ToUpper()
                 }
             );
+            #endregion
+
+            #region Review
+            builder.Entity<Review>()
+           .HasOne(r => r.company)
+           .WithMany(u => u.ReviewsReceived)
+           .HasForeignKey(r => r.CompanyId)
+           .OnDelete(DeleteBehavior.Restrict);
+
+            builder.Entity<Review>()
+            .HasOne(r => r.pharmacy)
+            .WithMany(u => u.ReviewsGiven)
+            .HasForeignKey(r => r.PharmacyId)
+            .OnDelete(DeleteBehavior.Restrict);
             #endregion
         }
 
