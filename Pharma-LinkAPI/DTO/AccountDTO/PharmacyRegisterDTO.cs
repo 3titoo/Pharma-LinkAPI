@@ -1,7 +1,7 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using System.ComponentModel.DataAnnotations;
 
-namespace Pharma_LinkAPI.DTO
+namespace Pharma_LinkAPI.DTO.AccountDTO
 {
     public class PharmacyRegisterDTO
     {

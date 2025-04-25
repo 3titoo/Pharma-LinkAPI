@@ -1,5 +1,5 @@
 ﻿using Microsoft.IdentityModel.Tokens;
-using Pharma_LinkAPI.DTO;
+using Pharma_LinkAPI.DTO.AccountDTO;
 using Pharma_LinkAPI.Identity;
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;

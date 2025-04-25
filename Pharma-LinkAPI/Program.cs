@@ -5,6 +5,8 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using Pharma_LinkAPI.Data;
 using Pharma_LinkAPI.Identity;
+using Pharma_LinkAPI.Repositries.Irepositry;
+using Pharma_LinkAPI.Repositries.Repositry;
 using Pharma_LinkAPI.Services;
 using Pharma_LinkAPI.Services.JWT;
 using System;
@@ -62,6 +64,10 @@ builder.Services.AddAuthorization(options =>
     options.AddPolicy("PharmacyOnly", policy => policy.RequireRole(SD.Role_Pharmacy));
     options.AddPolicy("CompanyOnly", policy => policy.RequireRole(SD.Role_Company));
 });
+
+
+
+builder.Services.AddScoped<IAccountRepositry, AccountRepo>();
 
 
 var app = builder.Build();

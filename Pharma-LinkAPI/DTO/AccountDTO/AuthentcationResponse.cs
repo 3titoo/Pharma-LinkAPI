@@ -1,4 +1,4 @@
-﻿namespace Pharma_LinkAPI.DTO
+﻿namespace Pharma_LinkAPI.DTO.AccountDTO
 {
     public class AuthentcationResponse
     {

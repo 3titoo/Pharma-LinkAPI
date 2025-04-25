@@ -2,7 +2,7 @@
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
-using Pharma_LinkAPI.DTO;
+using Pharma_LinkAPI.DTO.AccountDTO;
 using Pharma_LinkAPI.Identity;
 using Pharma_LinkAPI.Services.JWT;
 
@@ -25,12 +25,6 @@ namespace Pharma_LinkAPI.Controllers
             _signInManager = signInManager;
             _jwtService = jwtService;
         }
-
-        /// <summary>
-        /// test
-        /// </summary>
-        /// <param name="pharmacyRegisterDTO"></param>
-        /// <returns></returns>
 
         [HttpPost("PhRegister")]
         public async Task<ActionResult<AuthentcationResponse>> Register(PharmacyRegisterDTO pharmacyRegisterDTO)
