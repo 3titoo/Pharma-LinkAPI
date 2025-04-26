@@ -28,7 +28,13 @@ namespace Pharma_LinkAPI.DTO.AccountDTO
         public string? UserName { get; set; }
 
         [Required]
-        public IFormFile? file { get; set; }
+        public string? DrName { get; set; } 
+
+        [Required]
+        public IFormFile? pdf { get; set; }
+
+        [Required]
+        public IFormFile? img { get; set; }
 
     }
 }

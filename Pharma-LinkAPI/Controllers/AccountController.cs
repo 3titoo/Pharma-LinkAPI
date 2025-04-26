@@ -37,7 +37,23 @@ namespace Pharma_LinkAPI.Controllers
                 string errors = string.Join(", ", ModelState.Values.SelectMany(v => v.Errors).Select(e => e.ErrorMessage));
                 return BadRequest(errors);
             }
-            var file = pharmacyRegisterDTO.file;
+            var file = pharmacyRegisterDTO.pdf;
+            var img = pharmacyRegisterDTO.img;
+
+            #region Image
+            if (img == null || img.Length == 0)
+                return BadRequest("No image uploaded.");
+            var imgExtension = Path.GetExtension(img.FileName).ToLower();
+            if (imgExtension != ".jpg" && imgExtension != ".png" && imgExtension != ".jpeg")
+                return BadRequest("Only JPG, PNG, and JPEG files are allowed.");
+            var uploadsFolder = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot/uploads");
+            Directory.CreateDirectory(uploadsFolder);
+            var imgPath = Path.Combine(uploadsFolder, img.FileName);
+            using (var stream = new FileStream(imgPath, FileMode.Create))
+            {
+                await img.CopyToAsync(stream);
+            }
+            #endregion
 
             #region File
             if (file == null || file.Length == 0)
@@ -47,7 +63,7 @@ namespace Pharma_LinkAPI.Controllers
             if (extension != ".pdf")
                 return BadRequest("Only PDF files are allowed.");
 
-            var uploadsFolder = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot/uploads");
+            uploadsFolder = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot/uploads");
             Directory.CreateDirectory(uploadsFolder);
 
             var filePath = Path.Combine(uploadsFolder, file.FileName);
@@ -68,7 +84,9 @@ namespace Pharma_LinkAPI.Controllers
                 Name = pharmacyRegisterDTO.Name,
                 pdfPath = filePath,
                 Role = SD.Role_Pharmacy,
-                EmailConfirmed = true
+                EmailConfirmed = true,
+                ImagePath = imgPath,
+                DrName = pharmacyRegisterDTO.DrName
             };
             string? password = pharmacyRegisterDTO.Password;
             if(password == null || password[0] == ' ')
@@ -257,17 +275,25 @@ namespace Pharma_LinkAPI.Controllers
             {
                 return NotFound("User not found.");
             }
-
-            if(user.Role == SD.Role_Pharmacy)
+            if (user.pdfPath != null)
             {
-                if (user.pdfPath != null)
+                var filePath = Path.Combine(Directory.GetCurrentDirectory(), user.pdfPath);
+                if (System.IO.File.Exists(filePath))
                 {
-                    var filePath = Path.Combine(Directory.GetCurrentDirectory(), user.pdfPath);
-                    if (System.IO.File.Exists(filePath))
-                    {
-                        System.IO.File.Delete(filePath);
-                    }
+                    System.IO.File.Delete(filePath);
                 }
+            }
+            if (user.ImagePath != null)
+            {
+                var imgPath = Path.Combine(Directory.GetCurrentDirectory(), user.ImagePath);
+                if (System.IO.File.Exists(imgPath))
+                {
+                    System.IO.File.Delete(imgPath);
+                }
+            }
+
+            if (user.Role == SD.Role_Pharmacy)
+            {
                 var reviews = _context.Reviews.Where(r => r.PharmacyId == user.Id).ToList();
 
                 if (reviews != null)

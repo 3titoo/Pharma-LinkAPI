@@ -1,4 +1,5 @@
 ﻿using Microsoft.AspNetCore.Identity;
+using Microsoft.EntityFrameworkCore;
 using Pharma_LinkAPI.Data;
 using Pharma_LinkAPI.Identity;
 using Pharma_LinkAPI.Repositries.Irepositry;
@@ -67,5 +68,16 @@ namespace Pharma_LinkAPI.Repositries.Repositry
             return users;
         }
 
+        public async Task<AppUser?> GetCompanyByEmailWithReviews(int id)
+        {
+            var company = await _userManager.Users
+                .Include(c => c.ReviewsReceived)
+                .FirstOrDefaultAsync(c => c.Id == id);
+            if (company == null)
+            {
+                return null;
+            }
+            return company;
+        }
     }
 }
