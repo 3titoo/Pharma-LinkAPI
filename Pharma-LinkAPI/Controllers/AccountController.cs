@@ -266,6 +266,10 @@ namespace Pharma_LinkAPI.Controllers
         [HttpDelete("DeleteUser")]
         public async Task<IActionResult> DeleteUser(string userName)
         {
+            if(userName == "admin")
+            {
+                return BadRequest("You can't delete the admin account.");
+            }
             if (string.IsNullOrEmpty(userName))
             {
                 return BadRequest("User name is required.");

@@ -5,6 +5,8 @@ namespace Pharma_LinkAPI.Models
     public class Request
     {
         [Key]
+        public int Id { get; set; }
+        [Required]
         [StringLength(50)]
         public string? Pharmacy_License { get; set; }
         [Required]
