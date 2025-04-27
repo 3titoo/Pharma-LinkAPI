@@ -230,6 +230,10 @@ namespace Pharma_LinkAPI.Controllers
             {
                 return NotFound("User not found.");
             }
+            if(changePasswordDTO.NewPassword == null || changePasswordDTO.OldPassword == null || changePasswordDTO.NewPassword[0] == ' ')
+            {
+                return BadRequest("New password is required.");
+            }
             var result = await _userManager.ChangePasswordAsync(user, changePasswordDTO.OldPassword, changePasswordDTO.NewPassword);
             if (result.Succeeded)
             {

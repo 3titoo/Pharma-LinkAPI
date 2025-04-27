@@ -68,11 +68,11 @@ namespace Pharma_LinkAPI.Repositries.Repositry
             return users;
         }
 
-        public async Task<AppUser?> GetCompanyByEmailWithReviews(int id)
+        public async Task<AppUser?> GetCompanyByEmailWithReviews(string email)
         {
             var company = await _userManager.Users
                 .Include(c => c.ReviewsReceived)
-                .FirstOrDefaultAsync(c => c.Id == id);
+                .FirstOrDefaultAsync(c => c.Email == email);
             if (company == null)
             {
                 return null;

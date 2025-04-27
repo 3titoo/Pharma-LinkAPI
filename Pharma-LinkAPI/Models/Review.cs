@@ -17,7 +17,7 @@ namespace Pharma_LinkAPI.Models
 
         [Required]
         [Range(1, 5)]
-        public int Rating { get; set; }
+        public float Rating { get; set; }
 
         public string? Comment { get; set; }
 

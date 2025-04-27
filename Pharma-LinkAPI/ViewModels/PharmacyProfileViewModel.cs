@@ -9,7 +9,5 @@
         public string? PharmacyEmail { get; set; }
         public string? PharmacyLicenseNumber { get; set; }
         public string? PharmacyImagePath { get; set; }
-
-        public string? PharmacyPassword { get; set; }
     }
 }
