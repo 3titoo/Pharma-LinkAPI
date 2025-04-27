@@ -69,6 +69,7 @@ builder.Services.AddAuthorization(options =>
 
 builder.Services.AddScoped<IAccountRepositry, AccountRepo>();
 builder.Services.AddScoped<IrequestRepositry, RequestRepo>();
+builder.Services.AddScoped<IreviewRepositiry,ReviewRepo>();
 
 
 var app = builder.Build();

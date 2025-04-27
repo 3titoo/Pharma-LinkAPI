@@ -40,6 +40,14 @@ namespace Pharma_LinkAPI.Repositries.Repositry
             }
             return review;
         }
+
+        public async Task<Review?> GetReviewByphAndCo(int pharmacyId, int CompanyId)
+        {
+            var review = await _db.Reviews
+                .FirstOrDefaultAsync(r => r.PharmacyId == pharmacyId && r.CompanyId == CompanyId);
+            return review;
+        }
+
         public void Update(Review entity)
         {
             throw new NotImplementedException();

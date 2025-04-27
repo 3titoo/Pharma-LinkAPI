@@ -9,7 +9,7 @@ namespace Pharma_LinkAPI.Models
     {
         [Key]
         public int Id { get; set; }
-        [Required]
+
         public int? PharmacyId { get; set; }
         [Required]
         public int? CompanyId { get; set; }
