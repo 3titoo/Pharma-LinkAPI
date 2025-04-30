@@ -23,8 +23,9 @@ namespace Pharma_LinkAPI.Models
         public string? Address { get; set; }
 
         [Required]
-        [FileExtensions(Extensions = "pdf,jpg,png", ErrorMessage = "Only PDF, JPG, or PNG files allowed")]
         public string? License_File { get; set; }
+        [Required]
+        public string? ImageUrl { get; set; }
         [Required]
         [StringLength(50)]
         public string? UserName { get; set; }

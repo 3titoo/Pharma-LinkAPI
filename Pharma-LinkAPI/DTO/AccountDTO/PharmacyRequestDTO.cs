@@ -3,7 +3,7 @@ using System.ComponentModel.DataAnnotations;
 
 namespace Pharma_LinkAPI.DTO.AccountDTO
 {
-    public class PharmacyRegisterDTO
+    public class PharmacyRequestDTO
     {
         [Required]
         public string? Name { get; set; }
@@ -31,7 +31,7 @@ namespace Pharma_LinkAPI.DTO.AccountDTO
         public string? DrName { get; set; } 
 
         [Required]
-        public IFormFile? pdf { get; set; }
+        public string? pdfURL { get; set; }
 
         [Required]
         public IFormFile? img { get; set; }

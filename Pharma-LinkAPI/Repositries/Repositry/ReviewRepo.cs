@@ -48,6 +48,14 @@ namespace Pharma_LinkAPI.Repositries.Repositry
             return review;
         }
 
+        public async Task<IEnumerable<Review?>> GetReviewsByPharmacyId(int pharmacyId)
+        {
+            var reviews = await _db.Reviews
+                .Where(r => r.PharmacyId == pharmacyId)
+                .ToListAsync();
+            return reviews;
+        }
+
         public void Update(Review entity)
         {
             throw new NotImplementedException();

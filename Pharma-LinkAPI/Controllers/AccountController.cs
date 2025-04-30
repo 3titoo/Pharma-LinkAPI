@@ -1,10 +1,9 @@
 ﻿using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
-using Pharma_LinkAPI.Data;
 using Pharma_LinkAPI.DTO.AccountDTO;
 using Pharma_LinkAPI.Identity;
+using Pharma_LinkAPI.Repositries.Irepositry;
 using Pharma_LinkAPI.Services.JWT;
 
 namespace Pharma_LinkAPI.Controllers
@@ -18,77 +17,46 @@ namespace Pharma_LinkAPI.Controllers
         private readonly RoleManager<AppRole> _roleManager;
         private readonly SignInManager<AppUser> _signInManager;
         private readonly IJwtService _jwtService;
-        private readonly AppDbContext _context;
+        private readonly IrequestRepositry _requestRepositry;
+        private readonly IreviewRepositiry _reviewRepositiry;
 
-        public AccountController(UserManager<AppUser> userManager, RoleManager<AppRole> roleManager, SignInManager<AppUser> signInManager, IWebHostEnvironment env,IJwtService jwtService,AppDbContext appDb)
+        public AccountController(UserManager<AppUser> userManager, RoleManager<AppRole> roleManager, SignInManager<AppUser> signInManager, IWebHostEnvironment env,IJwtService jwtService,IrequestRepositry irequest, IreviewRepositiry reviewRepositiry)
         {
             _userManager = userManager;
             _roleManager = roleManager;
             _signInManager = signInManager;
             _jwtService = jwtService;
-            _context = appDb;
+            _requestRepositry = irequest;
+            _reviewRepositiry = reviewRepositiry;
         }
 
-        [HttpPost("PhRegister")]
-        public async Task<ActionResult<AuthentcationResponse>> Register(PharmacyRegisterDTO pharmacyRegisterDTO)
+        [HttpPost("Register/{Id}")]
+        public async Task<ActionResult<AuthentcationResponse>> Register(int Id)
         {
+            var request = await _requestRepositry.GetById(Id);
+            if (request == null)
+            {
+                return NotFound("Request not found.");
+            }
             if (!ModelState.IsValid)
             {
                 string errors = string.Join(", ", ModelState.Values.SelectMany(v => v.Errors).Select(e => e.ErrorMessage));
                 return BadRequest(errors);
             }
-            var file = pharmacyRegisterDTO.pdf;
-            var img = pharmacyRegisterDTO.img;
-
-            #region Image
-            if (img == null || img.Length == 0)
-                return BadRequest("No image uploaded.");
-            var imgExtension = Path.GetExtension(img.FileName).ToLower();
-            if (imgExtension != ".jpg" && imgExtension != ".png" && imgExtension != ".jpeg")
-                return BadRequest("Only JPG, PNG, and JPEG files are allowed.");
-            var uploadsFolder = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot/uploads");
-            Directory.CreateDirectory(uploadsFolder);
-            var imgPath = Path.Combine(uploadsFolder, img.FileName);
-            using (var stream = new FileStream(imgPath, FileMode.Create))
-            {
-                await img.CopyToAsync(stream);
-            }
-            #endregion
-
-            #region File
-            if (file == null || file.Length == 0)
-                return BadRequest("No file uploaded.");
-
-            var extension = Path.GetExtension(file.FileName).ToLower();
-            if (extension != ".pdf")
-                return BadRequest("Only PDF files are allowed.");
-
-            uploadsFolder = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot/uploads");
-            Directory.CreateDirectory(uploadsFolder);
-
-            var filePath = Path.Combine(uploadsFolder, file.FileName);
-
-            using (var stream = new FileStream(filePath, FileMode.Create))
-            {
-                await file.CopyToAsync(stream);
-            }
-            #endregion
-
             var user = new AppUser
             {
-                UserName = pharmacyRegisterDTO.UserName,
-                Email = pharmacyRegisterDTO.Email,
-                PhoneNumber = pharmacyRegisterDTO.PhoneNumber,
-                LiscnceNumber = pharmacyRegisterDTO.LicenseNumber,
-                Address = pharmacyRegisterDTO.Address,
-                Name = pharmacyRegisterDTO.Name,
-                pdfPath = filePath,
+                UserName = request.UserName,
+                Email = request.Email,
+                PhoneNumber = request.Phone,
+                LiscnceNumber = request.Pharmacy_License,
+                Address = request.Address,
+                Name = request.Pharmacy_Name,
                 Role = SD.Role_Pharmacy,
                 EmailConfirmed = true,
-                ImagePath = imgPath,
-                DrName = pharmacyRegisterDTO.DrName
+                ImagePath = request.ImageUrl,
+                DrName = request.DR_Name
             };
-            string? password = pharmacyRegisterDTO.Password;
+            string? password = request.Password;
             if(password == null || password[0] == ' ')
             {
                 return BadRequest("Password is required.");
@@ -110,7 +78,7 @@ namespace Pharma_LinkAPI.Controllers
             return BadRequest(error);
         }
 
-        [HttpPost("CoRegister")]
+        [HttpPost("CompanyRegister")]
         public async Task<ActionResult<AuthentcationResponse>> Register(CompanyRegisterDTO companyRegisterDTO)
         {
             if (!ModelState.IsValid)
@@ -302,12 +270,14 @@ namespace Pharma_LinkAPI.Controllers
 
             if (user.Role == SD.Role_Pharmacy)
             {
-                var reviews = _context.Reviews.Where(r => r.PharmacyId == user.Id).ToList();
+                var reviews = await _reviewRepositiry.GetReviewsByPharmacyId(user.Id);
 
                 if (reviews != null)
                 {
-                    _context.Reviews.RemoveRange(reviews);
-                    await _context.SaveChangesAsync();
+                    foreach (var review in reviews)
+                    {
+                        _reviewRepositiry.Delete(review.Id);
+                    }
                 }
             }
 

@@ -10,10 +10,12 @@ namespace Pharma_LinkAPI.Repositries.Repositry
     public class AccountRepo : IAccountRepositry
     {
         private readonly UserManager<AppUser> _userManager;
+        private readonly AppDbContext _db;
 
-        public AccountRepo(UserManager<AppUser> userManager)
+        public AccountRepo(UserManager<AppUser> userManager, AppDbContext db)
         {
             _userManager = userManager;
+            _db = db;
         }
         public async Task<AppUser?> GetCurrentUser(ClaimsPrincipal user)
         {
@@ -27,7 +29,11 @@ namespace Pharma_LinkAPI.Repositries.Repositry
             {
                 return null;
             }
-            return appUser;
+            var userWithReviews = await _userManager.Users
+            .Include(u => u.ReviewsGiven)
+            .Include(u => u.ReviewsReceived)
+            .FirstOrDefaultAsync(u => u.Id == appUser.Id);
+            return userWithReviews;
         }
         public async Task<AppUser?> GetUserByEmail(string email)
         {
@@ -36,7 +42,11 @@ namespace Pharma_LinkAPI.Repositries.Repositry
             {
                 return null;
             }
-            return user;
+            var userWithReviews = await _userManager.Users
+            .Include(u => u.ReviewsGiven)
+            .Include(u => u.ReviewsReceived)
+            .FirstOrDefaultAsync(u => u.Id == user.Id);
+            return userWithReviews;
         }
         public async Task<AppUser?> GetUserById(int id)
         {
@@ -45,17 +55,27 @@ namespace Pharma_LinkAPI.Repositries.Repositry
             {
                 return null;
             }
-            return user;
+            var userWithReviews = await _userManager.Users
+            .Include(u => u.ReviewsGiven)
+            .Include(u => u.ReviewsReceived)
+            .FirstOrDefaultAsync(u => u.Id == user.Id);
+            return userWithReviews;
 
         }
         public async Task<AppUser?> GetUserByuserName(string userName)
         {
             var user = await _userManager.FindByNameAsync(userName);
+
             if (user == null)
             {
                 return null;
             }
-            return user;
+
+            var userWithReviews = await _userManager.Users
+                .Include(u => u.ReviewsGiven)
+                .Include(u => u.ReviewsReceived)
+                .FirstOrDefaultAsync(u => u.Id == user.Id);
+            return userWithReviews;
         }
 
         public async Task<IEnumerable<AppUser?>> GetAllUsers(string role = SD.Role_Pharmacy)

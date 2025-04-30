@@ -1,4 +1,6 @@
-﻿namespace Pharma_LinkAPI.ViewModels
+﻿using Pharma_LinkAPI.Identity;
+
+namespace Pharma_LinkAPI.ViewModels
 {
     public class PharmacyProfileViewModel
     {
@@ -9,5 +11,6 @@
         public string? PharmacyEmail { get; set; }
         public string? PharmacyLicenseNumber { get; set; }
         public string? PharmacyImagePath { get; set; }
+        public string? Role { get; set; } = SD.Role_Pharmacy;
     }
 }

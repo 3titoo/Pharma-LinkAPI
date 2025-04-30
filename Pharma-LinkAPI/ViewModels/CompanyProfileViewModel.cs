@@ -1,6 +1,4 @@
-﻿using Pharma_LinkAPI.Models;
-
-namespace Pharma_LinkAPI.ViewModels
+﻿namespace Pharma_LinkAPI.ViewModels
 {
     public class ReviewViewModel
     {
@@ -18,6 +16,8 @@ namespace Pharma_LinkAPI.ViewModels
         public string? CompanyLicenseNumber { get; set; }
         public string? CompanyImagePath { get; set; }
         public float? CompanyRating { get; set; }
+
+        public string? Role { get; set; } = SD.Role_Company;
         public List<ReviewViewModel>? Reviews { get; set; }
     }
 }
