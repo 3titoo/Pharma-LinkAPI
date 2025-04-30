@@ -5,6 +5,7 @@ using Pharma_LinkAPI.Identity;
 using Pharma_LinkAPI.Models;
 using Pharma_LinkAPI.Services;
 using System.Reflection.Emit;
+using Pharma_LinkAPI.DTO;
 
 namespace Pharma_LinkAPI.Data
 {
@@ -64,6 +65,5 @@ namespace Pharma_LinkAPI.Data
             .OnDelete(DeleteBehavior.Cascade);
             #endregion
         }
-
     }
 }

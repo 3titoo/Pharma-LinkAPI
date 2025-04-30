@@ -17,7 +17,7 @@
         public string? CompanyImagePath { get; set; }
         public float? CompanyRating { get; set; }
 
-        public string? Role { get; set; } = SD.Role_Company;
+        public string? Role { get; set; }
         public List<ReviewViewModel>? Reviews { get; set; }
     }
 }

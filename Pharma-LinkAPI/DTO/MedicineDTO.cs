@@ -1,16 +1,11 @@
-﻿using Microsoft.AspNetCore.Mvc.ModelBinding.Validation;
-using Pharma_LinkAPI.Identity;
-using System.ComponentModel.DataAnnotations;
-using System.ComponentModel.DataAnnotations.Schema;
-using static Microsoft.EntityFrameworkCore.DbLoggerCategory.Database;
+﻿using System.ComponentModel.DataAnnotations;
 
-namespace Pharma_LinkAPI.Models
+namespace Pharma_LinkAPI.DTO
 {
-    public class Medicine
+    public class MedicineDTO
     {
         [Required]
         public int ID { get; set; }
-        [Required]
         public int? Company_Id { get; set; }
 
         [Required]
@@ -29,10 +24,5 @@ namespace Pharma_LinkAPI.Models
         [Required]
         [Range(0, int.MaxValue, ErrorMessage = "InStock quantity cannot be negative")]
         public int? InStock { get; set; }
-
-        [ForeignKey("Company_Id")]
-        [ValidateNever]
-        public  AppUser? Company { get; set; }
-
     }
 }

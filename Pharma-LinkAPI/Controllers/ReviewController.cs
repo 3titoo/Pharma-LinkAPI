@@ -35,6 +35,10 @@ namespace Pharma_LinkAPI.Controllers
         public async Task<ActionResult<ReviewDTO>> GetReview(int CompanyId)
         {
             var ph = await _accountRepositry.GetCurrentUser(User);
+            if (ph == null)
+            {
+                return Problem("Pharmacy not found");
+            }
             var review = await ireviewRepositiry.GetReviewByphAndCo(ph.Id, CompanyId);
             if (review == null)
             {
