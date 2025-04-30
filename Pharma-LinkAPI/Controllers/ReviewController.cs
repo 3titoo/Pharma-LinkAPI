@@ -19,16 +19,22 @@ namespace Pharma_LinkAPI.Controllers
             _accountRepositry = accountRepositry;
         }
         [HttpPost("{CompanyId}")]
-        public async Task<ActionResult<Review>> AddReview(int CompanyId, Review review)
+        public async Task<IActionResult> AddReview(int CompanyId, ReviewDTO review)
         {
             var ph = await _accountRepositry.GetCurrentUser(User);
-            review.PharmacyId = ph.Id;
             var exist = await ireviewRepositiry.GetReviewByphAndCo(ph.Id, CompanyId);
             if(exist != null)
             {
                 ireviewRepositiry.Delete(exist.Id);
             }
-            ireviewRepositiry.Add(review);
+            var rev = new Review
+            {
+                PharmacyId = ph.Id,
+                CompanyId = CompanyId,
+                Rating = review.Rating.Value,
+                Comment = review.Review
+            };
+            ireviewRepositiry.Add(rev);
             return Ok();
         }
         [HttpGet("{CompanyId}")]

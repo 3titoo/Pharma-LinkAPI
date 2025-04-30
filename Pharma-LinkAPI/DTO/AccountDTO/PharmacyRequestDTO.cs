@@ -19,6 +19,7 @@ namespace Pharma_LinkAPI.DTO.AccountDTO
         public string? Email { get; set; }
         [Required]
         [DataType(DataType.Password)]
+        [MinLength(6, ErrorMessage = "Password must be at least 6 characters long.")]
         public string? Password { get; set; }
         [Required]
         public string? LicenseNumber { get; set; }

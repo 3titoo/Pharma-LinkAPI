@@ -43,6 +43,7 @@ namespace Pharma_LinkAPI.Controllers
                 string errors = string.Join(", ", ModelState.Values.SelectMany(v => v.Errors).Select(e => e.ErrorMessage));
                 return BadRequest(errors);
             }
+            _requestRepositry.Delete(Id);
             var user = new AppUser
             {
                 UserName = request.UserName,

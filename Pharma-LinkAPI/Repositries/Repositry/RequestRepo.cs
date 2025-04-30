@@ -32,7 +32,7 @@ namespace Pharma_LinkAPI.Repositries.Repositry
 
         public async Task<IEnumerable<Request?>> GetAll()
         {
-             var requests = await _db.Requests.ToListAsync();
+            var requests = await _db.Requests.ToListAsync();
             return requests;
         }
 
