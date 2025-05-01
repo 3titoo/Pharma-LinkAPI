@@ -11,7 +11,7 @@ using System.Threading.Tasks;
 
 namespace Pharma_LinkAPI.Controllers
 {
-    [Authorize]
+    //[Authorize]
     [Route("api/[controller]")]
     [ApiController]
     public class MedicineController : ControllerBase
@@ -104,7 +104,7 @@ namespace Pharma_LinkAPI.Controllers
                 Description = medicine.Description,
                 Price = medicine.Price,
                 InStock = medicine.InStock,
-                Image_URL = imgPath,
+                //Image_URL = imgPath,
             };
             var userId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
             medicineModel.Company_Id = int.Parse(userId);

@@ -48,7 +48,7 @@ namespace Pharma_LinkAPI.Controllers
             var review = ireviewRepositiry.GetReviewByphAndCo(ph.Id, CompanyId);
             if (review == null)
             {
-                return NotFound();
+                return NoContent();
             }
             var reviewDTO = new ReviewDTO
             {

@@ -66,7 +66,7 @@ builder.Services.AddAuthorization(options =>
 {
     options.AddPolicy("AdminOnly", policy => policy.RequireRole(SD.Role_Admin));
     options.AddPolicy("PharmacyOnly", policy => policy.RequireRole(SD.Role_Pharmacy));
-    options.AddPolicy("CompanyOnly", policy => policy.RequireRole(SD.Role_Company));
+    options.AddPolicy("CompanyOnly", policy => policy.RequireRole(SD.Role_Company));      
 });
 
 
@@ -74,6 +74,7 @@ builder.Services.AddAuthorization(options =>
 builder.Services.AddScoped<IAccountRepositry, AccountRepo>();
 builder.Services.AddScoped<IrequestRepositry, RequestRepo>();
 builder.Services.AddScoped<IreviewRepositiry,ReviewRepo>();
+builder.Services.AddScoped<ImedicineRepositiry,MedicineRepo>();
 
 
 var app = builder.Build();

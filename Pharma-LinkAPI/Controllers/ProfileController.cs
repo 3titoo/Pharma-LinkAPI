@@ -87,12 +87,5 @@ namespace Pharma_LinkAPI.Controllers
             return BadRequest("Invalid role");
         }
 
-        [HttpGet("me")]
-        [Authorize(Roles = SD.Role_Company)]
-        public IActionResult Me()
-        {
-            var userId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
-            return Ok(new { userId });
-        }
     }
 }
