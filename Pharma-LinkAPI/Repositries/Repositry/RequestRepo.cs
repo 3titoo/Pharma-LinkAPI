@@ -20,25 +20,25 @@ namespace Pharma_LinkAPI.Repositries.Repositry
             _db.SaveChanges();
         }
 
-        public async void Delete(int id)
+        public void Delete(int id)
         {
-            var request = await _db.Requests.FirstAsync(i=> i.Id == id);
+            var request =  _db.Requests.FirstOrDefault(i=> i.Id == id);
             if (request != null)
             {
                 _db.Requests.Remove(request);
-                await _db.SaveChangesAsync();
+                _db.SaveChanges();
             }
         }
 
-        public async Task<IEnumerable<Request?>> GetAll()
+        public IEnumerable<Request?> GetAll()
         {
-            var requests = await _db.Requests.ToListAsync();
+            var requests = _db.Requests.ToList();
             return requests;
         }
 
-        public async Task<Request?> GetById(int id)
+        public Request? GetById(int id)
         {
-            var request = await _db.Requests.FirstOrDefaultAsync(i => i.Id == id);
+            var request = _db.Requests.FirstOrDefault(i => i.Id == id);
             return request;
         }
 

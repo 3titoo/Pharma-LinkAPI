@@ -1,7 +1,9 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
 using Pharma_LinkAPI.Identity;
 using Pharma_LinkAPI.Repositries.Irepositry;
 using Pharma_LinkAPI.ViewModels;
+using System.Security.Claims;
 
 
 namespace Pharma_LinkAPI.Controllers
@@ -83,6 +85,14 @@ namespace Pharma_LinkAPI.Controllers
                 return Ok(new { user.Name, user.Email, user.UserName });
             }
             return BadRequest("Invalid role");
+        }
+
+        [HttpGet("me")]
+        [Authorize(Roles = SD.Role_Company)]
+        public IActionResult Me()
+        {
+            var userId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+            return Ok(new { userId });
         }
     }
 }

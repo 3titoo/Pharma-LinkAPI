@@ -1,155 +1,158 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
+﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
 using Pharma_LinkAPI.DTO;
-using Pharma_LinkAPI.Data;
+using Pharma_LinkAPI.Identity;
 using Pharma_LinkAPI.Models;
 using Pharma_LinkAPI.Repositries.Irepositry;
-using Pharma_LinkAPI.Identity;
+using Pharma_LinkAPI.ViewModels;
+using System.Security.Claims;
+using System.Threading.Tasks;
 
 namespace Pharma_LinkAPI.Controllers
 {
+    [Authorize]
     [Route("api/[controller]")]
     [ApiController]
     public class MedicineController : ControllerBase
     {
-        private readonly AppDbContext _context;
+        private readonly ImedicineRepositiry _medicineRepositiry;
         private readonly IAccountRepositry _accountRepositry;
-
-        public MedicineController(AppDbContext context,IAccountRepositry accountRepositry)
+        public MedicineController(ImedicineRepositiry medicineRepositiry, IAccountRepositry accountRepositry)
         {
-            _context = context;
+            _medicineRepositiry = medicineRepositiry;
             _accountRepositry = accountRepositry;
         }
 
         [HttpGet]
-        public async Task<ActionResult<IEnumerable<MedicineDTO>>> GetMedicine()
+        public async Task<ActionResult<IEnumerable<MedicineViewModel>>> GetAllMedicines()
         {
-            var medicines = await _context.Medicines.ToListAsync();
-            
-            var ret = new List<MedicineDTO>();
+            var medicines = _medicineRepositiry.GetAll();
+
+            var ret = new List<MedicineViewModel>();
+
             foreach (var medicine in medicines)
             {
-                var medicineDTO = new MedicineDTO
+                var item = new MedicineViewModel
                 {
-                    ID = medicine.ID,
-                    Name = medicine.Name,
+                    Id = medicine.ID,
+                    MedicineName = medicine.Name,
                     Description = medicine.Description,
                     Price = medicine.Price,
                     InStock = medicine.InStock,
-                    Image_URL = medicine.Image_URL,
-                    Company_Id = medicine.Company_Id
-
+                    ImageUrl = medicine.Image_URL,
                 };
-                ret.Add(medicineDTO);
+                if (medicine.Company_Id != null)
+                {
+                    var user = await _accountRepositry.GetUserById(medicine.Company_Id.Value);
+                    if (user != null)
+                    {
+                        item.CompanyName = user.Name;
+                    }
+                }
+                ret.Add(item);
             }
             return ret;
         }
 
         [HttpGet("{id}")]
-        public async Task<ActionResult<MedicineDTO>> GetMedicine(int id)
+        public async Task<ActionResult<MedicineViewModel>> GetMedicineById(int id)
         {
-            var medicine = await _context.Medicines.FindAsync(id);
-
+            var medicine = _medicineRepositiry.GetById(id);
             if (medicine == null)
             {
                 return NotFound();
             }
-
-            return new MedicineDTO
+            var res = new MedicineViewModel
             {
-                ID = medicine.ID,
+                Id = medicine.ID,
+                MedicineName = medicine.Name,
+                Description = medicine.Description,
+                Price = medicine.Price,
+                InStock = medicine.InStock,
+                ImageUrl = medicine.Image_URL,
+            };
+            var user = await _accountRepositry.GetUserById(medicine.Company_Id.Value);
+            if (user != null)
+            {
+                res.CompanyName = user.Name;
+            }
+            return Ok(medicine);
+        }
+
+        //[Authorize(Roles = SD.Role_Company)]
+        [HttpPost]
+        public async Task<ActionResult<string>> addMedicine(MedicineDTO medicine) {
+            #region Image
+            var img = medicine.img;
+            if (img == null || img.Length == 0)
+                return BadRequest("No image uploaded.");
+            var imgExtension = Path.GetExtension(img.FileName).ToLower();
+            if (imgExtension != ".jpg" && imgExtension != ".png" && imgExtension != ".jpeg")
+                return BadRequest("Only JPG, PNG, and JPEG files are allowed.");
+            var uploadsFolder = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot/uploads");
+            Directory.CreateDirectory(uploadsFolder);
+            var imgPath = Path.Combine(uploadsFolder, img.FileName);
+            using (var stream = new FileStream(imgPath, FileMode.Create))
+            {
+                img.CopyTo(stream);
+            }
+            #endregion
+            var medicineModel = new Medicine
+            {
                 Name = medicine.Name,
                 Description = medicine.Description,
                 Price = medicine.Price,
                 InStock = medicine.InStock,
-                Image_URL = medicine.Image_URL,
-                Company_Id = medicine.Company_Id
+                Image_URL = imgPath,
             };
+            var userId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+            medicineModel.Company_Id = int.Parse(userId);
+            _medicineRepositiry.Add(medicineModel);
+            return Ok("Medicine added successfully");
         }
 
         [HttpPut("{id}")]
-        public async Task<IActionResult> PutMedicine(int id, MedicineDTO medicineDTO)
+        public ActionResult<string> UpdateMedicine(int id, MedicineDTO medicine)
         {
-            var medicine = await _context.Medicines.FindAsync(id);
-            if (medicine == null)
+            var existingMedicine = _medicineRepositiry.GetById(id);
+            if (existingMedicine == null)
             {
                 return NotFound();
             }
-            if(id != medicineDTO.ID)
+            existingMedicine.Name = medicine.Name;
+            existingMedicine.Description = medicine.Description;
+            existingMedicine.Price = medicine.Price;
+            existingMedicine.InStock = medicine.InStock;
+            if (medicine.img != null)
             {
-                return BadRequest();
-            }
-            medicine.Name = medicineDTO.Name;
-            medicine.Description = medicineDTO.Description;
-            medicine.Price = medicineDTO.Price;
-            medicine.InStock = medicineDTO.InStock;
-            medicine.Image_URL = medicineDTO.Image_URL;
-            medicine.Company_Id = medicineDTO.Company_Id;
-            _context.Entry(medicine).State = EntityState.Modified;
-            try
-            {
-                await _context.SaveChangesAsync();
-            }
-            catch (DbUpdateConcurrencyException)
-            {
-                if (!MedicineDTOExists(id))
+                var img = medicine.img;
+                var imgExtension = Path.GetExtension(img.FileName).ToLower();
+                if (imgExtension != ".jpg" && imgExtension != ".png" && imgExtension != ".jpeg")
+                    return BadRequest("Only JPG, PNG, and JPEG files are allowed.");
+                var uploadsFolder = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot/uploads");
+                Directory.CreateDirectory(uploadsFolder);
+                var imgPath = Path.Combine(uploadsFolder, img.FileName);
+                using (var stream = new FileStream(imgPath, FileMode.Create))
                 {
-                    return NotFound();
+                    img.CopyTo(stream);
                 }
-                else
-                {
-                    throw;
-                }
+                existingMedicine.Image_URL = imgPath;
             }
-            return NoContent();
-        }
-
-        [HttpPost]
-        public async Task<ActionResult<MedicineDTO>> PostMedicine(MedicineDTO medicineDTO)
-        {
-            var med = new Medicine
-            {
-                Name = medicineDTO.Name,
-                Description = medicineDTO.Description,
-                Price = medicineDTO.Price,
-                InStock = medicineDTO.InStock,
-                Image_URL = medicineDTO.Image_URL,
-            };
-            var user  = await _accountRepositry.GetCurrentUser(User);
-            //if (user == null || user.Role != SD.Role_Company)
-            //{
-            //    return NotFound();
-            //}
-            med.Company_Id = user.Id;
-            _context.Medicines.Add(med);
-            await _context.SaveChangesAsync();
-            return Created();
-
+            _medicineRepositiry.Update(existingMedicine);
+            return Ok("Medicine updated successfully");
         }
 
         [HttpDelete("{id}")]
-        public async Task<IActionResult> DeleteMedicine(int id)
+        public ActionResult<string> DeleteMedicine(int id)
         {
-            var medicine = await _context.Medicines.FindAsync(id);
-            if (medicine == null)
+            var existingMedicine = _medicineRepositiry.GetById(id);
+            if (existingMedicine == null)
             {
                 return NotFound();
             }
-
-            _context.Medicines.Remove(medicine);
-            await _context.SaveChangesAsync();
-
-            return NoContent();
-        }
-
-        private bool MedicineDTOExists(int id)
-        {
-            return _context.Medicines.Any(e => e.ID == id);
+            _medicineRepositiry.Delete(existingMedicine.ID);
+            return Ok("Medicine deleted successfully");
         }
     }
 }

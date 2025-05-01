@@ -33,7 +33,7 @@ namespace Pharma_LinkAPI.Controllers
         [HttpPost("Register/{Id}")]
         public async Task<ActionResult<AuthentcationResponse>> Register(int Id)
         {
-            var request = await _requestRepositry.GetById(Id);
+            var request =  _requestRepositry.GetById(Id);
             if (request == null)
             {
                 return NotFound("Request not found.");
@@ -43,7 +43,6 @@ namespace Pharma_LinkAPI.Controllers
                 string errors = string.Join(", ", ModelState.Values.SelectMany(v => v.Errors).Select(e => e.ErrorMessage));
                 return BadRequest(errors);
             }
-            _requestRepositry.Delete(Id);
             var user = new AppUser
             {
                 UserName = request.UserName,
@@ -72,7 +71,7 @@ namespace Pharma_LinkAPI.Controllers
                 // Generate JWT token 
 
                var token = _jwtService.CreateToken(user);
-
+                _requestRepositry.Delete(Id);
                 return Ok(token);
             }
             string error = string.Join(" | ", result.Errors.Select(x => x.Description));
@@ -80,12 +79,17 @@ namespace Pharma_LinkAPI.Controllers
         }
 
         [HttpPost("CompanyRegister")]
-        public async Task<ActionResult<AuthentcationResponse>> Register(CompanyRegisterDTO companyRegisterDTO)
+        public async Task<ActionResult<string>> Register(CompanyRegisterDTO companyRegisterDTO)
         {
             if (!ModelState.IsValid)
             {
                 string errors = string.Join(", ", ModelState.Values.SelectMany(v => v.Errors).Select(e => e.ErrorMessage));
                 return BadRequest(errors);
+            }
+            var existEmail = await _userManager.FindByEmailAsync(companyRegisterDTO.Email);
+            if (existEmail != null)
+            {
+                return BadRequest("Email is already in use");
             }
 
             var user = new AppUser
@@ -108,38 +112,11 @@ namespace Pharma_LinkAPI.Controllers
             if (result.Succeeded)
             {
                 await _userManager.AddToRoleAsync(user, SD.Role_Company);
-                await _signInManager.SignInAsync(user, isPersistent: false);
 
-                // Generate JWT token 
-
-                var token = _jwtService.CreateToken(user);
-
-                return Ok(token);
+                return Ok("company is created");
             }
             string error = string.Join(" | ", result.Errors.Select(x => x.Description));
             return BadRequest(error);
-        }
-
-        [HttpGet("Email")]
-        public async Task<IActionResult> IsEmailInUse(string email)
-        {
-            var user = await _userManager.FindByEmailAsync(email);
-            if (user == null)
-            {
-                return Ok(true);
-            }
-            return Ok($"Email {email} is already in use");
-        }
-
-        [HttpGet("Name")]
-        public async Task<IActionResult> IsUserNameInUse(string userName)
-        {
-            var user = await _userManager.FindByNameAsync(userName);
-            if (user == null)
-            {
-                return Ok(true);
-            }
-            return Ok($"UserName {userName} is already in use");
         }
 
         [HttpPost("login")]
@@ -198,10 +175,6 @@ namespace Pharma_LinkAPI.Controllers
             if (user == null)
             {
                 return NotFound("User not found.");
-            }
-            if(changePasswordDTO.NewPassword == null || changePasswordDTO.OldPassword == null || changePasswordDTO.NewPassword[0] == ' ')
-            {
-                return BadRequest("New password is required.");
             }
             var result = await _userManager.ChangePasswordAsync(user, changePasswordDTO.OldPassword, changePasswordDTO.NewPassword);
             if (result.Succeeded)
@@ -271,7 +244,7 @@ namespace Pharma_LinkAPI.Controllers
 
             if (user.Role == SD.Role_Pharmacy)
             {
-                var reviews = await _reviewRepositiry.GetReviewsByPharmacyId(user.Id);
+                var reviews = _reviewRepositiry.GetReviewsByPharmacyId(user.Id);
 
                 if (reviews != null)
                 {

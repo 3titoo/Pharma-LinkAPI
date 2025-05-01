@@ -20,17 +20,28 @@ namespace Pharma_LinkAPI.Controllers
     public class RequestsController : ControllerBase
     {
         private readonly IrequestRepositry _requestRepositry;
+        private readonly UserManager<AppUser> _userManager;
 
 
-        public RequestsController(IrequestRepositry irequestRepositry)
+        public RequestsController(IrequestRepositry irequestRepositry, UserManager<AppUser> userManager)
         {
+            _userManager = userManager;
             _requestRepositry = irequestRepositry;
-
         }
 
         [HttpPost("Register")]
-        public async Task<ActionResult<IActionResult>> Register(PharmacyRequestDTO pharmacyRegisterDTO)
+        public ActionResult<string> Register(PharmacyRequestDTO pharmacyRegisterDTO)
         {
+            var existEmail = _userManager.FindByEmailAsync(pharmacyRegisterDTO.Email).Result;
+            if (existEmail != null)
+            {
+                return BadRequest("Email is already in use");
+            }
+            var existUserName = _userManager.FindByNameAsync(pharmacyRegisterDTO.UserName).Result;
+            if (existUserName != null)
+            {
+                return BadRequest("User name is already in use");
+            }
             if (!ModelState.IsValid)
             {
                 string errors = string.Join(", ", ModelState.Values.SelectMany(v => v.Errors).Select(e => e.ErrorMessage));
@@ -49,7 +60,7 @@ namespace Pharma_LinkAPI.Controllers
             var imgPath = Path.Combine(uploadsFolder, img.FileName);
             using (var stream = new FileStream(imgPath, FileMode.Create))
             {
-                await img.CopyToAsync(stream);
+                img.CopyTo(stream);
             }
             #endregion
 
@@ -72,7 +83,7 @@ namespace Pharma_LinkAPI.Controllers
                 return BadRequest("Password is required.");
             }
             _requestRepositry.Add(requset);
-            return Created();
+            return Ok("request is added");
         }
 
 
@@ -81,17 +92,17 @@ namespace Pharma_LinkAPI.Controllers
 
         // GET: api/Requests
         [HttpGet]
-        public async Task<ActionResult<IEnumerable<Request>>> GetRequests()
+        public  ActionResult<IEnumerable<Request>> GetRequests()
         {
-            var requests = await _requestRepositry.GetAll();
+            var requests =  _requestRepositry.GetAll();
             return Ok(requests);
         }
 
         // GET: api/Requests/5
         [HttpGet("{id}")]
-        public async Task<ActionResult<Request?>> GetRequest(int id)
+        public ActionResult<Request?> GetRequest(int id)
         {
-            var request = await _requestRepositry.GetById(id);
+            var request =  _requestRepositry.GetById(id);
 
             if (request == null)
             {
@@ -105,9 +116,9 @@ namespace Pharma_LinkAPI.Controllers
 
         // DELETE: api/Requests/5
         [HttpDelete("{id}")]
-        public async Task<IActionResult> DeleteRequest(int id)
+        public IActionResult DeleteRequest(int id)
         {
-            var request = await _requestRepositry.GetById(id);
+            var request =  _requestRepositry.GetById(id);
             if (request == null)
             {
                 return NotFound();

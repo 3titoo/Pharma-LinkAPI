@@ -10,12 +10,10 @@ namespace Pharma_LinkAPI.Repositries.Repositry
     public class AccountRepo : IAccountRepositry
     {
         private readonly UserManager<AppUser> _userManager;
-        private readonly AppDbContext _db;
 
         public AccountRepo(UserManager<AppUser> userManager, AppDbContext db)
         {
             _userManager = userManager;
-            _db = db;
         }
         public async Task<AppUser?> GetCurrentUser(ClaimsPrincipal user)
         {

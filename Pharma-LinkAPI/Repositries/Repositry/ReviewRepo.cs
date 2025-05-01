@@ -26,14 +26,14 @@ namespace Pharma_LinkAPI.Repositries.Repositry
                 _db.SaveChanges();
             }
         }
-        public async Task<IEnumerable<Review>> GetAll()
+        public IEnumerable<Review> GetAll()
         {
-            var reviews = await _db.Reviews.ToListAsync();
+            var reviews =  _db.Reviews.ToList();
             return reviews;
         }
-        public async Task<Review> GetById(int id)
+        public  Review GetById(int id)
         {
-            var review = await _db.Reviews.FirstOrDefaultAsync(i => i.Id == id);
+            var review = _db.Reviews.FirstOrDefault(i => i.Id == id);
             if (review == null)
             {
                 throw new Exception("Review not found");
@@ -41,18 +41,18 @@ namespace Pharma_LinkAPI.Repositries.Repositry
             return review;
         }
 
-        public async Task<Review?> GetReviewByphAndCo(int pharmacyId, int CompanyId)
+        public  Review? GetReviewByphAndCo(int pharmacyId, int CompanyId)
         {
-            var review = await _db.Reviews
-                .FirstOrDefaultAsync(r => r.PharmacyId == pharmacyId && r.CompanyId == CompanyId);
+            var review =  _db.Reviews
+                .FirstOrDefault(r => r.PharmacyId == pharmacyId && r.CompanyId == CompanyId);
             return review;
         }
 
-        public async Task<IEnumerable<Review?>> GetReviewsByPharmacyId(int pharmacyId)
+        public IEnumerable<Review?> GetReviewsByPharmacyId(int pharmacyId)
         {
-            var reviews = await _db.Reviews
+            var reviews =  _db.Reviews
                 .Where(r => r.PharmacyId == pharmacyId)
-                .ToListAsync();
+                .ToList();
             return reviews;
         }
 

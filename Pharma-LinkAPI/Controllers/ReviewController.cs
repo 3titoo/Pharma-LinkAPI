@@ -22,7 +22,7 @@ namespace Pharma_LinkAPI.Controllers
         public async Task<IActionResult> AddReview(int CompanyId, ReviewDTO review)
         {
             var ph = await _accountRepositry.GetCurrentUser(User);
-            var exist = await ireviewRepositiry.GetReviewByphAndCo(ph.Id, CompanyId);
+            var exist =  ireviewRepositiry.GetReviewByphAndCo(ph.Id, CompanyId);
             if(exist != null)
             {
                 ireviewRepositiry.Delete(exist.Id);
@@ -45,7 +45,7 @@ namespace Pharma_LinkAPI.Controllers
             {
                 return Problem("Pharmacy not found");
             }
-            var review = await ireviewRepositiry.GetReviewByphAndCo(ph.Id, CompanyId);
+            var review = ireviewRepositiry.GetReviewByphAndCo(ph.Id, CompanyId);
             if (review == null)
             {
                 return NotFound();

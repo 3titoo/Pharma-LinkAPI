@@ -1,4 +1,6 @@
-﻿using System.ComponentModel.DataAnnotations;
+﻿using Microsoft.AspNetCore.Mvc;
+using Pharma_LinkAPI.Services.Attributes;
+using System.ComponentModel.DataAnnotations;
 
 namespace Pharma_LinkAPI.Models
 {
@@ -17,6 +19,7 @@ namespace Pharma_LinkAPI.Models
         public string? Phone { get; set; }
         [Required]
         [EmailAddress]
+        [IsEmailInUse]
         public string? Email { get; set; }
 
         [Required]
@@ -28,6 +31,7 @@ namespace Pharma_LinkAPI.Models
         public string? ImageUrl { get; set; }
         [Required]
         [StringLength(50)]
+        [IsUserNameInUse]
         public string? UserName { get; set; }
         [Required]
         [DataType(DataType.Password)]

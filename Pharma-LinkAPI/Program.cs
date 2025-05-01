@@ -39,10 +39,12 @@ builder.Services.AddIdentity<AppUser, AppRole>(options =>
     .AddRoleStore<RoleStore<AppRole, AppDbContext, int>>();
 
 
+
 builder.Services.AddAuthentication(options =>
 {
     options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
     options.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
+    options.DefaultScheme = JwtBearerDefaults.AuthenticationScheme;
 }).
 AddJwtBearer(options =>
 {
@@ -56,6 +58,8 @@ AddJwtBearer(options =>
         ValidAudience = builder.Configuration["JWT:Audience"],
         IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(builder.Configuration["JWT:Secret"]))
     };
+
+
 });
 
 builder.Services.AddAuthorization(options =>

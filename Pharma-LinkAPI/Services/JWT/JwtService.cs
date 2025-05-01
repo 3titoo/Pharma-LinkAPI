@@ -22,16 +22,16 @@ namespace Pharma_LinkAPI.Services.JWT
             Claim[] claims = new Claim[] {
                 new Claim(JwtRegisteredClaimNames.Sub,user.Id.ToString()), // user ID
                 new Claim(JwtRegisteredClaimNames.Jti,Guid.NewGuid().ToString()), // token ID
-                new Claim(JwtRegisteredClaimNames.Iat, DateTime.UtcNow.ToString()), // issued at
                 new Claim(JwtRegisteredClaimNames.Email,user.Email), // user email
-                new Claim(ClaimTypes.NameIdentifier,user.UserName), // user name
-                new Claim(ClaimTypes.Name,user.Name), // user full name
+                new Claim(ClaimTypes.NameIdentifier, user.Id.ToString()), 
+                new Claim(ClaimTypes.Name, user.UserName),// <-- username
                 new Claim(ClaimTypes.Role,user.Role) // user role
             };
             var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_configuration["JWT:Secret"]));
 
             var creds = new SigningCredentials(key, SecurityAlgorithms.HmacSha256);
-
+            var iat = DateTimeOffset.UtcNow.ToUnixTimeSeconds(); // يُنشئ قيمة مثل 1746688227
+            claims.Append(new Claim(JwtRegisteredClaimNames.Iat, iat.ToString(), ClaimValueTypes.Integer64));
 
 
             var token = new JwtSecurityToken(

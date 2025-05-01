@@ -1,4 +1,5 @@
 ﻿using Microsoft.AspNetCore.Mvc;
+using Pharma_LinkAPI.Services.Attributes;
 using System.ComponentModel.DataAnnotations;
 
 namespace Pharma_LinkAPI.DTO.AccountDTO
@@ -14,7 +15,7 @@ namespace Pharma_LinkAPI.DTO.AccountDTO
         public string? PhoneNumber { get; set; }
         [Required]
         [EmailAddress(ErrorMessage = "Invalid email address.")]
-        [Remote(action: "IsEmailInUse", controller: "Account", ErrorMessage = "email is already in use")]
+        [IsEmailInUse]
 
         public string? Email { get; set; }
         [Required]
@@ -25,7 +26,7 @@ namespace Pharma_LinkAPI.DTO.AccountDTO
         public string? LicenseNumber { get; set; }
 
         [Required]
-        [Remote(action: "IsUserNameInUse", controller: "Account", ErrorMessage = "User name is already in use")]
+        [IsUserNameInUse]
         public string? UserName { get; set; }
 
         [Required]
