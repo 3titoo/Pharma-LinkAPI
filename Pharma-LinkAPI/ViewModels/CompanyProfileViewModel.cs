@@ -10,7 +10,9 @@
     public class CompanyProfileViewModel
     {
         public string? CompanyName { get; set; }
-        public string? CompanyAddress { get; set; }
+        public string? Street { get; set; }
+        public string? State { get; set; }
+        public string? City { get; set; }
         public string? CompanyPhoneNumber { get; set; }
         public string? CompanyEmail { get; set; }
         public string? CompanyLicenseNumber { get; set; }

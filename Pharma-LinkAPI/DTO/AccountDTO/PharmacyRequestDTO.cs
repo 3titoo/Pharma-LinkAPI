@@ -9,7 +9,11 @@ namespace Pharma_LinkAPI.DTO.AccountDTO
         [Required]
         public string? Name { get; set; }
         [Required]
-        public string? Address { get; set; }
+        public string? Street { get; set; }
+        [Required]
+        public string? State { get; set; }
+        [Required]
+        public string? City { get; set; }
         [Required]
         [RegularExpression(@"^[0-9]{11}$", ErrorMessage = "Phone number must be 11 digits.")]
         public string? PhoneNumber { get; set; }

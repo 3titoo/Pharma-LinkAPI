@@ -6,7 +6,9 @@ namespace Pharma_LinkAPI.ViewModels
     {
         public string? PharmacyName { get; set; }
         public string? DrName { get; set; }
-        public string? PharmacyAddress { get; set; }
+        public string? Street { get; set; }
+        public string? State { get; set; }
+        public string? City { get; set; }
         public string? PharmacyPhoneNumber { get; set; }
         public string? PharmacyEmail { get; set; }
         public string? PharmacyLicenseNumber { get; set; }

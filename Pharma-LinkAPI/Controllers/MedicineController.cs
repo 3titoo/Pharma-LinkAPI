@@ -104,10 +104,11 @@ namespace Pharma_LinkAPI.Controllers
                 Description = medicine.Description,
                 Price = medicine.Price,
                 InStock = medicine.InStock,
+                Company_Id = 1
                 //Image_URL = imgPath,
             };
-            var userId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
-            medicineModel.Company_Id = int.Parse(userId);
+            //var userId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+            //medicineModel.Company_Id = int.Parse(userId);
             _medicineRepositiry.Add(medicineModel);
             return Ok("Medicine added successfully");
         }

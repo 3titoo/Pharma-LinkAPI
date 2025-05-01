@@ -24,6 +24,8 @@ namespace Pharma_LinkAPI.Data
         public DbSet<Cart> Carts { get; set; }
         public DbSet<CartItem> CartItems { get; set; }
 
+        public DbSet<Order> Orders { get; set; }
+        public DbSet<OrderItem> OrderItems { get; set; }
 
         protected override void OnModelCreating(ModelBuilder builder)
         {
@@ -58,7 +60,7 @@ namespace Pharma_LinkAPI.Data
             .HasOne(r => r.pharmacy)
             .WithMany(p => p.ReviewsGiven)
             .HasForeignKey(r => r.PharmacyId)
-            .OnDelete(DeleteBehavior.Restrict);       
+            .OnDelete(DeleteBehavior.Restrict);
 
             builder.Entity<Review>()
             .HasOne(r => r.company)
@@ -66,6 +68,36 @@ namespace Pharma_LinkAPI.Data
             .HasForeignKey(r => r.CompanyId)
             .OnDelete(DeleteBehavior.Cascade);
             #endregion
+
+            #region OrdersforPharmacy&Company
+            builder.Entity<Order>()
+                .HasOne(o => o.Pharmacy)
+                .WithMany(u => u.Ordersrequested)
+                .HasForeignKey(o => o.PharmacyID)
+                .OnDelete(DeleteBehavior.Restrict);
+
+            builder.Entity<Order>()
+            .HasOne(o => o.Company)
+            .WithMany(u => u.OrderReceived)
+            .HasForeignKey(o => o.CompanyID)
+            .OnDelete(DeleteBehavior.Cascade);
+
+            #endregion
+
+            #region DeletedOrder&Cart
+            builder.Entity<Order>()
+                    .HasMany(o => o.OrderItems)
+                    .WithOne(ot => ot.Order)
+                    .HasForeignKey(o => o.OrderID)
+                    .OnDelete(DeleteBehavior.Cascade);
+
+            builder.Entity<Cart>()
+                .HasMany(c => c.CartItems)
+                .WithOne(ct => ct.Cart)
+                .HasForeignKey(ct => ct.CartId)
+                .OnDelete(DeleteBehavior.Cascade); 
+            #endregion
+
         }
     }
 }
