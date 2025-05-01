@@ -14,7 +14,7 @@ namespace Pharma_LinkAPI
         // علاقة: الكارت مرتبط بواحدة صيدلية (اختياري حسب المشروع)
          public int? PharmacyId { get; set; }
 
-        [ForeignKey("Pharmacy_License")]
+        [ForeignKey("PharmacyId")]
          public AppUser Pharmacy { get; set; }
 
         // كارت يحتوي على عناصر (CartItems)

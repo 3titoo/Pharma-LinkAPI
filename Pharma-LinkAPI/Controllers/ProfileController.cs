@@ -33,7 +33,9 @@ namespace Pharma_LinkAPI.Controllers
                 {
                     PharmacyName = user.Name,
                     DrName = user.DrName,
-                    PharmacyAddress = user.Address,
+                    Street = user.Street,
+                    State = user.State,
+                    City = user.City,
                     PharmacyPhoneNumber = user.PhoneNumber,
                     PharmacyEmail = user.Email,
                     PharmacyLicenseNumber = user.LiscnceNumber,
@@ -47,7 +49,9 @@ namespace Pharma_LinkAPI.Controllers
                 var companyProfile = new CompanyProfileViewModel
                 {
                     CompanyName = user.Name,
-                    CompanyAddress = user.Address,
+                    Street = user.Street,
+                    State = user.State,
+                    City = user.City,
                     CompanyPhoneNumber = user.PhoneNumber,
                     CompanyEmail = user.Email,
                     CompanyLicenseNumber = user.LiscnceNumber,
