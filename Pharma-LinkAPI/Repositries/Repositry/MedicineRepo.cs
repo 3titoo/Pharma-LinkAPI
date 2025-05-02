@@ -63,6 +63,13 @@ namespace Pharma_LinkAPI.Repositries.Repositry
                     throw new Exception("Concurrency error occurred while updating the medicine.");
                 }
             }
+
+        }
+        public IEnumerable<Medicine> Search(string word)
+        {
+           var medicines = _db.Medicines.AsNoTracking().Include(c => c.Company)
+                .Where(m => m.Name.Contains(word) || m.Company.Name.Contains(word)).ToList();
+            return medicines;
         }
     }
 }
