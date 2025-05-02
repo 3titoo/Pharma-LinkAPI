@@ -91,7 +91,7 @@ namespace Pharma_LinkAPI.Controllers
             return Ok(Invoice);
         }
 
-        [HttpPost("{CartId:int}")]
+        [HttpPost("add/{CartId:int}")]
         public async Task<ActionResult<InvoiceDTO>> PlaceOrder( int CartId , int companyId )
         {
             var CurrentCart = await Context.Carts

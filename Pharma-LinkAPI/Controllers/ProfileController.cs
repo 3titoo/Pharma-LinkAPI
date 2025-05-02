@@ -71,12 +71,13 @@ namespace Pharma_LinkAPI.Controllers
                 foreach (var review in user.ReviewsReceived)
                 {
                     totalRating += review.Rating;
+                    var pharmacy = await _accountRepositry.GetUserById(review.PharmacyId.Value);
                     companyProfile.Reviews.Add(new ReviewViewModel
                     {
                         Id = review.Id,
                         Rating = review.Rating,
                         Comment = review.Comment,
-                        ReviewerName = review.pharmacy?.UserName
+                        ReviewerName = pharmacy?.UserName
                     });
                 }
                 companyProfile.CompanyRating = totalRating / user.ReviewsReceived.Count;
