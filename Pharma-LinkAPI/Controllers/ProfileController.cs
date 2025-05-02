@@ -8,6 +8,7 @@ using System.Security.Claims;
 
 namespace Pharma_LinkAPI.Controllers
 {
+    //[Authorize]
     [Route("api/[controller]")]
     [ApiController]
     public class ProfileController : ControllerBase
@@ -18,11 +19,11 @@ namespace Pharma_LinkAPI.Controllers
             _accountRepositry = accountRepositry;
         }
 
-
         [HttpGet("{username}")]
         public async Task<IActionResult> GetProfile(string username)
         {
             var user = await _accountRepositry.GetUserByuserName(username);
+            var curr = await _accountRepositry.GetCurrentUser(User);
             if (user == null)
             {
                 return NotFound("User not found");
@@ -65,19 +66,14 @@ namespace Pharma_LinkAPI.Controllers
                     return Ok(companyProfile);
                 }
 
-
-
-                companyProfile.Reviews = new List<ReviewViewModel>();
+                companyProfile.CurrentUserReview = 0;
                 foreach (var review in user.ReviewsReceived)
                 {
                     totalRating += review.Rating;
-                    companyProfile.Reviews.Add(new ReviewViewModel
-                    {
-                        Id = review.Id,
-                        Rating = review.Rating,
-                        Comment = review.Comment,
-                        ReviewerName = review.pharmacy?.UserName
-                    });
+                    var pharmacy = await _accountRepositry.GetUserById(review.PharmacyId.Value);
+                    if (pharmacy == curr) {
+                        companyProfile.CurrentUserReview = review.Rating;
+                    }
                 }
                 companyProfile.CompanyRating = totalRating / user.ReviewsReceived.Count;
 
@@ -89,6 +85,41 @@ namespace Pharma_LinkAPI.Controllers
                 return Ok(new { user.Name, user.Email, user.UserName });
             }
             return BadRequest("Invalid role");
+        }
+
+
+
+        [HttpPost]
+        public async Task<IActionResult> uploadPhoto(IFormFile? img)
+        {
+            var user = await _accountRepositry.GetCurrentUser(User);
+            if (user == null)
+            {
+                return NotFound("User not found");
+            }
+            if (img == null || img.Length == 0)
+            {
+                return BadRequest("No file uploaded");
+            }
+
+            #region Image
+            if (img == null || img.Length == 0)
+                return BadRequest("No image uploaded.");
+            var imgExtension = Path.GetExtension(img.FileName).ToLower();
+            if (imgExtension != ".jpg" && imgExtension != ".png" && imgExtension != ".jpeg")
+                return BadRequest("Only JPG, PNG, and JPEG files are allowed.");
+            var uploadsFolder = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot/uploads");
+            Directory.CreateDirectory(uploadsFolder);
+            var imgPath = Path.Combine(uploadsFolder, img.FileName);
+            using (var stream = new FileStream(imgPath, FileMode.Create))
+            {
+                img.CopyTo(stream);
+            }
+            #endregion
+
+            user.ImagePath = imgPath;
+            _accountRepositry.UpdateUser(user);
+            return NoContent();
         }
 
     }

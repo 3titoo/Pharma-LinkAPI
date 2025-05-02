@@ -55,7 +55,7 @@ namespace Pharma_LinkAPI.Controllers
                 Name = request.Pharmacy_Name,
                 Role = SD.Role_Pharmacy,
                 EmailConfirmed = true,
-                ImagePath = request.ImageUrl,
+                //ImagePath = request.ImageUrl,
                 DrName = request.DR_Name
             };
             string? password = request.Password;

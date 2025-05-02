@@ -14,6 +14,8 @@ namespace Pharma_LinkAPI.Repositries.Irepositry
         Task<AppUser?> GetCompanyByEmailWithReviews(string email);
         Task<IEnumerable<AppUser?>> GetAllUsers(string role = SD.Role_Pharmacy);
 
+        void UpdateUser(AppUser user);
+
 
     }
 }

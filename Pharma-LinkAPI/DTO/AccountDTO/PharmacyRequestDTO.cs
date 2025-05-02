@@ -39,8 +39,8 @@ namespace Pharma_LinkAPI.DTO.AccountDTO
         [Required]
         public string? pdfURL { get; set; }
 
-        [Required]
-        public IFormFile? img { get; set; }
+        //[Required]
+        //public IFormFile? img { get; set; }
 
     }
 }

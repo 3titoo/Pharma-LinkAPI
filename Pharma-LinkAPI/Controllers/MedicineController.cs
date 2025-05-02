@@ -155,5 +155,35 @@ namespace Pharma_LinkAPI.Controllers
             _medicineRepositiry.Delete(existingMedicine.ID);
             return Ok("Medicine deleted successfully");
         }
+
+
+        [HttpGet("search")]
+        public ActionResult<IEnumerable<SearchDTO>> search(string? word)
+        {
+            if(string.IsNullOrEmpty(word))
+            {
+                return NoContent();
+            }
+            var medicines = _medicineRepositiry.Search(word);
+            if (medicines == null)
+            {
+                return NoContent();
+            }
+            var ret = new List<SearchDTO>();
+            foreach (var medicine in medicines)
+            {
+                var item = new SearchDTO
+                {
+                    Name = medicine.Name,
+                    CompanyName = medicine.Company.Name,
+                    Price = medicine.Price,
+                    InStock = medicine.InStock,
+                    img = medicine.Image_URL,
+                };
+                ret.Add(item);
+            }
+            return Ok(ret);
+        }
     }
+
 }

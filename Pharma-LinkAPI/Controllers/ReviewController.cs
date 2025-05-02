@@ -1,6 +1,8 @@
-﻿using Microsoft.AspNetCore.Http;
+﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Pharma_LinkAPI.DTO.AccountDTO;
+using Pharma_LinkAPI.Identity;
 using Pharma_LinkAPI.Models;
 using Pharma_LinkAPI.Repositries.Irepositry;
 using Pharma_LinkAPI.ViewModels;
@@ -18,6 +20,7 @@ namespace Pharma_LinkAPI.Controllers
             this.ireviewRepositiry = ireviewRepositiry;
             _accountRepositry = accountRepositry;
         }
+        [Authorize(Roles = SD.Role_Pharmacy)]
         [HttpPost("{CompanyId}")]
         public async Task<IActionResult> AddReview(int CompanyId, ReviewDTO review)
         {
@@ -37,27 +40,28 @@ namespace Pharma_LinkAPI.Controllers
             ireviewRepositiry.Add(rev);
             return Ok();
         }
-        [HttpGet("{CompanyId}")]
-        public async Task<ActionResult<ReviewDTO>> GetReview(int CompanyId)
-        {
-            var ph = await _accountRepositry.GetCurrentUser(User);
-            if (ph == null)
-            {
-                return Problem("Pharmacy not found");
-            }
-            var review = ireviewRepositiry.GetReviewByphAndCo(ph.Id, CompanyId);
-            if (review == null)
-            {
-                return NoContent();
-            }
-            var reviewDTO = new ReviewDTO
-            {
-                Rating = review.Rating,
-                Review = review.Comment,
-                ReviewerName = ph.Name,
-                ReviewerEmail = ph.Email
-            };
-            return Ok(reviewDTO);
-        }
+        //[Authorize]
+        //[HttpGet("{CompanyId}")]
+        //public async Task<ActionResult<ReviewDTO>> GetReview(int CompanyId)
+        //{
+        //    var ph = await _accountRepositry.GetCurrentUser(User);
+        //    if (ph == null)
+        //    {
+        //        return Problem("Pharmacy not found");
+        //    }
+        //    var review = ireviewRepositiry.GetReviewByphAndCo(ph.Id, CompanyId);
+        //    if (review == null)
+        //    {
+        //        return NoContent();
+        //    }
+        //    var reviewDTO = new ReviewDTO
+        //    {
+        //        Rating = review.Rating,
+        //        Review = review.Comment,
+        //        ReviewerName = ph.Name,
+        //        ReviewerEmail = ph.Email
+        //    };
+        //    return Ok(reviewDTO);
+        //}
     }
 }

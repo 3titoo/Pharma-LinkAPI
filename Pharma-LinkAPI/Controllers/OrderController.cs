@@ -93,8 +93,8 @@ namespace Pharma_LinkAPI.Controllers
             return Ok(Invoice);
         }
 
-        [HttpPost("{CartId:int}/{companyId:int}")]
-        public async Task<ActionResult<InvoiceDTO>> PlaceOrder(int CartId, int companyId)
+        [HttpPost("add/{CartId:int}")]
+        public async Task<ActionResult<InvoiceDTO>> PlaceOrder( int CartId , int companyId )
         {
 
             using var transaction = await Context.Database.BeginTransactionAsync(); // Begin transaction

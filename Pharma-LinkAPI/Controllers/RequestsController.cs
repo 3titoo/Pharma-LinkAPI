@@ -32,37 +32,27 @@ namespace Pharma_LinkAPI.Controllers
         [HttpPost("Register")]
         public ActionResult<string> Register(PharmacyRequestDTO pharmacyRegisterDTO)
         {
-            var existEmail = _userManager.FindByEmailAsync(pharmacyRegisterDTO.Email).Result;
-            if (existEmail != null)
-            {
-                return BadRequest("Email is already in use");
-            }
-            var existUserName = _userManager.FindByNameAsync(pharmacyRegisterDTO.UserName).Result;
-            if (existUserName != null)
-            {
-                return BadRequest("User name is already in use");
-            }
             if (!ModelState.IsValid)
             {
                 string errors = string.Join(", ", ModelState.Values.SelectMany(v => v.Errors).Select(e => e.ErrorMessage));
                 return BadRequest(errors);
             }
-            var img = pharmacyRegisterDTO.img;
+            //var img = pharmacyRegisterDTO.img;
 
-            #region Image
-            if (img == null || img.Length == 0)
-                return BadRequest("No image uploaded.");
-            var imgExtension = Path.GetExtension(img.FileName).ToLower();
-            if (imgExtension != ".jpg" && imgExtension != ".png" && imgExtension != ".jpeg")
-                return BadRequest("Only JPG, PNG, and JPEG files are allowed.");
-            var uploadsFolder = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot/uploads");
-            Directory.CreateDirectory(uploadsFolder);
-            var imgPath = Path.Combine(uploadsFolder, img.FileName);
-            using (var stream = new FileStream(imgPath, FileMode.Create))
-            {
-                img.CopyTo(stream);
-            }
-            #endregion
+            //#region Image
+            //if (img == null || img.Length == 0)
+            //    return BadRequest("No image uploaded.");
+            //var imgExtension = Path.GetExtension(img.FileName).ToLower();
+            //if (imgExtension != ".jpg" && imgExtension != ".png" && imgExtension != ".jpeg")
+            //    return BadRequest("Only JPG, PNG, and JPEG files are allowed.");
+            //var uploadsFolder = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot/uploads");
+            //Directory.CreateDirectory(uploadsFolder);
+            //var imgPath = Path.Combine(uploadsFolder, img.FileName);
+            //using (var stream = new FileStream(imgPath, FileMode.Create))
+            //{
+            //    img.CopyTo(stream);
+            //}
+            //#endregion
 
             var requset = new Request()
             {
@@ -75,7 +65,7 @@ namespace Pharma_LinkAPI.Controllers
                 State = pharmacyRegisterDTO.State,
                 City = pharmacyRegisterDTO.City,
                 License_File = pharmacyRegisterDTO.pdfURL,
-                ImageUrl = imgPath,
+                //ImageUrl = imgPath,
                 UserName = pharmacyRegisterDTO.UserName,
                 Password = pharmacyRegisterDTO.Password
             };
