@@ -97,5 +97,20 @@ namespace Pharma_LinkAPI.Repositries.Repositry
             }
             return company;
         }
+
+        public async void UpdateUser(AppUser user)
+        {
+            var existingUser = await _userManager.FindByIdAsync(user.Id.ToString());
+            if (existingUser != null)
+            {
+                existingUser.Name = user.Name;
+                existingUser.PhoneNumber = user.PhoneNumber;
+                existingUser.Street = user.Street;
+                existingUser.City = user.City;
+                existingUser.State = user.State;
+                existingUser.ImagePath = user.ImagePath;
+                await _userManager.UpdateAsync(existingUser);
+            }
+        }
     }
 }

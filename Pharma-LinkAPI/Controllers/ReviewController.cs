@@ -41,27 +41,27 @@ namespace Pharma_LinkAPI.Controllers
             return Ok();
         }
         //[Authorize]
-        [HttpGet("{CompanyId}")]
-        public async Task<ActionResult<ReviewDTO>> GetReview(int CompanyId)
-        {
-            var ph = await _accountRepositry.GetCurrentUser(User);
-            if (ph == null)
-            {
-                return Problem("Pharmacy not found");
-            }
-            var review = ireviewRepositiry.GetReviewByphAndCo(ph.Id, CompanyId);
-            if (review == null)
-            {
-                return NoContent();
-            }
-            var reviewDTO = new ReviewDTO
-            {
-                Rating = review.Rating,
-                Review = review.Comment,
-                ReviewerName = ph.Name,
-                ReviewerEmail = ph.Email
-            };
-            return Ok(reviewDTO);
-        }
+        //[HttpGet("{CompanyId}")]
+        //public async Task<ActionResult<ReviewDTO>> GetReview(int CompanyId)
+        //{
+        //    var ph = await _accountRepositry.GetCurrentUser(User);
+        //    if (ph == null)
+        //    {
+        //        return Problem("Pharmacy not found");
+        //    }
+        //    var review = ireviewRepositiry.GetReviewByphAndCo(ph.Id, CompanyId);
+        //    if (review == null)
+        //    {
+        //        return NoContent();
+        //    }
+        //    var reviewDTO = new ReviewDTO
+        //    {
+        //        Rating = review.Rating,
+        //        Review = review.Comment,
+        //        ReviewerName = ph.Name,
+        //        ReviewerEmail = ph.Email
+        //    };
+        //    return Ok(reviewDTO);
+        //}
     }
 }

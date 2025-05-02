@@ -4,9 +4,9 @@ namespace Pharma_LinkAPI.DTO.AccountDTO
 {
     public class ReviewDTO
     {
-        public string? ReviewerName { get; set; }
+        //public string? ReviewerName { get; set; }
 
-        public string? ReviewerEmail { get; set; }
+        //public string? ReviewerEmail { get; set; }
         [Required]
         public float? Rating { get; set; }
 
