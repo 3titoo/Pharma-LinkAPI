@@ -93,7 +93,7 @@ namespace Pharma_LinkAPI.Controllers
             return Ok(Invoice);
         }
 
-        [HttpPost("add/{CartId:int}")]
+        [HttpPost("{CartId:int}/{companyId:int}")]
         public async Task<ActionResult<InvoiceDTO>> PlaceOrder( int CartId , int companyId )
         {
 
