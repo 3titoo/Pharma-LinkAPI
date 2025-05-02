@@ -31,8 +31,8 @@ namespace Pharma_LinkAPI.Models
 
         [Required]
         public string? License_File { get; set; }
-        [Required]
-        public string? ImageUrl { get; set; }
+        //[Required]
+        //public string? ImageUrl { get; set; }
         [Required]
         [StringLength(50)]
         [IsUserNameInUse]
