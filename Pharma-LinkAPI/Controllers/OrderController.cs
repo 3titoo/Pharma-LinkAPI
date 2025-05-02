@@ -8,6 +8,7 @@ using Pharma_LinkAPI.Identity;
 using Microsoft.AspNetCore.Identity;
 using System.ComponentModel.Design;
 using static Microsoft.EntityFrameworkCore.DbLoggerCategory.Database;
+using System.Transactions;
 
 namespace Pharma_LinkAPI.Controllers
 {
@@ -30,6 +31,7 @@ namespace Pharma_LinkAPI.Controllers
                                        .Include( o => o.OrderItems )
                                        .ThenInclude( ot => ot.Medicine )
                                        .Where( o => o.CompanyID == CompanyId );
+
             var CompanyInvoices = new List<CompanyInvoiceDTO>();
             foreach( var item in orders )
             {
@@ -94,42 +96,86 @@ namespace Pharma_LinkAPI.Controllers
         [HttpPost("add/{CartId:int}")]
         public async Task<ActionResult<InvoiceDTO>> PlaceOrder( int CartId , int companyId )
         {
-            var CurrentCart = await Context.Carts
-                               .Include(c => c.CartItems)                       
-                               .FirstOrDefaultAsync(c => c.CartId == CartId);          
 
-            Order newOrder = new Order
+            using var transaction = await Context.Database.BeginTransactionAsync(); // Begin transaction
+
+            try
             {
-                OrderItems = new List<OrderItem>(),
-                OrderDate = DateOnly.FromDateTime(DateTime.Now),
-                StatusOrder = SD.StatusOrder_pending,
-                PharmacyID = CurrentCart.PharmacyId,
-                CompanyID = companyId,
-                TotalPrice = 0
-            };          
+                var CurrentCart = await Context.Carts
+                    .Include(c => c.CartItems)
+                    .ThenInclude(c => c.Medicine)
+                    .FirstOrDefaultAsync(c => c.CartId == CartId);
 
-            Context.Orders.Add(newOrder);
+                var Medicines = await Context.Medicines.Where(m => m.Company_Id == companyId).ToListAsync();
 
-            foreach ( var item in CurrentCart.CartItems )
-            {
-                OrderItem newOrderItem = new OrderItem
+                if (CurrentCart == null)
+                    return NotFound("Cart not found.");
+
+                // First check all the items on the card.
+                foreach (var item in CurrentCart.CartItems)
                 {
-                    MedicineID = item.MedicineId,
-                    Count = item.Count,
-                    UnitPrice = item.UnitPrice,
-                    TotalPrice = item.Count * item.UnitPrice
+                    Medicine CurMedicine = Medicines.FirstOrDefault(m => m.ID == item.MedicineId);
+
+                    var availableStock = CurMedicine.InStock;
+
+                    if (availableStock == null || availableStock < item.Count)
+                    {
+                        return BadRequest($"Quantity not available for the medicine Name = {item.Medicine.Name}.");
+                    }
+                }
+
+                // All quantities are available - we start creating the order
+                Order newOrder = new Order
+                {
+                    OrderItems = new List<OrderItem>(),
+                    OrderDate = DateOnly.FromDateTime(DateTime.Now),
+                    StatusOrder = SD.StatusOrder_pending,
+                    PharmacyID = CurrentCart.PharmacyId,
+                    CompanyID = companyId,
+                    TotalPrice = 0
                 };
 
+                foreach (var item in CurrentCart.CartItems)
+                {
+
+                    // Quantity discount
+                    Medicine CurMedicine = Medicines.FirstOrDefault(m => m.ID == item.MedicineId);
+
+                    CurMedicine.InStock -= item.Count;
+
+                    OrderItem newOrderItem = new OrderItem
+                    {
+                        MedicineID = item.MedicineId,
+                        Count = item.Count,
+                        UnitPrice = item.UnitPrice,
+                        TotalPrice = item.Count * item.UnitPrice
+                    };
+
                     newOrder.TotalPrice += newOrderItem.TotalPrice;
-                    newOrder.OrderItems.Add(newOrderItem);             
+                    newOrder.OrderItems.Add(newOrderItem);
+                }
+
+                Context.Orders.Add(newOrder);
+                Context.Carts.Remove(CurrentCart);
+
+                // Save changes to the database
+                await Context.SaveChangesAsync();
+
+                // Commit the transaction
+                await transaction.CommitAsync();
+
+                return CreatedAtAction("GetInvoice", new { OrderId = newOrder.OrderID }, newOrder);
             }
+            catch (Exception ex)
+            {
 
-            Context.Carts.Remove(CurrentCart);
+                // Rollback the transaction if any error occurs
+                await transaction.RollbackAsync(); 
 
-            await Context.SaveChangesAsync();
-
-            return CreatedAtAction("GetInvoice", new { OrderId = newOrder.OrderID }, newOrder);
+                return StatusCode(500, $"An error occurred while executing the request.: {ex.Message}");
+            }
         }
+
 
         [HttpPut("done/{OrderId:int}")]
         public async Task<ActionResult<InvoiceDTO>> DoneOrder(int OrderId)
