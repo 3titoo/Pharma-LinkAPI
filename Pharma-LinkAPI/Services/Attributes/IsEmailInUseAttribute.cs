@@ -18,8 +18,8 @@ namespace Pharma_LinkAPI.Services.Attributes
                 var x = (IrequestRepositry)validationContext.GetService(typeof(IrequestRepositry));
 
                 var request = x.GetUserByEmail(email);
-                var user = userManager.FindByEmailAsync(email).Result;
-                if (user == null && request == null)
+                var user = userManager.Users.Any(u => u.Email == email);
+                if (user == true && request == null)
                 {
                     return ValidationResult.Success;
                 }

@@ -1,4 +1,5 @@
 ﻿using Microsoft.AspNetCore.Identity;
+using Microsoft.VisualStudio.Web.CodeGenerators.Mvc.Templates.BlazorIdentity.Pages.Manage;
 using Pharma_LinkAPI.Identity;
 using Pharma_LinkAPI.Repositries.Irepositry;
 using System.ComponentModel.DataAnnotations;
@@ -16,13 +17,13 @@ namespace Pharma_LinkAPI.Services.Attributes
                 var userManager = (UserManager<AppUser>)validationContext.GetService(typeof(UserManager<AppUser>));
                 var x = (IrequestRepositry)validationContext.GetService(typeof(IrequestRepositry));
                 var request = x.GetUserByusername(username);
-                var user = userManager.FindByNameAsync(username).Result;
+                var user = userManager.Users.Any(u => u.UserName == username);
                 if (user == null && request == null)
                 {
                     return ValidationResult.Success;
                 }
             }
-            return new ValidationResult("Email already in use");
+            return new ValidationResult("User Name already in use");
         }
     }
 }
