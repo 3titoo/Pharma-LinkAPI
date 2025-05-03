@@ -52,7 +52,7 @@ namespace Pharma_LinkAPI.Controllers
 
         }
 
-        [HttpGet("{OrderId:int}")]
+        [HttpGet("Invoice/{OrderId:int}")]
         public async Task<ActionResult<InvoiceDTO>> GetInvoice(int OrderId)
         {
             var order = await Context.Orders.Include(o => o.OrderItems).ThenInclude(ot => ot.Medicine)
@@ -93,7 +93,7 @@ namespace Pharma_LinkAPI.Controllers
             return Ok(Invoice);
         }
 
-        [HttpPost("{CartId:int}/{companyId:int}")]
+        [HttpPost("PlaceOrder/{CartId:int}/{companyId:int}")]
         public async Task<ActionResult<InvoiceDTO>> PlaceOrder(int CartId, int companyId)
         {
 
