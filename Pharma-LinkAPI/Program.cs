@@ -3,6 +3,7 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
+using Microsoft.OpenApi.Models;
 using Pharma_LinkAPI.Data;
 using Pharma_LinkAPI.Identity;
 using Pharma_LinkAPI.Repositries.Irepositry;
@@ -19,7 +20,39 @@ var builder = WebApplication.CreateBuilder(args);
 builder.Services.AddControllers();
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 builder.Services.AddEndpointsApiExplorer();
-builder.Services.AddSwaggerGen();
+builder.Services.AddSwaggerGen(c =>
+{
+    c.SwaggerDoc("v1", new OpenApiInfo { Title = "Pharma Link API", Version = "v1" });
+
+    // Add JWT Authentication support in Swagger
+    c.AddSecurityDefinition("Bearer", new OpenApiSecurityScheme
+    {
+        Description = "JWT Authorization header using the Bearer scheme. Example: \"Authorization: Bearer {token}\"",
+        Name = "Authorization",
+        In = ParameterLocation.Header,
+        Type = SecuritySchemeType.ApiKey,
+        Scheme = "Bearer"
+    });
+
+    c.AddSecurityRequirement(new OpenApiSecurityRequirement()
+    {
+        {
+            new OpenApiSecurityScheme
+            {
+                Reference = new OpenApiReference
+                {
+                    Type = ReferenceType.SecurityScheme,
+                    Id = "Bearer"
+                },
+                Scheme = "oauth2",
+                Name = "Bearer",
+                In = ParameterLocation.Header,
+            },
+            new List<string>()
+        }
+    });
+});
+
 builder.Services.AddDbContext<AppDbContext>(options =>
     options.UseSqlServer(builder.Configuration.GetConnectionString("PharmaLinkDB")));
 
@@ -37,8 +70,6 @@ builder.Services.AddIdentity<AppUser, AppRole>(options =>
     .AddDefaultTokenProviders()
     .AddUserStore<UserStore<AppUser, AppRole, AppDbContext, int>>()
     .AddRoleStore<RoleStore<AppRole, AppDbContext, int>>();
-
-
 
 builder.Services.AddAuthentication(options =>
 {
@@ -58,24 +89,19 @@ AddJwtBearer(options =>
         ValidAudience = builder.Configuration["JWT:Audience"],
         IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(builder.Configuration["JWT:Secret"]))
     };
-
-
 });
 
 builder.Services.AddAuthorization(options =>
 {
     options.AddPolicy("AdminOnly", policy => policy.RequireRole(SD.Role_Admin));
     options.AddPolicy("PharmacyOnly", policy => policy.RequireRole(SD.Role_Pharmacy));
-    options.AddPolicy("CompanyOnly", policy => policy.RequireRole(SD.Role_Company));      
+    options.AddPolicy("CompanyOnly", policy => policy.RequireRole(SD.Role_Company));
 });
-
-
 
 builder.Services.AddScoped<IAccountRepositry, AccountRepo>();
 builder.Services.AddScoped<IrequestRepositry, RequestRepo>();
-builder.Services.AddScoped<IreviewRepositiry,ReviewRepo>();
-builder.Services.AddScoped<ImedicineRepositiry,MedicineRepo>();
-
+builder.Services.AddScoped<IreviewRepositiry, ReviewRepo>();
+builder.Services.AddScoped<ImedicineRepositiry, MedicineRepo>();
 
 var app = builder.Build();
 using (var scope = app.Services.CreateScope())
@@ -94,7 +120,14 @@ app.UseStaticFiles();
 if (app.Environment.IsDevelopment())
 {
     app.UseSwagger();
-    app.UseSwaggerUI();
+    app.UseSwaggerUI(c =>
+    {
+        c.SwaggerEndpoint("/swagger/v1/swagger.json", "Pharma Link API V1");
+        // Enable the Authorize button in Swagger UI
+        c.OAuthClientId("swagger-ui");
+        c.OAuthAppName("Swagger UI");
+        c.OAuthUsePkce();
+    });
 }
 
 app.UseHttpsRedirection();
