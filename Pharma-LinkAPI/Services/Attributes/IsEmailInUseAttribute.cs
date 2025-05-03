@@ -1,5 +1,7 @@
 ﻿using Microsoft.AspNetCore.Identity;
 using Pharma_LinkAPI.Identity;
+using Pharma_LinkAPI.Models;
+using Pharma_LinkAPI.Repositries.Irepositry;
 using System.ComponentModel.DataAnnotations;
 
 namespace Pharma_LinkAPI.Services.Attributes
@@ -13,8 +15,11 @@ namespace Pharma_LinkAPI.Services.Attributes
             {
                 string email = (string)value;
                 var userManager = (UserManager<AppUser>)validationContext.GetService(typeof(UserManager<AppUser>));
+                var x = (IrequestRepositry)validationContext.GetService(typeof(IrequestRepositry));
+
+                var request = x.GetUserByEmail(email);
                 var user = userManager.FindByEmailAsync(email).Result;
-                if (user == null)
+                if (user == null && request == null)
                 {
                     return ValidationResult.Success;
                 }
