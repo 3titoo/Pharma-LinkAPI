@@ -22,5 +22,6 @@ namespace Pharma_LinkAPI.Identity
         public ICollection<Review>? ReviewsReceived { get; set; } // for company
         public ICollection<Order>? Ordersrequested { get; set; } // for pharmacy
         public ICollection<Order>? OrderReceived { get; set; } // for company
+        public Cart? Cart { get; set; } // for pharmacy
     }
 }

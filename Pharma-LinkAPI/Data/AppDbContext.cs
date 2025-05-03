@@ -109,7 +109,21 @@ namespace Pharma_LinkAPI.Data
                 .HasMany(c => c.CartItems)
                 .WithOne(ct => ct.Cart)
                 .HasForeignKey(ct => ct.CartId)
-                .OnDelete(DeleteBehavior.Cascade); 
+                .OnDelete(DeleteBehavior.Cascade);
+            #endregion
+
+            #region Cart&Pharmacy
+            builder.Entity<Cart>()
+                .HasOne(c => c.Pharmacy)
+                .WithOne(u => u.Cart)
+                .HasForeignKey<Cart>(c => c.PharmacyId)
+                .OnDelete(DeleteBehavior.Cascade);
+
+            builder.Entity<Cart>().
+                HasMany(c => c.CartItems)
+                .WithOne(ct => ct.Cart)
+                .HasForeignKey(ct => ct.CartId)
+                .OnDelete(DeleteBehavior.Cascade);
             #endregion
 
         }
