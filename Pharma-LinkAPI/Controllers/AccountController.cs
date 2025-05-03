@@ -1,6 +1,8 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
+using Pharma_LinkAPI.Data;
 using Pharma_LinkAPI.DTO.AccountDTO;
 using Pharma_LinkAPI.Identity;
 using Pharma_LinkAPI.Repositries.Irepositry;
@@ -19,8 +21,9 @@ namespace Pharma_LinkAPI.Controllers
         private readonly IJwtService _jwtService;
         private readonly IrequestRepositry _requestRepositry;
         private readonly IreviewRepositiry _reviewRepositiry;
+        private readonly AppDbContext _context;
 
-        public AccountController(UserManager<AppUser> userManager, RoleManager<AppRole> roleManager, SignInManager<AppUser> signInManager, IWebHostEnvironment env,IJwtService jwtService,IrequestRepositry irequest, IreviewRepositiry reviewRepositiry)
+        public AccountController(UserManager<AppUser> userManager, RoleManager<AppRole> roleManager, SignInManager<AppUser> signInManager, IWebHostEnvironment env,IJwtService jwtService,IrequestRepositry irequest, IreviewRepositiry reviewRepositiry, AppDbContext db)
         {
             _userManager = userManager;
             _roleManager = roleManager;
@@ -28,6 +31,7 @@ namespace Pharma_LinkAPI.Controllers
             _jwtService = jwtService;
             _requestRepositry = irequest;
             _reviewRepositiry = reviewRepositiry;
+            _context = db;
         }
 
         [HttpPost("Register/{Id}")]
@@ -69,10 +73,18 @@ namespace Pharma_LinkAPI.Controllers
                 await _userManager.AddToRoleAsync(user, SD.Role_Pharmacy);
 
                 await _signInManager.SignInAsync(user, isPersistent: false);
+                
+                //add cart to user
+
+                _context.Carts.Add(new Cart
+                {
+                    TotalPrice = 0,
+                    PharmacyId = user.Id
+                });
 
                 // Generate JWT token 
 
-               var token = _jwtService.CreateToken(user);
+                var token = _jwtService.CreateToken(user);
                 _requestRepositry.Delete(Id);
                 return Ok(token);
             }

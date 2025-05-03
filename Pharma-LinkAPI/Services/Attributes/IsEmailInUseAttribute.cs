@@ -17,9 +17,9 @@ namespace Pharma_LinkAPI.Services.Attributes
                 var userManager = (UserManager<AppUser>)validationContext.GetService(typeof(UserManager<AppUser>));
                 var x = (IrequestRepositry)validationContext.GetService(typeof(IrequestRepositry));
 
-                var request = x.GetUserByEmail(email);
+                var request = x.GetUserByEmail(email).Result;
                 var user = userManager.Users.Any(u => u.Email == email);
-                if (user == true && request == null)
+                if (user == false && request == null)
                 {
                     return ValidationResult.Success;
                 }

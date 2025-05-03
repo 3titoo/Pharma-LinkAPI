@@ -80,7 +80,7 @@ namespace Pharma_LinkAPI.Controllers
             return Ok(medicine);
         }
 
-        //[Authorize(Roles = SD.Role_Company)]
+        [Authorize(Roles = SD.Role_Company)]
         [HttpPost]
         public async Task<ActionResult<string>> addMedicine(MedicineDTO medicine) {
             #region Image
@@ -98,17 +98,18 @@ namespace Pharma_LinkAPI.Controllers
                 img.CopyTo(stream);
             }
             #endregion
+            var userId = int.Parse(User.FindFirst(ClaimTypes.NameIdentifier)?.Value);
+            
             var medicineModel = new Medicine
             {
                 Name = medicine.Name,
                 Description = medicine.Description,
                 Price = medicine.Price,
                 InStock = medicine.InStock,
-                Company_Id = 1
-                //Image_URL = imgPath,
+                Company_Id = userId,
+                Image_URL = imgPath,
             };
-            //var userId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
-            //medicineModel.Company_Id = int.Parse(userId);
+
             _medicineRepositiry.Add(medicineModel);
             return Ok("Medicine added successfully");
         }

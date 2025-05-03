@@ -15,9 +15,9 @@ namespace Pharma_LinkAPI
          public int? PharmacyId { get; set; }
 
         [ForeignKey("PharmacyId")]
-         public AppUser Pharmacy { get; set; }
+         public AppUser? Pharmacy { get; set; }
 
         // كارت يحتوي على عناصر (CartItems)
-        public ICollection<CartItem> CartItems { get; set; }
+        public ICollection<CartItem>? CartItems { get; set; }
     }
 }
