@@ -106,7 +106,8 @@ namespace Pharma_LinkAPI.Controllers
                     .ThenInclude(c => c.Medicine)
                     .FirstOrDefaultAsync(c => c.CartId == CartId);
 
-                var Medicines = await Context.Medicines.Where(m => m.Company_Id == companyId).ToListAsync();
+                var MedicinesForCompany = await Context.Medicines.Where(m => m.Company_Id == companyId)
+                                                                 .ToDictionaryAsync(m => m.ID);
 
                 if (CurrentCart == null)
                     return NotFound("Cart not found.");
@@ -114,7 +115,7 @@ namespace Pharma_LinkAPI.Controllers
                 // First check all the items on the card.
                 foreach (var item in CurrentCart.CartItems)
                 {
-                    Medicine CurMedicine = Medicines.FirstOrDefault(m => m.ID == item.MedicineId);
+                    Medicine CurMedicine = MedicinesForCompany[item.MedicineId.Value];
 
                     var availableStock = CurMedicine.InStock;
 
@@ -139,7 +140,7 @@ namespace Pharma_LinkAPI.Controllers
                 {
 
                     // Quantity discount
-                    Medicine CurMedicine = Medicines.FirstOrDefault(m => m.ID == item.MedicineId);
+                    Medicine CurMedicine = MedicinesForCompany[item.MedicineId.Value];
 
                     CurMedicine.InStock -= item.Count;
 
@@ -159,10 +160,9 @@ namespace Pharma_LinkAPI.Controllers
 
                 var CurCartItems = CurrentCart.CartItems.ToList();
 
-                foreach(var item in CurCartItems)
-                {
-                    Context.CartItems.Remove(item);
-                }
+                // Deleted the CartItems
+                Context.CartItems.RemoveRange(CurCartItems);
+
 
                 CurrentCart.TotalPrice = 0;
 
@@ -192,6 +192,16 @@ namespace Pharma_LinkAPI.Controllers
                                         .Include(o => o.Pharmacy)
                                         .Include(o => o.Company)
                                         .FirstOrDefaultAsync(o => o.OrderID == OrderId);
+
+            if(order == null)
+            {
+                return NotFound("Order not found.");
+            }
+
+            if (order.StatusOrder != SD.StatusOrder_pending)
+            {
+                return BadRequest($"Order is {order.StatusOrder}");
+            }
 
             order.StatusOrder = SD.StatusOrder_shipped;
 
@@ -239,6 +249,16 @@ namespace Pharma_LinkAPI.Controllers
                                         .Include(o => o.Pharmacy)
                                         .Include(o => o.Company)
                                         .FirstOrDefaultAsync(o => o.OrderID == OrderId);
+
+            if (order == null)
+            {
+                return NotFound("Order not found.");
+            }
+
+            if (order.StatusOrder != SD.StatusOrder_shipped)
+            {
+                return BadRequest($"Order is {order.StatusOrder}");
+            }
 
             order.StatusOrder = SD.StatusOrder_delivered;
 
