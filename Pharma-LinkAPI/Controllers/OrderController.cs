@@ -282,7 +282,7 @@ namespace Pharma_LinkAPI.Controllers
 
                 if (order.StatusOrder != SD.StatusOrder_pending)
                 {
-                    return BadRequest($"Order is{order.StatusOrder}");
+                    return BadRequest($"Order is {order.StatusOrder}");
                 }
 
                 var companyId = order.CompanyID;
@@ -304,7 +304,7 @@ namespace Pharma_LinkAPI.Controllers
                 // Commit the transaction
                 await transaction.CommitAsync();
 
-                return Content("The request has been cleared successfully");
+                return Content("The Order has been cleared successfully");
 
             }
             catch (Exception ex)
