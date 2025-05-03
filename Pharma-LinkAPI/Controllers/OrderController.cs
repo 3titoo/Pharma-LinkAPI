@@ -28,12 +28,12 @@ namespace Pharma_LinkAPI.Controllers
         public async Task<ActionResult<IEnumerable<CompanyInvoiceDTO>>> IndexCompanyOrder(int CompanyId)
         {
             var orders = Context.Orders.Include(o => o.Pharmacy)
-                                       .Include( o => o.OrderItems )
-                                       .ThenInclude( ot => ot.Medicine )
-                                       .Where( o => o.CompanyID == CompanyId );
+                                       .Include(o => o.OrderItems)
+                                       .ThenInclude(ot => ot.Medicine)
+                                       .Where(o => o.CompanyID == CompanyId);
 
             var CompanyInvoices = new List<CompanyInvoiceDTO>();
-            foreach( var item in orders )
+            foreach (var item in orders)
             {
                 var TempCompanyInvoice = new CompanyInvoiceDTO
                 {
@@ -55,7 +55,7 @@ namespace Pharma_LinkAPI.Controllers
         [HttpGet("{OrderId:int}")]
         public async Task<ActionResult<InvoiceDTO>> GetInvoice(int OrderId)
         {
-            var order = await Context.Orders.Include(o => o.OrderItems).ThenInclude( ot => ot.Medicine)
+            var order = await Context.Orders.Include(o => o.OrderItems).ThenInclude(ot => ot.Medicine)
                                         .Include(o => o.Pharmacy)
                                         .Include(o => o.Company)
                                         .FirstOrDefaultAsync(o => o.OrderID == OrderId);
@@ -78,7 +78,7 @@ namespace Pharma_LinkAPI.Controllers
                 TotalPriceOrder = order.TotalPrice,
                 Medicines = new List<InvoiceMedicineDTO>()
             };
-            foreach( var item in order.OrderItems )
+            foreach (var item in order.OrderItems)
             {
                 var InvoiceMedicineDTO = new InvoiceMedicineDTO
                 {
@@ -94,7 +94,7 @@ namespace Pharma_LinkAPI.Controllers
         }
 
         [HttpPost("{CartId:int}/{companyId:int}")]
-        public async Task<ActionResult<InvoiceDTO>> PlaceOrder( int CartId , int companyId )
+        public async Task<ActionResult<InvoiceDTO>> PlaceOrder(int CartId, int companyId)
         {
 
             using var transaction = await Context.Database.BeginTransactionAsync(); // Begin transaction
@@ -170,7 +170,7 @@ namespace Pharma_LinkAPI.Controllers
             {
 
                 // Rollback the transaction if any error occurs
-                await transaction.RollbackAsync(); 
+                await transaction.RollbackAsync();
 
                 return StatusCode(500, $"An error occurred while executing the request.: {ex.Message}");
             }
