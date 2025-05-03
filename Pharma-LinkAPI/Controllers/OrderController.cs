@@ -156,7 +156,15 @@ namespace Pharma_LinkAPI.Controllers
                 }
 
                 Context.Orders.Add(newOrder);
-                Context.Carts.Remove(CurrentCart);
+
+                var CurCartItems = CurrentCart.CartItems.ToList();
+
+                foreach(var item in CurCartItems)
+                {
+                    Context.CartItems.Remove(item);
+                }
+
+                CurrentCart.TotalPrice = 0;
 
                 // Save changes to the database
                 await Context.SaveChangesAsync();
