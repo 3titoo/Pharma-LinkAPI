@@ -275,34 +275,47 @@ namespace Pharma_LinkAPI.Controllers
         {
             using var transaction = await Context.Database.BeginTransactionAsync(); // Begin transaction
 
-            var order = await Context.Orders.Include(o => o.OrderItems)
+            try
+            {
+                var order = await Context.Orders.Include(o => o.OrderItems)
                               .FirstOrDefaultAsync(o => o.OrderID == OrderId);
 
-            if( order.StatusOrder !=  SD.StatusOrder_pending )
-            {
-                return BadRequest($"Order is{order.StatusOrder}");
+                if (order.StatusOrder != SD.StatusOrder_pending)
+                {
+                    return BadRequest($"Order is{order.StatusOrder}");
+                }
+
+                var companyId = order.CompanyID;
+                var Medicines = await Context.Medicines.Where(m => m.Company_Id == companyId).ToListAsync();
+
+                foreach (var item in order.OrderItems)
+                {
+
+                    // Return the quantity
+                    Medicine CurMedicine = Medicines.FirstOrDefault(m => m.ID == item.MedicineID);
+                    CurMedicine.InStock += item.Count;
+                }
+
+                Context.Orders.Remove(order);
+
+                // Save changes to the database
+                await Context.SaveChangesAsync();
+
+                // Commit the transaction
+                await transaction.CommitAsync();
+
+                return Content("The request has been cleared successfully");
+
             }
-
-            var companyId = order.CompanyID;
-            var Medicines = await Context.Medicines.Where(m => m.Company_Id == companyId).ToListAsync();
-
-            foreach (var item in order.OrderItems)
+            catch (Exception ex)
             {
 
-                // Return the quantity
-                Medicine CurMedicine = Medicines.FirstOrDefault(m => m.ID == item.MedicineID);
-                CurMedicine.InStock += item.Count;
+                // Rollback the transaction if any error occurs
+                await transaction.RollbackAsync();
+
+                return StatusCode(500, $"An error occurred while executing the request.: {ex.Message}");
             }
-
-            Context.Orders.Remove(order);
-
-            // Save changes to the database
-            await Context.SaveChangesAsync();
-
-            // Commit the transaction
-            await transaction.CommitAsync();
-
-            return Content("The request has been cleared successfully");
+            
         }
 
     }
