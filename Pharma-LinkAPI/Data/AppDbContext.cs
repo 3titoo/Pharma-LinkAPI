@@ -69,6 +69,20 @@ namespace Pharma_LinkAPI.Data
             .OnDelete(DeleteBehavior.Cascade);
             #endregion
 
+            #region Company&Pharmacy
+            builder.Entity<AppUser>()
+                       .HasMany(u => u.OrderReceived)
+                       .WithOne(o => o.Company)
+                       .HasForeignKey(o => o.CompanyID)
+                       .OnDelete(DeleteBehavior.Cascade);
+
+            builder.Entity<AppUser>()
+                .HasMany(u => u.Ordersrequested)
+                .WithOne(o => o.Pharmacy)
+                .HasForeignKey(o => o.PharmacyID)
+                .OnDelete(DeleteBehavior.Cascade); 
+            #endregion
+
             #region OrdersforPharmacy&Company
             builder.Entity<Order>()
                 .HasOne(o => o.Pharmacy)
@@ -88,7 +102,7 @@ namespace Pharma_LinkAPI.Data
             builder.Entity<Order>()
                     .HasMany(o => o.OrderItems)
                     .WithOne(ot => ot.Order)
-                    .HasForeignKey(o => o.OrderID)
+                    .HasForeignKey(ot => ot.OrderID)
                     .OnDelete(DeleteBehavior.Cascade);
 
             builder.Entity<Cart>()

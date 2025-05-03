@@ -184,6 +184,7 @@ namespace Pharma_LinkAPI.Controllers
                                         .Include(o => o.Pharmacy)
                                         .Include(o => o.Company)
                                         .FirstOrDefaultAsync(o => o.OrderID == OrderId);
+
             order.StatusOrder = SD.StatusOrder_shipped;
 
             var company = await MyUsers.FindByIdAsync(order.CompanyID.ToString());
@@ -222,13 +223,85 @@ namespace Pharma_LinkAPI.Controllers
             return Ok(Invoice);
         }
 
-        [HttpDelete(("{OrderId:int}"))]
-        public async Task<ActionResult<InvoiceDTO>> DeleteOrder(int OrderId)
+
+        [HttpPut("deliver/{OrderId:int}")]
+        public async Task<ActionResult<InvoiceDTO>> DeliverOrder(int OrderId)
         {
-            var order = await Context.Orders
+            var order = await Context.Orders.Include(o => o.OrderItems).ThenInclude(ot => ot.Medicine).ThenInclude(m => m.Company)
+                                        .Include(o => o.Pharmacy)
+                                        .Include(o => o.Company)
                                         .FirstOrDefaultAsync(o => o.OrderID == OrderId);
-            Context.Orders.Remove(order);
+
+            order.StatusOrder = SD.StatusOrder_delivered;
+
+            var company = await MyUsers.FindByIdAsync(order.CompanyID.ToString());
+
+            var Invoice = new InvoiceDTO
+            {
+                DRName = order.Pharmacy.DrName,
+                Phone = order.Pharmacy.PhoneNumber,
+                PharmacyLicense = order.Pharmacy.LiscnceNumber,
+                PharmacyName = order.Pharmacy.Name,
+                CompanyName = company.Name,
+                CompanyLicense = company.LiscnceNumber,
+                Street = order.Pharmacy.Street,
+                State = order.Pharmacy.State,
+                City = order.Pharmacy.City,
+                OrderDate = DateOnly.FromDateTime(DateTime.Now),
+                StatusOrder = SD.StatusOrder_delivered,
+                TotalPriceOrder = order.TotalPrice,
+                Medicines = new List<InvoiceMedicineDTO>()
+            };
+            foreach (var item in order.OrderItems)
+            {
+                var InvoiceMedicineDTO = new InvoiceMedicineDTO
+                {
+                    Name = item.Medicine.Name,
+                    Image_URL = item.Medicine.Image_URL,
+                    UnitPrice = item.Medicine.Price,
+                    Count = item.Count,
+                    TotalPrice = item.TotalPrice
+                };
+                Invoice.Medicines.Add(InvoiceMedicineDTO);
+            }
+
             await Context.SaveChangesAsync();
+
+            return Ok(Invoice);
+        }
+
+        [HttpDelete(("Cancel/{OrderId:int}"))]
+        public async Task<ActionResult<InvoiceDTO>> CancelOrder(int OrderId)
+        {
+            using var transaction = await Context.Database.BeginTransactionAsync(); // Begin transaction
+
+            var order = await Context.Orders.Include(o => o.OrderItems)
+                              .FirstOrDefaultAsync(o => o.OrderID == OrderId);
+
+            if( order.StatusOrder !=  SD.StatusOrder_pending )
+            {
+                return BadRequest($"Order is{order.StatusOrder}");
+            }
+
+            var companyId = order.CompanyID;
+            var Medicines = await Context.Medicines.Where(m => m.Company_Id == companyId).ToListAsync();
+
+            foreach (var item in order.OrderItems)
+            {
+
+                // Return the quantity
+                Medicine CurMedicine = Medicines.FirstOrDefault(m => m.ID == item.MedicineID);
+                CurMedicine.InStock += item.Count;
+            }
+
+            Context.Orders.Remove(order);
+
+            // Save changes to the database
+            await Context.SaveChangesAsync();
+
+            // Commit the transaction
+            await transaction.CommitAsync();
+
             return Content("The request has been cleared successfully");
         }
 

@@ -7,5 +7,6 @@
         public const string Role_Pharmacy = "Pharmacy";
         public const string StatusOrder_pending = "pending";
         public const string StatusOrder_shipped = "shipped";
+        public const string StatusOrder_delivered = "delivered";
     }
 }
