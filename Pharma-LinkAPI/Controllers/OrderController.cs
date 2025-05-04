@@ -392,7 +392,7 @@ namespace Pharma_LinkAPI.Controllers
                 // Commit the transaction
                 await transaction.CommitAsync();
 
-                return Content("The Cancel  Order has been successfully");
+                return Content("The order has been successfully cancelled.");
 
             }
             catch (Exception ex)
