@@ -359,7 +359,7 @@ namespace Pharma_LinkAPI.Controllers
         }
 
         [HttpDelete(("Cancel/{OrderId:int}"))]
-        public async Task<ActionResult<InvoiceDTO>> CancelOrder(int OrderId)
+        public async Task<ActionResult> CancelOrder(int OrderId)
         {
             using var transaction = await Context.Database.BeginTransactionAsync(); // Begin transaction
 
@@ -392,7 +392,7 @@ namespace Pharma_LinkAPI.Controllers
                 // Commit the transaction
                 await transaction.CommitAsync();
 
-                return Content("The Order has been cleared successfully");
+                return Content("The Cancel  Order has been successfully");
 
             }
             catch (Exception ex)
