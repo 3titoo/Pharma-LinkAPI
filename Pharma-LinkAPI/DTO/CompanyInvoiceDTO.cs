@@ -4,6 +4,7 @@ namespace Pharma_LinkAPI.DTO
 {
     public class CompanyInvoiceDTO
     {
+        public int OrderID { get; set; }
         public string PharmacyName { get; set; }
         public string DRName { get; set; }
         public string PharmacyPhone { get; set; }

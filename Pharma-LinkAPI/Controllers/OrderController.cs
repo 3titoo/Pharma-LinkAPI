@@ -27,9 +27,7 @@ namespace Pharma_LinkAPI.Controllers
         [HttpGet("IndexCompanyOrder/{CompanyId:int}")]
         public async Task<ActionResult<IEnumerable<CompanyInvoiceDTO>>> IndexCompanyOrder(int CompanyId)
         {
-            var orders = Context.Orders.Include(o => o.Pharmacy)
-                                       .Include(o => o.OrderItems)
-                                       .ThenInclude(ot => ot.Medicine)
+            var orders = Context.Orders.Include(o => o.Pharmacy)                                      
                                        .Where(o => o.CompanyID == CompanyId);
 
             var CompanyInvoices = new List<CompanyInvoiceDTO>();
@@ -37,6 +35,7 @@ namespace Pharma_LinkAPI.Controllers
             {
                 var TempCompanyInvoice = new CompanyInvoiceDTO
                 {
+                    OrderID = item.OrderID,
                     PharmacyName = item.Pharmacy.Name,
                     DRName = item.Pharmacy.DrName,
                     PharmacyPhone = item.Pharmacy.PhoneNumber,
@@ -49,6 +48,31 @@ namespace Pharma_LinkAPI.Controllers
                 CompanyInvoices.Add(TempCompanyInvoice);
             }
             return Ok(CompanyInvoices);
+
+        }
+
+        [HttpGet("IndexPharmacyOrder/{PharmacyId:int}")]
+        public async Task<ActionResult<IEnumerable<PharmacyInvoiceDTO>>> IndexPharmacyOrder(int PharmacyId)
+        {
+            var orders = Context.Orders.Include(o => o.Company)
+                                       .Where(o => o.PharmacyID == PharmacyId);
+
+            var PharmacyInvoices = new List<PharmacyInvoiceDTO>();
+            foreach (var item in orders)
+            {
+                var TempPharmacyInvoice = new PharmacyInvoiceDTO
+                {
+                    OrderID = item.OrderID,
+                    CompanyName = item.Company.Name,
+                    Street = item.Company.Street,
+                    State = item.Company.State,
+                    City = item.Company.City,
+                    OrderDate = (DateOnly)item.OrderDate,
+                    StatusOrder = item.StatusOrder
+                };
+                PharmacyInvoices.Add(TempPharmacyInvoice);
+            }
+            return Ok(PharmacyInvoices);
 
         }
 
