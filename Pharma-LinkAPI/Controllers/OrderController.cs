@@ -97,7 +97,7 @@ namespace Pharma_LinkAPI.Controllers
                 Street = order.Pharmacy.Street,
                 State = order.Pharmacy.State,
                 City = order.Pharmacy.City,
-                OrderDate = DateOnly.FromDateTime(DateTime.Now),
+                OrderDate = order.OrderDate,
                 StatusOrder = SD.StatusOrder_pending,
                 TotalPriceOrder = order.TotalPrice,
                 Medicines = new List<InvoiceMedicineDTO>()
@@ -190,13 +190,45 @@ namespace Pharma_LinkAPI.Controllers
 
                 CurrentCart.TotalPrice = 0;
 
+                var company = await MyUsers.FindByIdAsync(companyId.ToString());
+                var pharmacy = await MyUsers.FindByIdAsync(CurrentCart.PharmacyId.ToString());
+
+                var Invoice = new InvoiceDTO
+                {
+                    DRName = pharmacy.DrName,
+                    Phone = pharmacy.PhoneNumber,
+                    PharmacyLicense = pharmacy.LiscnceNumber,
+                    PharmacyName = pharmacy.Name,
+                    CompanyName = company.Name,
+                    CompanyLicense = company.LiscnceNumber,
+                    Street = pharmacy.Street,
+                    State = pharmacy.State,
+                    City = pharmacy.City,
+                    OrderDate = DateOnly.FromDateTime(DateTime.Now),
+                    StatusOrder = SD.StatusOrder_pending,
+                    TotalPriceOrder = newOrder.TotalPrice,
+                    Medicines = new List<InvoiceMedicineDTO>()
+                };
+                foreach (var item in newOrder.OrderItems)
+                {
+                    var InvoiceMedicineDTO = new InvoiceMedicineDTO
+                    {
+                        Name = item.Medicine.Name,
+                        Image_URL = item.Medicine.Image_URL,
+                        UnitPrice = item.Medicine.Price,
+                        Count = item.Count,
+                        TotalPrice = item.TotalPrice
+                    };
+                    Invoice.Medicines.Add(InvoiceMedicineDTO);
+                }
+
                 // Save changes to the database
                 await Context.SaveChangesAsync();
 
                 // Commit the transaction
                 await transaction.CommitAsync();
 
-                return CreatedAtAction("GetInvoice", new { OrderId = newOrder.OrderID }, newOrder);
+                return CreatedAtAction("GetInvoice", new { OrderId = newOrder.OrderID }, Invoice);
             }
             catch (Exception ex)
             {
@@ -242,7 +274,7 @@ namespace Pharma_LinkAPI.Controllers
                 Street = order.Pharmacy.Street,
                 State = order.Pharmacy.State,
                 City = order.Pharmacy.City,
-                OrderDate = DateOnly.FromDateTime(DateTime.Now),
+                OrderDate = order.OrderDate,
                 StatusOrder = SD.StatusOrder_shipped,
                 TotalPriceOrder = order.TotalPrice,
                 Medicines = new List<InvoiceMedicineDTO>()
@@ -299,7 +331,7 @@ namespace Pharma_LinkAPI.Controllers
                 Street = order.Pharmacy.Street,
                 State = order.Pharmacy.State,
                 City = order.Pharmacy.City,
-                OrderDate = DateOnly.FromDateTime(DateTime.Now),
+                OrderDate = order.OrderDate,
                 StatusOrder = SD.StatusOrder_delivered,
                 TotalPriceOrder = order.TotalPrice,
                 Medicines = new List<InvoiceMedicineDTO>()
