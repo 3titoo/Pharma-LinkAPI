@@ -2,6 +2,7 @@
 {
     public class InvoiceDTO
     {
+        public int OrderID { get; set; }
         public string? DRName { get; set; }
         public string? Phone { get; set; } // Pharmacy phone
         public string? PharmacyLicense { get; set; }

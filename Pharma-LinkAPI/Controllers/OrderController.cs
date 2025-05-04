@@ -88,6 +88,7 @@ namespace Pharma_LinkAPI.Controllers
 
             var Invoice = new InvoiceDTO
             {
+                OrderID = OrderId,
                 DRName = order.Pharmacy.DrName,
                 Phone = order.Pharmacy.PhoneNumber,
                 PharmacyLicense = order.Pharmacy.LiscnceNumber,
@@ -195,6 +196,7 @@ namespace Pharma_LinkAPI.Controllers
 
                 var Invoice = new InvoiceDTO
                 {
+                    OrderID = newOrder.OrderID,
                     DRName = pharmacy.DrName,
                     Phone = pharmacy.PhoneNumber,
                     PharmacyLicense = pharmacy.LiscnceNumber,
@@ -265,6 +267,7 @@ namespace Pharma_LinkAPI.Controllers
 
             var Invoice = new InvoiceDTO
             {
+                OrderID = OrderId,
                 DRName = order.Pharmacy.DrName,
                 Phone = order.Pharmacy.PhoneNumber,
                 PharmacyLicense = order.Pharmacy.LiscnceNumber,
@@ -322,6 +325,7 @@ namespace Pharma_LinkAPI.Controllers
 
             var Invoice = new InvoiceDTO
             {
+                OrderID = OrderId,
                 DRName = order.Pharmacy.DrName,
                 Phone = order.Pharmacy.PhoneNumber,
                 PharmacyLicense = order.Pharmacy.LiscnceNumber,
