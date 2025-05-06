@@ -31,5 +31,9 @@ namespace Pharma_LinkAPI.DTO.AccountDTO
         [IsUserNameInUse]
         public string? UserName { get; set; }
 
+
+        public decimal MinPriceToMakeOrder { get; set; } = 0;
+
+
     }
 }

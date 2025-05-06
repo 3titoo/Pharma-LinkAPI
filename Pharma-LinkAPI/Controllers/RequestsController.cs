@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Http;
+﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
@@ -83,13 +84,14 @@ namespace Pharma_LinkAPI.Controllers
 
 
         // GET: api/Requests
+        [Authorize(Roles = SD.Role_Admin)]
         [HttpGet]
         public  ActionResult<IEnumerable<Request>> GetRequests()
         {
             var requests =  _requestRepositry.GetAll();
             return Ok(requests);
         }
-
+        [Authorize(Roles = SD.Role_Admin)]
         // GET: api/Requests/5
         [HttpGet("{id}")]
         public ActionResult<Request?> GetRequest(int id)
@@ -107,6 +109,7 @@ namespace Pharma_LinkAPI.Controllers
 
 
         // DELETE: api/Requests/5
+        [Authorize(Roles = SD.Role_Admin)]
         [HttpDelete("{id}")]
         public IActionResult DeleteRequest(int id)
         {

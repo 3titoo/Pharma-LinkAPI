@@ -60,7 +60,7 @@ namespace Pharma_LinkAPI.Controllers
                     Role = user.Role
                 };
                 float totalRating = 0;
-                if (user.ReviewsReceived == null || user.ReviewsReceived.Count == 0)
+                if (user.ReviewsReceived == null || user.ReviewsReceived.Count == 0 || curr == null)
                 {
                     companyProfile.CompanyRating = 0;
                     return Ok(companyProfile);
@@ -81,14 +81,13 @@ namespace Pharma_LinkAPI.Controllers
             }
             else if (user.Role == SD.Role_Admin)
             {
-
                 return Ok(new { user.Name, user.Email, user.UserName });
             }
             return BadRequest("Invalid role");
         }
 
 
-
+        [Authorize]
         [HttpPut("{id}")]
         public async Task<IActionResult> uploadPhoto(int id,IFormFile? img)
         {

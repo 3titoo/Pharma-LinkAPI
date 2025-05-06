@@ -56,7 +56,8 @@ public class CartController : ControllerBase
             TotalPrice = totalPrice,
             CartItems = cart.CartItems.Select(ci => new CartItemViewModel
             {
-                MedicineId = ci.CartItemId,
+                CartItemId = ci.CartItemId,
+                MedicineId = ci.MedicineId.Value,
                 MedicineName = ci.Medicine.Name,
                 MedicineImage = ci.Medicine.Image_URL,
                 MedicinePrice = ci.UnitPrice.ToString("c"),
@@ -175,8 +176,15 @@ public class CartController : ControllerBase
 
         if (cart == null)
             return NotFound("Cart not found.");
-
         var totalPrice = cart.CartItems.Sum(ci => ci.Count * ci.UnitPrice);
+
+        var company = cart.CartItems.FirstOrDefault().Medicine.Company;
+        if (totalPrice < company.MinPriceToMakeOrder)
+        {
+            return BadRequest($"Total price must be at least {company.MinPriceToMakeOrder} to make an order for {company.Name}.");
+        } 
+
+
         var summary = new SummaryDTO
         {
             PharmacyName = cart.Pharmacy.Name,
@@ -185,7 +193,7 @@ public class CartController : ControllerBase
             PharmacyEmail = cart.Pharmacy.Email,
             TotalCartPrice = totalPrice,
             CartId = cart.CartId,
-            CompanyId = cart.CartItems.FirstOrDefault().Medicine.ID, // company ID from the first medicine in the cart
+            CompanyId = company.Id, // company ID from the first medicine in the cart
 
             Medicines = cart.CartItems.Select(ci => new SummaryItemDTO
             {

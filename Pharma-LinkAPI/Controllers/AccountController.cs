@@ -36,6 +36,7 @@ namespace Pharma_LinkAPI.Controllers
             _accountRepositry = accountRepositry;
         }
 
+        [Authorize(Roles = SD.Role_Admin)]
         [HttpPost("Register/{Id}")]
         public async Task<ActionResult<AuthentcationResponse>> Register(int Id)
         {
@@ -93,7 +94,7 @@ namespace Pharma_LinkAPI.Controllers
             string error = string.Join(" | ", result.Errors.Select(x => x.Description));
             return BadRequest(error);
         }
-
+        [Authorize(Roles = SD.Role_Admin)]
         [HttpPost("CompanyRegister")]
         public async Task<ActionResult<string>> Register(CompanyRegisterDTO companyRegisterDTO)
         {
@@ -119,6 +120,7 @@ namespace Pharma_LinkAPI.Controllers
                 City = companyRegisterDTO.City,
                 Name = companyRegisterDTO.Name,
                 Role = SD.Role_Company,
+                MinPriceToMakeOrder = companyRegisterDTO.MinPriceToMakeOrder,
                 EmailConfirmed = true
             };
             string? password = companyRegisterDTO.Password;
@@ -130,7 +132,6 @@ namespace Pharma_LinkAPI.Controllers
             if (result.Succeeded)
             {
                 await _userManager.AddToRoleAsync(user, SD.Role_Company);
-
                 return Ok("company is created");
             }
             string error = string.Join(" | ", result.Errors.Select(x => x.Description));
@@ -181,6 +182,7 @@ namespace Pharma_LinkAPI.Controllers
             return NoContent();
         }
 
+        [Authorize]
         [HttpPut("ChangePassword")]
         public async Task<IActionResult> ChangePassword(ChangePassDTO changePasswordDTO)
         {
@@ -210,6 +212,7 @@ namespace Pharma_LinkAPI.Controllers
             return BadRequest(error);
         }
 
+        [Authorize]
         [HttpPut("ChangePhoneNumber")]
         public async Task<IActionResult> ChangePhoneNumber(ChangePhoneDTO changePhoneDTO)
         {
@@ -238,7 +241,7 @@ namespace Pharma_LinkAPI.Controllers
             return BadRequest(error);
         }
 
-
+        [Authorize(SD.Role_Admin)]
         [HttpDelete("DeleteUser")]
         public async Task<IActionResult> DeleteUser(string userName)
         {
