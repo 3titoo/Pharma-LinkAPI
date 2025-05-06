@@ -1,5 +1,7 @@
 ﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
+using Pharma_LinkAPI.DTO.AccountDTO;
 using Pharma_LinkAPI.Identity;
 using Pharma_LinkAPI.Repositries.Irepositry;
 using Pharma_LinkAPI.ViewModels;
@@ -14,9 +16,11 @@ namespace Pharma_LinkAPI.Controllers
     public class ProfileController : ControllerBase
     {
         private readonly IAccountRepositry _accountRepositry;
-        public ProfileController(IAccountRepositry accountRepositry)
+        private readonly UserManager<AppUser> _userManager;
+        public ProfileController(IAccountRepositry accountRepositry, UserManager<AppUser> userManager)
         {
             _accountRepositry = accountRepositry;
+            _userManager = userManager;
         }
 
         [HttpGet("{username}")]
@@ -124,6 +128,65 @@ namespace Pharma_LinkAPI.Controllers
             user.ImagePath = imgPath;
             _accountRepositry.UpdateUser(user);
             return NoContent();
+        }
+
+        [Authorize]
+        [HttpPut("ChangePassword")]
+        public async Task<IActionResult> ChangePassword(ChangePassDTO changePasswordDTO)
+        {
+            if (!ModelState.IsValid)
+            {
+                string errors = string.Join(", ", ModelState.Values.SelectMany(v => v.Errors).Select(e => e.ErrorMessage));
+                return BadRequest(errors);
+            }
+            var user = await _accountRepositry.GetUserByuserName(changePasswordDTO.username);
+            var current = await _accountRepositry.GetCurrentUser(User);
+
+
+            if (user == null)
+            {
+                return NotFound("User not found.");
+            }
+            if (user.UserName != current.UserName)
+            {
+                return BadRequest("You can't change another user's password.");
+            }
+            var result = await _userManager.ChangePasswordAsync(user, changePasswordDTO.OldPassword, changePasswordDTO.NewPassword);
+            if (result.Succeeded)
+            {
+                return Ok("Password changed successfully.");
+            }
+            string error = string.Join(" | ", result.Errors.Select(x => x.Description));
+            return BadRequest(error);
+        }
+
+        [Authorize]
+        [HttpPut("ChangePhoneNumber")]
+        public async Task<IActionResult> ChangePhoneNumber(ChangePhoneDTO changePhoneDTO)
+        {
+            if (!ModelState.IsValid)
+            {
+                string errors = string.Join(", ", ModelState.Values.SelectMany(v => v.Errors).Select(e => e.ErrorMessage));
+                return BadRequest(errors);
+            }
+            var user = await _accountRepositry.GetUserByuserName(changePhoneDTO.username);
+            if (user == null)
+            {
+                return NotFound("User not found.");
+            }
+            var current = await _accountRepositry.GetCurrentUser(User);
+            if (user.UserName != current.UserName)
+            {
+                return BadRequest("You can't change another user's phone number.");
+            }
+            user.PhoneNumber = changePhoneDTO.NewPhone;
+            var result = await _userManager.UpdateAsync(user);
+            if (result.Succeeded)
+            {
+                return Ok("Phone number changed successfully.");
+            }
+            string error = string.Join(" | ", result.Errors.Select(x => x.Description));
+            return BadRequest(error);
         }
 
     }
