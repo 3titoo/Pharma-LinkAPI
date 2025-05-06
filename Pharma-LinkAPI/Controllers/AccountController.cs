@@ -22,8 +22,9 @@ namespace Pharma_LinkAPI.Controllers
         private readonly IrequestRepositry _requestRepositry;
         private readonly IreviewRepositiry _reviewRepositiry;
         private readonly AppDbContext _context;
+        private readonly IAccountRepositry _accountRepositry;
 
-        public AccountController(UserManager<AppUser> userManager, RoleManager<AppRole> roleManager, SignInManager<AppUser> signInManager, IWebHostEnvironment env,IJwtService jwtService,IrequestRepositry irequest, IreviewRepositiry reviewRepositiry, AppDbContext db)
+        public AccountController(IAccountRepositry accountRepositry,UserManager<AppUser> userManager, RoleManager<AppRole> roleManager, SignInManager<AppUser> signInManager, IWebHostEnvironment env,IJwtService jwtService,IrequestRepositry irequest, IreviewRepositiry reviewRepositiry, AppDbContext db)
         {
             _userManager = userManager;
             _roleManager = roleManager;
@@ -32,6 +33,7 @@ namespace Pharma_LinkAPI.Controllers
             _requestRepositry = irequest;
             _reviewRepositiry = reviewRepositiry;
             _context = db;
+            _accountRepositry = accountRepositry;
         }
 
         [HttpPost("Register/{Id}")]
@@ -188,9 +190,16 @@ namespace Pharma_LinkAPI.Controllers
                 return BadRequest(errors);
             }
             var user = await _userManager.FindByNameAsync(changePasswordDTO.username);
+            var current = await _accountRepositry.GetCurrentUser(User);
+
+            
             if (user == null)
             {
                 return NotFound("User not found.");
+            }
+            if (user.UserName != current.UserName)
+            {
+                return BadRequest("You can't change another user's password.");
             }
             var result = await _userManager.ChangePasswordAsync(user, changePasswordDTO.OldPassword, changePasswordDTO.NewPassword);
             if (result.Succeeded)
@@ -213,6 +222,11 @@ namespace Pharma_LinkAPI.Controllers
             if (user == null)
             {
                 return NotFound("User not found.");
+            }
+            var current = await _accountRepositry.GetCurrentUser(User);
+            if (user.UserName != current.UserName)
+            {
+                return BadRequest("You can't change another user's phone number.");
             }
             user.PhoneNumber = changePhoneDTO.NewPhone;
             var result = await _userManager.UpdateAsync(user);
