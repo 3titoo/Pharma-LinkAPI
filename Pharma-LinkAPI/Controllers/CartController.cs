@@ -84,7 +84,7 @@ public class CartController : ControllerBase
         var user = await _accountRepositry.GetCurrentUser(User);
 
         var cart = await _context.Carts
-            .Include(c => c.CartItems)
+            .Include(c => c.CartItems).ThenInclude(ci => ci.Medicine)
             .FirstOrDefaultAsync(c => c.PharmacyId == user.Id);
 
         if (cart == null)
@@ -93,6 +93,10 @@ public class CartController : ControllerBase
         var existingItem = cart.CartItems.FirstOrDefault(ci => ci.MedicineId == dto.Id);
         if (existingItem != null)
         {
+            if(dto.Count + existingItem.Count > existingItem.Medicine.InStock)
+            {
+                return BadRequest("Not enough stock available.");
+            }
             existingItem.Count += dto.Count;
         }
         else
@@ -123,7 +127,7 @@ public class CartController : ControllerBase
         }
         var user = await _accountRepositry.GetCurrentUser(User);
         var cart = await _context.Carts
-            .Include(c => c.CartItems)
+            .Include(c => c.CartItems).ThenInclude(ci => ci.Medicine)
             .FirstOrDefaultAsync(c => c.PharmacyId == user.Id);
 
         var cartItem = await _context.CartItems.FindAsync(dto.Id);
@@ -135,6 +139,11 @@ public class CartController : ControllerBase
             _context.CartItems.Remove(cartItem);
             await _context.SaveChangesAsync();
             return Ok("Item removed from cart.");
+        }
+
+        if (dto.Count > cartItem.Medicine.InStock)
+        {
+            return BadRequest("Not enough stock available.");
         }
 
         cartItem.Count = dto.Count;
