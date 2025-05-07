@@ -494,7 +494,7 @@ namespace Pharma_LinkAPI.Controllers
                               .FirstOrDefaultAsync(o => o.OrderID == OrderId);
 
                 var currentUser = await _account.GetCurrentUser(User);
-                if (currentUser.Id != order.CompanyID)
+                if (currentUser.Id != order.PharmacyID)
                 {
                     return Problem("You are not authorized to view this order.");
                 }
