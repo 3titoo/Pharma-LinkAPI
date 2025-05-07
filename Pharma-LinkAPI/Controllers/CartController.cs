@@ -30,7 +30,7 @@ public class CartController : ControllerBase
 
 
         var cart = await _context.Carts
-            .Include(c => c.CartItems)
+            .Include(c => c.CartItems).ThenInclude(ci => ci.Medicine)
             .FirstOrDefaultAsync(c => c.PharmacyId == user.Id);
 
         if (cart == null)
@@ -169,9 +169,9 @@ public class CartController : ControllerBase
     [HttpGet("Summary/{cartId}")]
     public async Task<ActionResult<SummaryDTO>> GetCartSummary(int cartId)
     {
-        var cart = await _context.Carts
+        var cart = await _context.Carts.Include(ph=>ph.Pharmacy)
             .Include(c => c.CartItems)
-            .ThenInclude(ci => ci.Medicine)
+            .ThenInclude(ci => ci.Medicine).ThenInclude(m => m.Company)
             .FirstOrDefaultAsync(c => c.CartId == cartId);
 
         if (cart == null)
