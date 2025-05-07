@@ -82,8 +82,10 @@ namespace Pharma_LinkAPI.Controllers
 
         [Authorize(Roles = SD.Role_Company)]
         [HttpPost]
-        public async Task<ActionResult<string>> addMedicine(MedicineDTO medicine, [FromForm] IFormFile? img) {
+        public async Task<ActionResult<string>> addMedicine([FromForm] MedicineDTO medicine)
+        {
             #region Image
+            var img = medicine.Image;
             if (img == null || img.Length == 0)
                 return BadRequest("No image uploaded.");
             var imgExtension = Path.GetExtension(img.FileName).ToLower();
@@ -98,7 +100,7 @@ namespace Pharma_LinkAPI.Controllers
             }
             #endregion
             var userId = int.Parse(User.FindFirst(ClaimTypes.NameIdentifier)?.Value);
-            
+
             var medicineModel = new Medicine
             {
                 Name = medicine.Name,
@@ -114,7 +116,7 @@ namespace Pharma_LinkAPI.Controllers
         }
         [Authorize(Roles = SD.Role_Company)]
         [HttpPut("{id}")]
-        public ActionResult<string> UpdateMedicine(int id, MedicineDTO medicine,IFormFile? img)
+        public ActionResult<string> UpdateMedicine(int id, [FromForm] MedicineDTO medicine)
         {
             var existingMedicine = _medicineRepositiry.GetById(id);
             if (existingMedicine == null)
@@ -125,6 +127,7 @@ namespace Pharma_LinkAPI.Controllers
             existingMedicine.Description = medicine.Description;
             existingMedicine.Price = medicine.Price;
             existingMedicine.InStock = medicine.InStock;
+            var img = medicine.Image;
             if (img != null)
             {
                 //var img = medicine.img;

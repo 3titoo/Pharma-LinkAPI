@@ -21,6 +21,9 @@ namespace Pharma_LinkAPI.DTO
         [Required]
         [Range(0, int.MaxValue, ErrorMessage = "InStock quantity cannot be negative")]
         public int? InStock { get; set; }
-        
+
+        [Required]
+        public IFormFile? Image { get; set; }
+
     }
 }
