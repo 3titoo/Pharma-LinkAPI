@@ -82,9 +82,8 @@ namespace Pharma_LinkAPI.Controllers
 
         [Authorize(Roles = SD.Role_Company)]
         [HttpPost]
-        public async Task<ActionResult<string>> addMedicine(MedicineDTO medicine) {
+        public async Task<ActionResult<string>> addMedicine(MedicineDTO medicine, [FromForm] IFormFile? img) {
             #region Image
-            var img = medicine.img;
             if (img == null || img.Length == 0)
                 return BadRequest("No image uploaded.");
             var imgExtension = Path.GetExtension(img.FileName).ToLower();
@@ -113,9 +112,9 @@ namespace Pharma_LinkAPI.Controllers
             _medicineRepositiry.Add(medicineModel);
             return Ok("Medicine added successfully");
         }
-
+        [Authorize(Roles = SD.Role_Company)]
         [HttpPut("{id}")]
-        public ActionResult<string> UpdateMedicine(int id, MedicineDTO medicine)
+        public ActionResult<string> UpdateMedicine(int id, MedicineDTO medicine,IFormFile? img)
         {
             var existingMedicine = _medicineRepositiry.GetById(id);
             if (existingMedicine == null)
@@ -126,9 +125,9 @@ namespace Pharma_LinkAPI.Controllers
             existingMedicine.Description = medicine.Description;
             existingMedicine.Price = medicine.Price;
             existingMedicine.InStock = medicine.InStock;
-            if (medicine.img != null)
+            if (img != null)
             {
-                var img = medicine.img;
+                //var img = medicine.img;
                 var imgExtension = Path.GetExtension(img.FileName).ToLower();
                 if (imgExtension != ".jpg" && imgExtension != ".png" && imgExtension != ".jpeg")
                     return BadRequest("Only JPG, PNG, and JPEG files are allowed.");

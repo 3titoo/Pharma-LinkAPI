@@ -184,10 +184,11 @@ namespace Pharma_LinkAPI.Controllers
 
         
 
-        [Authorize(SD.Role_Admin)]
+        [Authorize(Roles = SD.Role_Admin)]
         [HttpDelete("DeleteUser")]
         public async Task<IActionResult> DeleteUser(string userName)
         {
+
             if(userName == "admin")
             {
                 return BadRequest("You can't delete the admin account.");

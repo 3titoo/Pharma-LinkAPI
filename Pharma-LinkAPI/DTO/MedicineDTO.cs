@@ -1,4 +1,5 @@
 ﻿using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Mvc;
 using System.ComponentModel.DataAnnotations;
 
 namespace Pharma_LinkAPI.DTO
@@ -20,7 +21,6 @@ namespace Pharma_LinkAPI.DTO
         [Required]
         [Range(0, int.MaxValue, ErrorMessage = "InStock quantity cannot be negative")]
         public int? InStock { get; set; }
-        //[Required]
-        public IFormFile? img { get; set; }
+        
     }
 }

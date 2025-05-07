@@ -22,7 +22,6 @@ namespace Pharma_LinkAPI.Controllers
             _accountRepositry = accountRepositry;
             _userManager = userManager;
         }
-
         [HttpGet("{username}")]
         public async Task<IActionResult> GetProfile(string username)
         {
@@ -67,6 +66,7 @@ namespace Pharma_LinkAPI.Controllers
                 if (user.ReviewsReceived == null || user.ReviewsReceived.Count == 0 || curr == null)
                 {
                     companyProfile.CompanyRating = 0;
+                    companyProfile.CurrentUserReview = 0;
                     return Ok(companyProfile);
                 }
 

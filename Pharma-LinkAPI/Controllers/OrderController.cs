@@ -10,6 +10,8 @@ using System.ComponentModel.Design;
 using static Microsoft.EntityFrameworkCore.DbLoggerCategory.Database;
 using System.Transactions;
 using static NuGet.Packaging.PackagingConstants;
+using Microsoft.AspNetCore.Authorization;
+using Pharma_LinkAPI.Repositries.Irepositry;
 
 namespace Pharma_LinkAPI.Controllers
 {
@@ -19,15 +21,24 @@ namespace Pharma_LinkAPI.Controllers
     {
         private readonly AppDbContext Context;
         private readonly UserManager<AppUser> MyUsers;
-        public OrderController(AppDbContext _context, UserManager<AppUser> _users)
+        private readonly IAccountRepositry _account;
+        public OrderController(AppDbContext _context, UserManager<AppUser> _users,IAccountRepositry account)
         {
             Context = _context;
             MyUsers = _users;
+            _account = account;
         }
 
+        [Authorize(Roles = SD.Role_Company)]
         [HttpGet("IndexCompanyOrder/{CompanyId:int}")]
         public async Task<ActionResult<IEnumerable<CompanyInvoiceDTO>>> IndexCompanyOrder(int CompanyId)
         {
+            var currentUser = await _account.GetCurrentUser(User);
+            if (currentUser.Id != CompanyId)
+            {
+                return Problem("You are not authorized to view this order.");
+            }
+
             var orders = Context.Orders.Include(o => o.Pharmacy)                                      
                                        .Where(o => o.CompanyID == CompanyId);
 
@@ -57,9 +68,16 @@ namespace Pharma_LinkAPI.Controllers
 
         }
 
+        [Authorize(Roles = SD.Role_Pharmacy)]
         [HttpGet("IndexPharmacyOrder/{PharmacyId:int}")]
         public async Task<ActionResult<IEnumerable<PharmacyInvoiceDTO>>> IndexPharmacyOrder(int PharmacyId)
         {
+            var currentUser = await _account.GetCurrentUser(User);
+            if (currentUser.Id != PharmacyId)
+            {
+                return Problem("You are not authorized to view this order.");
+            }
+
             var orders = Context.Orders.Include(o => o.Company)
                                        .Where(o => o.PharmacyID == PharmacyId);
 
@@ -87,6 +105,7 @@ namespace Pharma_LinkAPI.Controllers
 
         }
 
+        [Authorize]
         [HttpGet("Invoice/{OrderId:int}")]
         public async Task<ActionResult<InvoiceDTO>> GetInvoice(int OrderId)
         {
@@ -94,6 +113,13 @@ namespace Pharma_LinkAPI.Controllers
                                         .Include(o => o.Pharmacy)
                                         .Include(o => o.Company)
                                         .FirstOrDefaultAsync(o => o.OrderID == OrderId);
+
+            var currentUser = await _account.GetCurrentUser(User);
+
+            if(currentUser.Id != order.CompanyID && currentUser.Id != order.PharmacyID)
+            {
+                return Problem("You are not authorized to view this order.");
+            }
 
             if (order == null)
             {
@@ -147,6 +173,7 @@ namespace Pharma_LinkAPI.Controllers
             return Ok(Invoice);
         }
 
+        [Authorize(Roles = SD.Role_Pharmacy)]
         [HttpPost("PlaceOrder/{CartId:int}/{companyId:int}")]
         public async Task<ActionResult<InvoiceDTO>> PlaceOrder(int CartId, int companyId)
         {
@@ -298,7 +325,7 @@ namespace Pharma_LinkAPI.Controllers
             }
         }
 
-
+        [Authorize(Roles = SD.Role_Company)]
         [HttpPut("done/{OrderId:int}")]
         public async Task<ActionResult<InvoiceDTO>> DoneOrder(int OrderId)
         {
@@ -306,6 +333,12 @@ namespace Pharma_LinkAPI.Controllers
                                         .Include(o => o.Pharmacy)
                                         .Include(o => o.Company)
                                         .FirstOrDefaultAsync(o => o.OrderID == OrderId);
+
+            var currentUser = await _account.GetCurrentUser(User);
+            if( currentUser.Id != order.CompanyID)
+            {
+                return Problem("You are not authorized to view this order.");
+            }
 
             if (order == null)
             {
@@ -370,7 +403,7 @@ namespace Pharma_LinkAPI.Controllers
             return Ok(Invoice);
         }
 
-
+        [Authorize(Roles = SD.Role_Company)]
         [HttpPut("deliver/{OrderId:int}")]
         public async Task<ActionResult<InvoiceDTO>> DeliverOrder(int OrderId)
         {
@@ -378,6 +411,12 @@ namespace Pharma_LinkAPI.Controllers
                                         .Include(o => o.Pharmacy)
                                         .Include(o => o.Company)
                                         .FirstOrDefaultAsync(o => o.OrderID == OrderId);
+
+            var currentUser = await _account.GetCurrentUser(User);
+            if (currentUser.Id != order.CompanyID)
+            {
+                return Problem("You are not authorized to view this order.");
+            }
 
             if (order == null)
             {
@@ -442,7 +481,9 @@ namespace Pharma_LinkAPI.Controllers
             return Ok(Invoice);
         }
 
-        [HttpDelete(("Cancel/{OrderId:int}"))]
+
+        [Authorize(Roles = SD.Role_Company)]
+        [HttpDelete("Cancel/{OrderId:int}")]
         public async Task<ActionResult> CancelOrder(int OrderId)
         {
             using var transaction = await Context.Database.BeginTransactionAsync(); // Begin transaction
@@ -451,6 +492,12 @@ namespace Pharma_LinkAPI.Controllers
             {
                 var order = await Context.Orders.Include(o => o.OrderItems)
                               .FirstOrDefaultAsync(o => o.OrderID == OrderId);
+
+                var currentUser = await _account.GetCurrentUser(User);
+                if (currentUser.Id != order.CompanyID)
+                {
+                    return Problem("You are not authorized to view this order.");
+                }
 
                 if (order == null)
                 {
