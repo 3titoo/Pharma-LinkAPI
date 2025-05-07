@@ -482,7 +482,7 @@ namespace Pharma_LinkAPI.Controllers
         }
 
 
-        [Authorize(Roles = SD.Role_Company)]
+        [Authorize(Roles = SD.Role_Pharmacy)]
         [HttpDelete("Cancel/{OrderId:int}")]
         public async Task<ActionResult> CancelOrder(int OrderId)
         {
