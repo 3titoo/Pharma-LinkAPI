@@ -22,7 +22,7 @@ namespace Pharma_LinkAPI.Controllers
         private readonly AppDbContext Context;
         private readonly UserManager<AppUser> MyUsers;
         private readonly IAccountRepositry _account;
-        public OrderController(AppDbContext _context, UserManager<AppUser> _users,IAccountRepositry account)
+        public OrderController(AppDbContext _context, UserManager<AppUser> _users, IAccountRepositry account)
         {
             Context = _context;
             MyUsers = _users;
@@ -39,10 +39,10 @@ namespace Pharma_LinkAPI.Controllers
                 return Problem("You are not authorized to view this order.");
             }
 
-            var orders = Context.Orders.Include(o => o.Pharmacy)                                      
+            var orders = Context.Orders.Include(o => o.Pharmacy)
                                        .Where(o => o.CompanyID == CompanyId);
 
-            if(orders == null)
+            if (orders == null)
             {
                 return NotFound("Orders for Company not found.");
             }
@@ -116,7 +116,7 @@ namespace Pharma_LinkAPI.Controllers
 
             var currentUser = await _account.GetCurrentUser(User);
 
-            if(currentUser.Id != order.CompanyID && currentUser.Id != order.PharmacyID)
+            if (currentUser.Id != order.CompanyID && currentUser.Id != order.PharmacyID)
             {
                 return Problem("You are not authorized to view this order.");
             }
@@ -126,12 +126,12 @@ namespace Pharma_LinkAPI.Controllers
                 return NotFound("Orders not found.");
             }
 
-            if(order.OrderItems == null)
+            if (order.OrderItems == null)
             {
                 return NotFound("Order items not found.");
             }
 
-            if(order.Company == null)
+            if (order.Company == null)
             {
                 return NotFound("Company not found.");
             }
@@ -191,7 +191,7 @@ namespace Pharma_LinkAPI.Controllers
                     return NotFound("Cart not found.");
                 }
 
-                if(CurrentCart.CartItems == null)
+                if (CurrentCart.CartItems == null)
                 {
                     return NotFound("Cart items not found.");
                 }
@@ -199,7 +199,7 @@ namespace Pharma_LinkAPI.Controllers
                 var MedicinesForCompany = await Context.Medicines.Where(m => m.Company_Id == companyId)
                                                                  .ToDictionaryAsync(m => m.ID);
 
-                if(MedicinesForCompany == null)
+                if (MedicinesForCompany == null)
                 {
                     return NotFound("Medicines for Company not found.");
                 }
@@ -210,7 +210,7 @@ namespace Pharma_LinkAPI.Controllers
                 {
                     Medicine CurMedicine = MedicinesForCompany[item.MedicineId.Value];
 
-                    if(CurMedicine == null)
+                    if (CurMedicine == null)
                     {
                         return NotFound("Medicine not found.");
                     }
@@ -337,7 +337,7 @@ namespace Pharma_LinkAPI.Controllers
                                         .FirstOrDefaultAsync(o => o.OrderID == OrderId);
 
             var currentUser = await _account.GetCurrentUser(User);
-            if( currentUser.Id != order.CompanyID)
+            if (currentUser.Id != order.CompanyID)
             {
                 return Problem("You are not authorized to view this order.");
             }
@@ -529,7 +529,7 @@ namespace Pharma_LinkAPI.Controllers
                 var companyId = order.CompanyID;
                 var Medicines = await Context.Medicines.Where(m => m.Company_Id == companyId).ToListAsync();
 
-                if(Medicines == null)
+                if (Medicines == null)
                 {
                     return NotFound("Medicines for Company not found.");
                 }
@@ -561,7 +561,7 @@ namespace Pharma_LinkAPI.Controllers
 
                 return StatusCode(500, $"An error occurred while executing the request.: {ex.Message}");
             }
-            
+
         }
 
     }
