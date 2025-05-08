@@ -21,5 +21,11 @@
 
         public string? Role { get; set; }
         public float CurrentUserReview { get; set; } = 0;
+
+        public decimal MinPriceToOrder { get; set; } = 0;
+
+        public int TotalReviws { get; set; } = 0;
+
+
     }
 }

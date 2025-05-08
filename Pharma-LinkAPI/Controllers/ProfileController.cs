@@ -60,13 +60,15 @@ namespace Pharma_LinkAPI.Controllers
                     CompanyEmail = user.Email,
                     CompanyLicenseNumber = user.LiscnceNumber,
                     CompanyImagePath = user.ImagePath,
-                    Role = user.Role
+                    Role = user.Role,
+                    MinPriceToOrder = user.MinPriceToMakeOrder,
                 };
                 float totalRating = 0;
                 if (user.ReviewsReceived == null || user.ReviewsReceived.Count == 0 || curr == null)
                 {
                     companyProfile.CompanyRating = 0;
                     companyProfile.CurrentUserReview = 0;
+                    companyProfile.TotalReviws = 0;
                     return Ok(companyProfile);
                 }
 
@@ -80,6 +82,8 @@ namespace Pharma_LinkAPI.Controllers
                     }
                 }
                 companyProfile.CompanyRating = totalRating / user.ReviewsReceived.Count;
+                companyProfile.TotalReviws = user.ReviewsReceived.Count;
+
 
                 return Ok(companyProfile);
             }
@@ -188,6 +192,36 @@ namespace Pharma_LinkAPI.Controllers
             string error = string.Join(" | ", result.Errors.Select(x => x.Description));
             return BadRequest(error);
         }
+
+        [Authorize]
+        [HttpPut("ChangeMinPrice")]
+        public async Task<IActionResult> ChangeMinPrice(ChangeMinPriceDTO dto)
+        {
+            if (!ModelState.IsValid)
+            {
+                string errors = string.Join(", ", ModelState.Values.SelectMany(v => v.Errors).Select(e => e.ErrorMessage));
+                return BadRequest(errors);
+            }
+            var user = await _accountRepositry.GetUserByuserName(dto.username);
+            if (user == null)
+            {
+                return NotFound("User not found.");
+            }
+            var current = await _accountRepositry.GetCurrentUser(User);
+            if (user.UserName != current.UserName)
+            {
+                return BadRequest("You can't change another user's min price.");
+            }
+            user.MinPriceToMakeOrder = dto.MinPriceToOrder;
+            var result = await _userManager.UpdateAsync(user);
+            if (result.Succeeded)
+            {
+                return Ok("Min price changed successfully.");
+            }
+            string error = string.Join(" | ", result.Errors.Select(x => x.Description));
+            return BadRequest(error);
+        }
+
 
     }
 }
