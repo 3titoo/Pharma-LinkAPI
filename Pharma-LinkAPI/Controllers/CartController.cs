@@ -94,7 +94,7 @@ public class CartController : ControllerBase
             .FirstOrDefaultAsync(c => c.PharmacyId == user.Id);
 
 
-        if (cart.CartItems != null)
+        if (cart.CartItems != null && cart.CartItems.Count > 0)
         {
             var company = cart.CartItems.FirstOrDefault().Medicine.Company;
 
