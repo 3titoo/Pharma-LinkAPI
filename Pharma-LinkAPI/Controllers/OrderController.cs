@@ -154,7 +154,7 @@ namespace Pharma_LinkAPI.Controllers
                 State = order.Pharmacy.State,
                 City = order.Pharmacy.City,
                 OrderDate = order.OrderDate,
-                StatusOrder = SD.StatusOrder_pending,
+                StatusOrder = order.StatusOrder,
                 TotalPriceOrder = order.TotalPrice,
                 Medicines = new List<InvoiceMedicineDTO>()
             };
@@ -162,9 +162,9 @@ namespace Pharma_LinkAPI.Controllers
             {
                 var InvoiceMedicineDTO = new InvoiceMedicineDTO
                 {
-                    Name = item.Medicine.Name,
-                    Image_URL = item.Medicine.Image_URL,
-                    UnitPrice = item.Medicine.Price,
+                    Name = item.MedicineName,
+                    Image_URL = item.MedicineImage,
+                    UnitPrice = item.UnitPrice,
                     Count = item.Count,
                     TotalPrice = item.TotalPrice
                 };
@@ -245,6 +245,8 @@ namespace Pharma_LinkAPI.Controllers
                     OrderItem newOrderItem = new OrderItem
                     {
                         MedicineID = item.MedicineId,
+                        MedicineName = item.Medicine.Name,
+                        MedicineImage = item.Medicine.Image_URL,
                         Count = item.Count,
                         UnitPrice = item.UnitPrice,
                         TotalPrice = item.Count * item.UnitPrice
@@ -290,7 +292,7 @@ namespace Pharma_LinkAPI.Controllers
                     State = pharmacy.State,
                     City = pharmacy.City,
                     OrderDate = DateOnly.FromDateTime(DateTime.Now),
-                    StatusOrder = SD.StatusOrder_pending,
+                    StatusOrder = newOrder.StatusOrder,
                     TotalPriceOrder = newOrder.TotalPrice,
                     Medicines = new List<InvoiceMedicineDTO>()
                 };
@@ -298,8 +300,8 @@ namespace Pharma_LinkAPI.Controllers
                 {
                     var InvoiceMedicineDTO = new InvoiceMedicineDTO
                     {
-                        Name = item.Medicine.Name,
-                        Image_URL = item.Medicine.Image_URL,
+                        Name = item.MedicineName,
+                        Image_URL = item.MedicineImage,
                         UnitPrice = item.Medicine.Price,
                         Count = item.Count,
                         TotalPrice = item.TotalPrice
@@ -381,7 +383,7 @@ namespace Pharma_LinkAPI.Controllers
                 State = order.Pharmacy.State,
                 City = order.Pharmacy.City,
                 OrderDate = order.OrderDate,
-                StatusOrder = SD.StatusOrder_shipped,
+                StatusOrder = order.StatusOrder,
                 TotalPriceOrder = order.TotalPrice,
                 Medicines = new List<InvoiceMedicineDTO>()
             };
@@ -389,9 +391,9 @@ namespace Pharma_LinkAPI.Controllers
             {
                 var InvoiceMedicineDTO = new InvoiceMedicineDTO
                 {
-                    Name = item.Medicine.Name,
-                    Image_URL = item.Medicine.Image_URL,
-                    UnitPrice = item.Medicine.Price,
+                    Name = item.MedicineName,
+                    Image_URL = item.MedicineImage,
+                    UnitPrice = item.UnitPrice,
                     Count = item.Count,
                     TotalPrice = item.TotalPrice
                 };
@@ -459,7 +461,7 @@ namespace Pharma_LinkAPI.Controllers
                 State = order.Pharmacy.State,
                 City = order.Pharmacy.City,
                 OrderDate = order.OrderDate,
-                StatusOrder = SD.StatusOrder_delivered,
+                StatusOrder = order.StatusOrder,
                 TotalPriceOrder = order.TotalPrice,
                 Medicines = new List<InvoiceMedicineDTO>()
             };
@@ -467,9 +469,9 @@ namespace Pharma_LinkAPI.Controllers
             {
                 var InvoiceMedicineDTO = new InvoiceMedicineDTO
                 {
-                    Name = item.Medicine.Name,
-                    Image_URL = item.Medicine.Image_URL,
-                    UnitPrice = item.Medicine.Price,
+                    Name = item.MedicineName,
+                    Image_URL = item.MedicineImage,
+                    UnitPrice = item.UnitPrice,
                     Count = item.Count,
                     TotalPrice = item.TotalPrice
                 };

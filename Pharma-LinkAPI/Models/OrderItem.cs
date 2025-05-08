@@ -17,7 +17,8 @@ namespace Pharma_LinkAPI.Models
         [ForeignKey("Medicine")]
         public int? MedicineID { get; set; }
         public virtual Medicine? Medicine { get; set; }
-
+        public string? MedicineName { get; set; }
+        public string? MedicineImage { get; set; }
         public int? Count { get; set; }
         public decimal? UnitPrice { get; set; }
         public decimal? TotalPrice { get; set; }
