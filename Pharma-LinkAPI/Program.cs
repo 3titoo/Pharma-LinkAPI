@@ -56,6 +56,14 @@ builder.Services.AddSwaggerGen(c =>
 builder.Services.AddDbContext<AppDbContext>(options =>
     options.UseSqlServer(builder.Configuration.GetConnectionString("PharmaLinkDB")));
 
+builder.Services.AddCors(options => {
+    options.AddPolicy("AllowSwagger", builder => {
+        builder.AllowAnyOrigin()
+               .AllowAnyMethod()
+               .AllowAnyHeader();
+    });
+});
+
 builder.Services.AddTransient<IJwtService, JwtService>();
 
 builder.Services.AddIdentity<AppUser, AppRole>(options =>
@@ -131,8 +139,8 @@ if (app.Environment.IsDevelopment())
 }
 
 app.UseHttpsRedirection();
-app.UseCors();
 
+app.UseCors("AllowSwagger");
 app.UseAuthentication();
 app.UseAuthorization();
 
