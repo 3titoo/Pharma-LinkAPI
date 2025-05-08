@@ -84,9 +84,29 @@ public class CartController : ControllerBase
 
         var user = await _accountRepositry.GetCurrentUser(User);
 
+        if (user == null)
+        {
+            return BadRequest("user should log in");
+        }
+
         var cart = await _context.Carts
-            .Include(c => c.CartItems).ThenInclude(ci => ci.Medicine)
+            .Include(c => c.CartItems).ThenInclude(ci => ci.Medicine).ThenInclude(m => m.Company)
             .FirstOrDefaultAsync(c => c.PharmacyId == user.Id);
+
+
+        if (cart.CartItems != null && cart.CartItems.Count > 0)
+        {
+            var company = cart.CartItems.FirstOrDefault().Medicine.Company;
+
+            var compMedicine = await _context.Medicines
+                .Include(m => m.Company).Where(d => dto.Id == d.Company_Id).FirstOrDefaultAsync();
+
+            if (company.Id != compMedicine.Company_Id)
+            {
+                return BadRequest($"You can only add medicines from the same company ({company.Name}) to the cart.");
+            }
+        }
+
 
         if (cart == null)
             return NotFound("Cart not found.");
@@ -103,6 +123,10 @@ public class CartController : ControllerBase
         else
         {
             var medicine = await _context.Medicines.FindAsync(dto.Id);
+            if(medicine == null)
+            {
+                return BadRequest("medicine not found");
+            }
             cart.CartItems.Add(new CartItem
             {
                 MedicineId = dto.Id,
