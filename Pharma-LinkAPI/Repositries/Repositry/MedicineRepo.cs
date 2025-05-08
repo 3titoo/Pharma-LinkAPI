@@ -23,7 +23,7 @@ namespace Pharma_LinkAPI.Repositries.Repositry
             var medicine = GetById(id);
             if (medicine != null)
             {
-                _db.Medicines.Remove(medicine);
+                medicine.IsDeleted = true;
                 _db.SaveChanges();
             }
         }

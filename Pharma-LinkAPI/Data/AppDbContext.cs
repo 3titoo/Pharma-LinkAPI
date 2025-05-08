@@ -126,6 +126,10 @@ namespace Pharma_LinkAPI.Data
                 .OnDelete(DeleteBehavior.Cascade);
             #endregion
 
+            #region softDelete
+            builder.Entity<Medicine>().HasQueryFilter(m => m.IsDeleted == false);
+            #endregion
+
         }
     }
 }

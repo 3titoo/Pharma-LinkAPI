@@ -28,5 +28,7 @@ namespace Pharma_LinkAPI.Models
         [ValidateNever]
         public  AppUser? Company { get; set; }
 
+        public bool IsDeleted { get; set; } = false;
+
     }
 }
