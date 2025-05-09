@@ -8,7 +8,7 @@
         public decimal? Price { get; set; }
         public int? InStock { get; set; }
         public string? CompanyName { get; set; }
-
+        public string? CompanyUserName { get; set; }
         public string? ImageUrl { get; set; }
 
     }

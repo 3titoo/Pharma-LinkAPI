@@ -66,7 +66,7 @@ namespace Pharma_LinkAPI.Controllers
                     MinPriceToOrder = user.MinPriceToMakeOrder,
                 };
                 float totalRating = 0;
-                if (user.ReviewsReceived == null || user.ReviewsReceived.Count == 0 || curr == null)
+                if (user.ReviewsReceived == null || user.ReviewsReceived.Count == 0)
                 {
                     companyProfile.CompanyRating = 0;
                     companyProfile.CurrentUserReview = 0;

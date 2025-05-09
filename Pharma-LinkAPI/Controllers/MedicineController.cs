@@ -51,6 +51,7 @@ namespace Pharma_LinkAPI.Controllers
                     if (user != null)
                     {
                         item.CompanyName = user.Name;
+                        item.CompanyUserName = user.UserName;
                     }
                 }
                 ret.Add(item);
