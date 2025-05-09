@@ -35,6 +35,7 @@ namespace Pharma_LinkAPI.Controllers
             {
                 var profile = new PharmacyProfileViewModel
                 {
+                    Id = user.Id,
                     PharmacyName = user.Name,
                     DrName = user.DrName,
                     Street = user.Street,
@@ -52,6 +53,7 @@ namespace Pharma_LinkAPI.Controllers
             {
                 var companyProfile = new CompanyProfileViewModel
                 {
+                    Id = user.Id,
                     CompanyName = user.Name,
                     Street = user.Street,
                     State = user.State,

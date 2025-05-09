@@ -9,6 +9,7 @@
     //}
     public class CompanyProfileViewModel
     {
+        public int Id { get; set; }
         public string? CompanyName { get; set; }
         public string? Street { get; set; }
         public string? State { get; set; }

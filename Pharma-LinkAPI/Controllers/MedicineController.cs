@@ -1,6 +1,7 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using Pharma_LinkAPI.Data;
 using Pharma_LinkAPI.DTO;
 using Pharma_LinkAPI.Identity;
 using Pharma_LinkAPI.Models;
@@ -18,10 +19,12 @@ namespace Pharma_LinkAPI.Controllers
     {
         private readonly ImedicineRepositiry _medicineRepositiry;
         private readonly IAccountRepositry _accountRepositry;
-        public MedicineController(ImedicineRepositiry medicineRepositiry, IAccountRepositry accountRepositry)
+        private readonly AppDbContext _context;
+        public MedicineController(ImedicineRepositiry medicineRepositiry, IAccountRepositry accountRepositry,AppDbContext context)
         {
             _medicineRepositiry = medicineRepositiry;
             _accountRepositry = accountRepositry;
+            _context = context;
         }
 
         [HttpGet]
@@ -147,14 +150,22 @@ namespace Pharma_LinkAPI.Controllers
             return Ok("Medicine updated successfully");
         }
 
+        [Authorize(Roles = SD.Role_Company)]
         [HttpDelete("{id}")]
         public ActionResult<string> DeleteMedicine(int id)
         {
+            var user = _accountRepositry.GetCurrentUser(User);
+
             var existingMedicine = _medicineRepositiry.GetById(id);
             if (existingMedicine == null)
             {
                 return NotFound();
             }
+            if (existingMedicine.Company_Id != user.Id)
+            {
+                return BadRequest("You are not allowed to remove another company Products");
+            }
+            _context.CartItems.RemoveRange(_context.CartItems.Where(x => x.MedicineId == id));
             _medicineRepositiry.Delete(existingMedicine.ID);
             return Ok("Medicine deleted successfully");
         }

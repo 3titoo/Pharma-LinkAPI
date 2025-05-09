@@ -99,7 +99,7 @@ public class CartController : ControllerBase
             var company = cart.CartItems.FirstOrDefault().Medicine.Company;
 
             var compMedicine = await _context.Medicines
-                .Include(m => m.Company).Where(d => dto.Id == d.Company_Id).FirstOrDefaultAsync();
+                .Include(m => m.Company).Where(d => dto.Id == d.ID).FirstOrDefaultAsync();
 
             if (company.Id != compMedicine.Company_Id)
             {
@@ -131,7 +131,7 @@ public class CartController : ControllerBase
             {
                 MedicineId = dto.Id,
                 Count = dto.Count,
-                UnitPrice = dto.Count * medicine.Price.Value,
+                UnitPrice = medicine.Price.Value,
             });
         }
 
@@ -140,7 +140,7 @@ public class CartController : ControllerBase
     }
 
 
-    [HttpPut("UpdateCartItem/{id}")]
+    [HttpPut("UpdateCartItem")]
     public async Task<IActionResult> UpdateCartItem(CartItemDTO dto)
     {
         if (!ModelState.IsValid)
@@ -198,8 +198,8 @@ public class CartController : ControllerBase
             .ThenInclude(ci => ci.Medicine).ThenInclude(m => m.Company)
             .FirstOrDefaultAsync(c => c.CartId == cartId);
 
-        if (cart == null)
-            return NotFound("Cart not found.");
+        if (cart.CartItems == null || cart.CartItems.Count == 0)
+            return NotFound("Cart items not found.");
         var totalPrice = cart.CartItems.Sum(ci => ci.Count * ci.UnitPrice);
 
         var company = cart.CartItems.FirstOrDefault().Medicine.Company;

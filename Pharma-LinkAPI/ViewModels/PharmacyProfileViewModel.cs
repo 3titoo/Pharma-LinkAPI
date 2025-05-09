@@ -4,6 +4,7 @@ namespace Pharma_LinkAPI.ViewModels
 {
     public class PharmacyProfileViewModel
     {
+        public int Id { get; set; }
         public string? PharmacyName { get; set; }
         public string? DrName { get; set; }
         public string? Street { get; set; }
