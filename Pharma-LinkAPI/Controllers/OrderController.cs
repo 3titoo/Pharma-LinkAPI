@@ -51,6 +51,7 @@ namespace Pharma_LinkAPI.Controllers
                 {
                     OrderID = item.OrderID,
                     PharmacyName = item.Pharmacy.Name,
+                    PharmacyUserName = item.Pharmacy.UserName,
                     DRName = item.Pharmacy.DrName,
                     PharmacyPhone = item.Pharmacy.PhoneNumber,
                     Street = item.Pharmacy.Street,
@@ -87,6 +88,7 @@ namespace Pharma_LinkAPI.Controllers
                 {
                     OrderID = item.OrderID,
                     CompanyName = item.Company.Name,
+                    CompanyUserName = item.Company.UserName,
                     Street = item.Company.Street,
                     State = item.Company.State,
                     City = item.Company.City,
@@ -169,7 +171,7 @@ namespace Pharma_LinkAPI.Controllers
 
         [Authorize(Roles = SD.Role_Pharmacy)]
         [HttpPost("PlaceOrder/{CartId:int}/{companyId:int}")]
-        public async Task<ActionResult<InvoiceDTO>> PlaceOrder(int CartId, int companyId)
+        public async Task<IActionResult> PlaceOrder(int CartId, int companyId)
         {
 
             using var transaction = await Context.Database.BeginTransactionAsync(); // Begin transaction
@@ -287,43 +289,13 @@ namespace Pharma_LinkAPI.Controllers
                     return NotFound("Pharmacy not found.");
                 }
 
-                var Invoice = new InvoiceDTO
-                {
-                    OrderID = newOrder.OrderID,
-                    DRName = pharmacy.DrName,
-                    Phone = pharmacy.PhoneNumber,
-                    PharmacyLicense = pharmacy.LiscnceNumber,
-                    PharmacyName = pharmacy.Name,
-                    CompanyName = company.Name,
-                    CompanyLicense = company.LiscnceNumber,
-                    Street = pharmacy.Street,
-                    State = pharmacy.State,
-                    City = pharmacy.City,
-                    OrderDate = DateOnly.FromDateTime(DateTime.Now),
-                    StatusOrder = newOrder.StatusOrder,
-                    TotalPriceOrder = newOrder.TotalPrice,
-                    Medicines = new List<InvoiceMedicineDTO>()
-                };
-                foreach (var item in newOrder.OrderItems)
-                {
-                    var InvoiceMedicineDTO = new InvoiceMedicineDTO
-                    {
-                        Name = item.MedicineName,
-                        Image_URL = item.MedicineImage,
-                        UnitPrice = item.Medicine.Price,
-                        Count = item.Count,
-                        TotalPrice = item.TotalPrice
-                    };
-                    Invoice.Medicines.Add(InvoiceMedicineDTO);
-                }
-
                 // Save changes to the database
                 await Context.SaveChangesAsync();
 
                 // Commit the transaction
                 await transaction.CommitAsync();
 
-                return CreatedAtAction("GetInvoice", new { OrderId = newOrder.OrderID }, Invoice);
+                return Ok("order created");
             }
             catch (Exception ex)
             {
@@ -331,7 +303,7 @@ namespace Pharma_LinkAPI.Controllers
                 // Rollback the transaction if any error occurs
                 await transaction.RollbackAsync();
 
-                return StatusCode(500, $"An error occurred while executing the request.: {ex.Message}");
+                return Problem($"An error occurred while executing the request.: {ex.Message}");
             }
         }
 
@@ -558,7 +530,7 @@ namespace Pharma_LinkAPI.Controllers
                 // Commit the transaction
                 await transaction.CommitAsync();
 
-                return Content("The order has been successfully cancelled.");
+                return Ok("The order has been successfully cancelled.");
 
             }
             catch (Exception ex)
@@ -567,7 +539,7 @@ namespace Pharma_LinkAPI.Controllers
                 // Rollback the transaction if any error occurs
                 await transaction.RollbackAsync();
 
-                return StatusCode(500, $"An error occurred while executing the request.: {ex.Message}");
+                return Problem($"An error occurred while executing the request.: {ex.Message}");
             }
 
         }

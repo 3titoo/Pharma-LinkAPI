@@ -5,6 +5,8 @@
         public int OrderID { get; set; }
         public string CompanyName { get; set; }
 
+        public string CompanyUserName { get; set; }
+
         // Company Address information 
         public string Street { get; set; }
         public string State { get; set; }
