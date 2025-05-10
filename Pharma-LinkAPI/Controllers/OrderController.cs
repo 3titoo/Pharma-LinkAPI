@@ -181,7 +181,7 @@ namespace Pharma_LinkAPI.Controllers
                     .ThenInclude(c => c.Medicine)
                     .ThenInclude(m => m.Company)
                     .FirstOrDefaultAsync(c => c.CartId == CartId);
-                
+
                 if (CurrentCart == null)
                 {
                     return NotFound("Cart not found.");
@@ -205,9 +205,10 @@ namespace Pharma_LinkAPI.Controllers
                     return NotFound("Medicines for Company not found.");
                 }
 
+                var totalprice = CurrentCart.CartItems.Sum(ci => ci.Count * ci.UnitPrice);
 
                 var test = CurrentCart.CartItems.FirstOrDefault();
-                if(test != null && test.Medicine.Company.MinPriceToMakeOrder > CurrentCart.TotalPrice)
+                if (test != null && test.Medicine.Company.MinPriceToMakeOrder > totalprice)
                 {
                     return BadRequest($"Total price must be at least {test.Medicine.Company.MinPriceToMakeOrder} to make an order for {test.Medicine.Company.Name}.");
                 }
