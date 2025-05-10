@@ -19,6 +19,7 @@
         public int CartId { get; set; }
         public int CompanyId { get; set; }
 
+        public decimal MinPriceToMakeOrder { get; set; } = 0;
         public List<SummaryItemDTO> Medicines { get; set; } = new List<SummaryItemDTO>();
 
     }

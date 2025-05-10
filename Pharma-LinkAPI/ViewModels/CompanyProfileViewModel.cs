@@ -1,12 +1,12 @@
 ﻿namespace Pharma_LinkAPI.ViewModels
 {
-    //public class ReviewViewModel
-    //{
-    //    public int Id { get; set; }
-    //    public string? ReviewerName { get; set; }
-    //    public float Rating { get; set; }
-    //    public string? Comment { get; set; }
-    //}
+    public class ReviewViewModel
+    {
+        public int Id { get; set; }
+        public string? ReviewerName { get; set; }
+        public float Rating { get; set; }
+        public string? Comment { get; set; }
+    }
     public class CompanyProfileViewModel
     {
         public int Id { get; set; }
@@ -26,6 +26,8 @@
         public decimal MinPriceToOrder { get; set; } = 0;
 
         public int TotalReviws { get; set; } = 0;
+
+        public List<ReviewViewModel>? Reviews { get; set; } = new List<ReviewViewModel>();
 
 
     }

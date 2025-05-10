@@ -75,16 +75,35 @@ namespace Pharma_LinkAPI.Controllers
                 }
 
                 companyProfile.CurrentUserReview = 0;
+                int count = 0;
                 foreach (var review in user.ReviewsReceived)
                 {
                     totalRating += review.Rating;
                     var pharmacy = await _accountRepositry.GetUserById(review.PharmacyId.Value);
+                    if(review.Rating != 0)
+                    {
+                        count++;
+                    }
+                    companyProfile.Reviews.Add(new ReviewViewModel
+                    {
+                        Id = review.Id,
+                        ReviewerName = pharmacy.UserName,
+                        Rating = review.Rating,
+                        Comment = review.Comment
+                    });
                     if (pharmacy == curr) {
                         companyProfile.CurrentUserReview = review.Rating;
                     }
                 }
-                companyProfile.CompanyRating = totalRating / user.ReviewsReceived.Count;
-                companyProfile.TotalReviws = user.ReviewsReceived.Count;
+                if(count == 0)
+                {
+                    companyProfile.CompanyRating = 0;
+                }
+                else
+                {
+                    companyProfile.CompanyRating = (float)Math.Round(totalRating / count, 1);
+                }
+                companyProfile.TotalReviws = count;
 
 
                 return Ok(companyProfile);

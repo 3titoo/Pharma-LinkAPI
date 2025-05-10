@@ -120,33 +120,22 @@ namespace Pharma_LinkAPI.Controllers
         }
         [Authorize(Roles = SD.Role_Company)]
         [HttpPut("{id}")]
-        public ActionResult<string> UpdateMedicine(int id, [FromForm] MedicineDTO medicine)
+        public ActionResult<string> UpdateMedicine(int id, MedicinePutDTO medicine)
         {
+            var user = _accountRepositry.GetCurrentUser(User);
             var existingMedicine = _medicineRepositiry.GetById(id);
             if (existingMedicine == null)
             {
                 return NotFound();
             }
+            if(existingMedicine.Company_Id != user.Id)
+            {
+                return BadRequest("You are not allowed to update another company Products");
+            }
             existingMedicine.Name = medicine.Name;
             existingMedicine.Description = medicine.Description;
             existingMedicine.Price = medicine.Price;
             existingMedicine.InStock = medicine.InStock;
-            var img = medicine.Image;
-            if (img != null)
-            {
-                //var img = medicine.img;
-                var imgExtension = Path.GetExtension(img.FileName).ToLower();
-                if (imgExtension != ".jpg" && imgExtension != ".png" && imgExtension != ".jpeg")
-                    return BadRequest("Only JPG, PNG, and JPEG files are allowed.");
-                var uploadsFolder = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot/uploads");
-                Directory.CreateDirectory(uploadsFolder);
-                var imgPath = Path.Combine(uploadsFolder, img.FileName);
-                using (var stream = new FileStream(imgPath, FileMode.Create))
-                {
-                    img.CopyTo(stream);
-                }
-                existingMedicine.Image_URL = imgPath;
-            }
             _medicineRepositiry.Update(existingMedicine);
             return Ok("Medicine updated successfully");
         }
@@ -199,6 +188,27 @@ namespace Pharma_LinkAPI.Controllers
             }
             return Ok(ret);
         }
+        [Authorize(Roles = SD.Role_Company)]
+        [HttpPatch("updateStock")]
+        public ActionResult<string> UpdateStock(editMedicineQuantityDTO dto)
+        {
+            var user = _accountRepositry.GetCurrentUser(User);
+            var medicne = _medicineRepositiry.GetById(dto.medicineId);
+            if (medicne == null)
+            {
+                return NotFound("Medicine not found.");
+            }
+
+            if (medicne.Company_Id != user.Id)
+            {
+                return BadRequest("You are not allowed to update another company Products");
+            }
+
+            medicne.InStock = dto.quantity;
+            _medicineRepositiry.Update(medicne);
+            return Ok("Medicine stock updated successfully.");
+        }
+
     }
 
 }

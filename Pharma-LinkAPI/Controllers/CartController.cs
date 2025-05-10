@@ -190,9 +190,11 @@ public class CartController : ControllerBase
         return Ok("Item removed from cart.");
     }
 
-    [HttpGet("Summary/{cartId}")]
-    public async Task<ActionResult<SummaryDTO>> GetCartSummary(int cartId)
+    [HttpGet("Summary")]
+    public async Task<ActionResult<SummaryDTO>> GetCartSummary()
     {
+        var user = await _accountRepositry.GetCurrentUser(User);
+        var cartId = user.Cart.CartId;
         var cart = await _context.Carts.Include(ph=>ph.Pharmacy)
             .Include(c => c.CartItems)
             .ThenInclude(ci => ci.Medicine).ThenInclude(m => m.Company)
@@ -203,21 +205,22 @@ public class CartController : ControllerBase
         var totalPrice = cart.CartItems.Sum(ci => ci.Count * ci.UnitPrice);
 
         var company = cart.CartItems.FirstOrDefault().Medicine.Company;
-        if (totalPrice < company.MinPriceToMakeOrder)
-        {
-            return BadRequest($"Total price must be at least {company.MinPriceToMakeOrder} to make an order for {company.Name}.");
-        } 
+        //if (totalPrice < company.MinPriceToMakeOrder)
+        //{
+        //    return BadRequest($"Total price must be at least {company.MinPriceToMakeOrder} to make an order for {company.Name}.");
+        //} 
 
 
         var summary = new SummaryDTO
         {
-            PharmacyName = cart.Pharmacy.Name,
+            PharmacyName = cart.Pharmacy.UserName,
             PharmacyAddress = cart.Pharmacy.City + ", " + cart.Pharmacy.State + ", " + cart.Pharmacy.Street,
             PharmacyPhone = cart.Pharmacy.PhoneNumber,
             PharmacyEmail = cart.Pharmacy.Email,
             TotalCartPrice = totalPrice,
             CartId = cart.CartId,
             CompanyId = company.Id, // company ID from the first medicine in the cart
+            MinPriceToMakeOrder = company.MinPriceToMakeOrder,
 
             Medicines = cart.CartItems.Select(ci => new SummaryItemDTO
             {

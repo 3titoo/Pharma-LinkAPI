@@ -30,14 +30,11 @@ namespace Pharma_LinkAPI.Controllers
         }
 
         [Authorize(Roles = SD.Role_Company)]
-        [HttpGet("IndexCompanyOrder/{CompanyId:int}")]
-        public async Task<ActionResult<IEnumerable<CompanyInvoiceDTO>>> IndexCompanyOrder(int CompanyId)
+        [HttpGet("IndexCompanyOrder")]
+        public async Task<ActionResult<IEnumerable<CompanyInvoiceDTO>>> IndexCompanyOrder()
         {
             var currentUser = await _account.GetCurrentUser(User);
-            if (currentUser.Id != CompanyId)
-            {
-                return Problem("You are not authorized to view this order.");
-            }
+            var CompanyId = currentUser.Id;
 
             var orders = Context.Orders.Include(o => o.Pharmacy)
                                        .Where(o => o.CompanyID == CompanyId);
@@ -69,14 +66,11 @@ namespace Pharma_LinkAPI.Controllers
         }
 
         [Authorize(Roles = SD.Role_Pharmacy)]
-        [HttpGet("IndexPharmacyOrder/{PharmacyId:int}")]
-        public async Task<ActionResult<IEnumerable<PharmacyInvoiceDTO>>> IndexPharmacyOrder(int PharmacyId)
+        [HttpGet("IndexPharmacyOrder")]
+        public async Task<ActionResult<IEnumerable<PharmacyInvoiceDTO>>> IndexPharmacyOrder()
         {
             var currentUser = await _account.GetCurrentUser(User);
-            if (currentUser.Id != PharmacyId)
-            {
-                return Problem("You are not authorized to view this order.");
-            }
+            var PharmacyId = currentUser.Id;
 
             var orders = Context.Orders.Include(o => o.Company)
                                        .Where(o => o.PharmacyID == PharmacyId);
@@ -185,7 +179,9 @@ namespace Pharma_LinkAPI.Controllers
                 var CurrentCart = await Context.Carts
                     .Include(c => c.CartItems)
                     .ThenInclude(c => c.Medicine)
+                    .ThenInclude(m => m.Company)
                     .FirstOrDefaultAsync(c => c.CartId == CartId);
+                
                 if (CurrentCart == null)
                 {
                     return NotFound("Cart not found.");
@@ -196,14 +192,25 @@ namespace Pharma_LinkAPI.Controllers
                     return NotFound("Cart items not found.");
                 }
 
-                var MedicinesForCompany = await Context.Medicines.Where(m => m.Company_Id == companyId)
+
+
+
+                var MedicinesForCompany = await Context.Medicines.Where(m => m.Company_Id == companyId).Include(m => m.Company)
                                                                  .ToDictionaryAsync(m => m.ID);
+
+
 
                 if (MedicinesForCompany == null)
                 {
                     return NotFound("Medicines for Company not found.");
                 }
 
+
+                var test = CurrentCart.CartItems.FirstOrDefault();
+                if(test != null && test.Medicine.Company.MinPriceToMakeOrder > CurrentCart.TotalPrice)
+                {
+                    return BadRequest($"Total price must be at least {test.Medicine.Company.MinPriceToMakeOrder} to make an order for {test.Medicine.Company.Name}.");
+                }
 
                 // First check all the items on the card.
                 foreach (var item in CurrentCart.CartItems)

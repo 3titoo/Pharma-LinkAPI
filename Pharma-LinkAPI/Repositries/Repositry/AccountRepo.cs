@@ -30,6 +30,7 @@ namespace Pharma_LinkAPI.Repositries.Repositry
             var userWithReviews = await _userManager.Users
             .Include(u => u.ReviewsGiven)
             .Include(u => u.ReviewsReceived)
+            .Include(c => c.Cart)
             .FirstOrDefaultAsync(u => u.Id == appUser.Id);
             return userWithReviews;
         }
