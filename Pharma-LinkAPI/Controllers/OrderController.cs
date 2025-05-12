@@ -309,7 +309,7 @@ namespace Pharma_LinkAPI.Controllers
         }
 
         [Authorize(Roles = SD.Role_Company)]
-        [HttpPut("done/{OrderId:int}")]
+        [HttpPatch("done/{OrderId:int}")]
         public async Task<ActionResult> DoneOrder(int OrderId)
         {
             var order = await _orderRepositry.GetOrderById(OrderId);
@@ -357,7 +357,7 @@ namespace Pharma_LinkAPI.Controllers
         }
 
         [Authorize(Roles = SD.Role_Company)]
-        [HttpPut("deliver/{OrderId:int}")]
+        [HttpPatch("deliver/{OrderId:int}")]
         public async Task<ActionResult> DeliverOrder(int OrderId)
         {
             var order = await _orderRepositry.GetOrderById(OrderId);
