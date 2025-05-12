@@ -117,18 +117,13 @@ namespace Pharma_LinkAPI.Controllers
 
 
         [Authorize]
-        [HttpPatch("{id}")]
-        public async Task<IActionResult> uploadPhoto(int id,IFormFile? img)
+        [HttpPatch("uploadPhoto")]
+        public async Task<IActionResult> uploadPhoto(IFormFile? img)
         {
             var user = await _accountRepositry.GetCurrentUser(User);
-            var curr = await _accountRepositry.GetUserById(id);
             if (user == null)
             {
                 return NotFound("User not found");
-            }
-            if (user != curr)
-            {
-                return BadRequest("You are not authorized to update this profile");
             }
             if (img == null || img.Length == 0)
             {
