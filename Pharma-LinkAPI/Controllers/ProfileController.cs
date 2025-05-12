@@ -117,7 +117,7 @@ namespace Pharma_LinkAPI.Controllers
 
 
         [Authorize]
-        [HttpPut("{id}")]
+        [HttpPatch("{id}")]
         public async Task<IActionResult> uploadPhoto(int id,IFormFile? img)
         {
             var user = await _accountRepositry.GetCurrentUser(User);
@@ -156,7 +156,7 @@ namespace Pharma_LinkAPI.Controllers
         }
 
         [Authorize]
-        [HttpPut("ChangePassword")]
+        [HttpPatch("ChangePassword")]
         public async Task<IActionResult> ChangePassword(ChangePassDTO changePasswordDTO)
         {
             if (!ModelState.IsValid)
@@ -186,7 +186,7 @@ namespace Pharma_LinkAPI.Controllers
         }
 
         [Authorize]
-        [HttpPut("ChangePhoneNumber")]
+        [HttpPatch("ChangePhoneNumber")]
         public async Task<IActionResult> ChangePhoneNumber(ChangePhoneDTO changePhoneDTO)
         {
             if (!ModelState.IsValid)
@@ -215,7 +215,7 @@ namespace Pharma_LinkAPI.Controllers
         }
 
         [Authorize]
-        [HttpPut("ChangeMinPrice")]
+        [HttpPatch("ChangeMinPrice")]
         public async Task<IActionResult> ChangeMinPrice(ChangeMinPriceDTO dto)
         {
             if (!ModelState.IsValid)
