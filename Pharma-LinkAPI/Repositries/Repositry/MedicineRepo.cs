@@ -40,7 +40,7 @@ namespace Pharma_LinkAPI.Repositries.Repositry
 
         public void Update(Medicine entity)
         {
-            if(entity == null)
+            if (entity == null)
             {
                 throw new ArgumentNullException(nameof(entity));
             }
@@ -67,8 +67,16 @@ namespace Pharma_LinkAPI.Repositries.Repositry
         }
         public IEnumerable<Medicine> Search(string word)
         {
-           var medicines = _db.Medicines.AsNoTracking().Include(c => c.Company)
-                .Where(m => m.Name.Contains(word) || m.Company.Name.Contains(word)).ToList();
+            var medicines = _db.Medicines.AsNoTracking().Include(c => c.Company)
+                 .Where(m => m.Name.Contains(word) || m.Company.Name.Contains(word)).ToList();
+            return medicines;
+        }
+
+        public async Task<IDictionary<int,Medicine?>> GetMedicinesForCompany(int companyId)
+        {
+            var medicines = await _db.Medicines.Where(m => m.Company_Id == companyId).Include(m => m.Company)
+                                                                 .ToDictionaryAsync(m => m.ID);
+
             return medicines;
         }
     }
