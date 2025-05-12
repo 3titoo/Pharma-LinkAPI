@@ -146,7 +146,7 @@ namespace Pharma_LinkAPI.Controllers
             #endregion
 
             user.ImagePath = imgPath;
-            _accountRepositry.UpdateUser(user);
+            await _accountRepositry.UpdateUser(user);
             return NoContent();
         }
 

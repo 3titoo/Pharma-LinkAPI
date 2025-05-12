@@ -10,10 +10,12 @@ namespace Pharma_LinkAPI.Repositries.Repositry
     public class AccountRepo : IAccountRepositry
     {
         private readonly UserManager<AppUser> _userManager;
+        private readonly AppDbContext _dbContext;
 
-        public AccountRepo(UserManager<AppUser> userManager, AppDbContext db)
+        public AccountRepo(UserManager<AppUser> userManager, AppDbContext dbContext)
         {
             _userManager = userManager;
+            _dbContext = dbContext;
         }
         public async Task<AppUser?> GetCurrentUser(ClaimsPrincipal user)
         {
@@ -99,7 +101,7 @@ namespace Pharma_LinkAPI.Repositries.Repositry
             return company;
         }
 
-        public async void UpdateUser(AppUser user)
+        public async Task UpdateUser(AppUser user)
         {
             var existingUser = await _userManager.FindByIdAsync(user.Id.ToString());
             if (existingUser != null)
@@ -111,6 +113,8 @@ namespace Pharma_LinkAPI.Repositries.Repositry
                 existingUser.State = user.State;
                 existingUser.ImagePath = user.ImagePath;
                 await _userManager.UpdateAsync(existingUser);
+                await _dbContext.SaveChangesAsync();
+
             }
         }
     }
