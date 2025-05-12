@@ -19,14 +19,16 @@ namespace Pharma_LinkAPI.Controllers
     [ApiController]
     public class OrderController : ControllerBase
     {
-        private readonly AppDbContext Context;
-        private readonly UserManager<AppUser> MyUsers;
+        private readonly AppDbContext _context;
         private readonly IAccountRepositry _account;
-        public OrderController(AppDbContext _context, UserManager<AppUser> _users, IAccountRepositry account)
+        private readonly IOrderRepositry _orderRepositry;
+        private readonly ImedicineRepositiry _medicineRepositiry;
+        public OrderController(AppDbContext context, IAccountRepositry account, IOrderRepositry orderRepositry, ImedicineRepositiry medicineRepositiry)
         {
-            Context = _context;
-            MyUsers = _users;
+            _context = context;
             _account = account;
+            _orderRepositry = orderRepositry;
+            _medicineRepositiry = medicineRepositiry;
         }
 
         [Authorize(Roles = SD.Role_Company)]
@@ -36,8 +38,7 @@ namespace Pharma_LinkAPI.Controllers
             var currentUser = await _account.GetCurrentUser(User);
             var CompanyId = currentUser.Id;
 
-            var orders = Context.Orders.Include(o => o.Pharmacy)
-                                       .Where(o => o.CompanyID == CompanyId);
+            var orders = await _orderRepositry.GetAllOrdersForCompany(CompanyId);
 
             if (orders == null)
             {
@@ -47,6 +48,11 @@ namespace Pharma_LinkAPI.Controllers
             var CompanyInvoices = new List<CompanyInvoiceDTO>();
             foreach (var item in orders)
             {
+                if (item == null)
+                {
+                    return NotFound("Order not found.");
+                }
+
                 var TempCompanyInvoice = new CompanyInvoiceDTO
                 {
                     OrderID = item.OrderID,
@@ -71,10 +77,15 @@ namespace Pharma_LinkAPI.Controllers
         public async Task<ActionResult<IEnumerable<PharmacyInvoiceDTO>>> IndexPharmacyOrder()
         {
             var currentUser = await _account.GetCurrentUser(User);
+
+            if (currentUser == null)
+            {
+                return NotFound("currentUser not found.");
+            }
+
             var PharmacyId = currentUser.Id;
 
-            var orders = Context.Orders.Include(o => o.Company)
-                                       .Where(o => o.PharmacyID == PharmacyId);
+            var orders = await _orderRepositry.GetAllOrdersForPharmacy(PharmacyId);
 
             if (orders == null)
             {
@@ -84,6 +95,11 @@ namespace Pharma_LinkAPI.Controllers
             var PharmacyInvoices = new List<PharmacyInvoiceDTO>();
             foreach (var item in orders)
             {
+                if (item == null)
+                {
+                    return NotFound("Order not found.");
+                }
+
                 var TempPharmacyInvoice = new PharmacyInvoiceDTO
                 {
                     OrderID = item.OrderID,
@@ -105,24 +121,26 @@ namespace Pharma_LinkAPI.Controllers
         [HttpGet("Invoice/{OrderId:int}")]
         public async Task<ActionResult<InvoiceDTO>> GetInvoice(int OrderId)
         {
-            var order = await Context.Orders.Include(o => o.OrderItems).ThenInclude(ot => ot.Medicine)
-                                        .Include(o => o.Pharmacy)
-                                        .Include(o => o.Company)
-                                        .FirstOrDefaultAsync(o => o.OrderID == OrderId);
-
-            var currentUser = await _account.GetCurrentUser(User);
-
-            if (currentUser.Id != order.CompanyID && currentUser.Id != order.PharmacyID)
-            {
-                return Problem("You are not authorized to view this order.");
-            }
-
-            if (order == null)
+            var order = await _orderRepositry.GetOrderById(OrderId);
+            
+            if(order == null)
             {
                 return NotFound("Orders not found.");
             }
 
-            if (order.OrderItems == null)
+            var currentUser = await _account.GetCurrentUser(User);
+
+            if(currentUser == null)
+            {
+                return NotFound("currentUser not found.");
+            }
+
+            if (currentUser.Id != order.CompanyID && currentUser.Id != order.PharmacyID)
+            {
+                return Problem("You are not authorized to view this order.");
+            }      
+
+            if (order.OrderItems == null || order.OrderItems.Count == 0)
             {
                 return NotFound("Order items not found.");
             }
@@ -171,14 +189,14 @@ namespace Pharma_LinkAPI.Controllers
 
         [Authorize(Roles = SD.Role_Pharmacy)]
         [HttpPost("PlaceOrder/{CartId:int}/{companyId:int}")]
-        public async Task<IActionResult> PlaceOrder(int CartId, int companyId)
+        public async Task<ActionResult> PlaceOrder(int CartId, int companyId)
         {
 
-            using var transaction = await Context.Database.BeginTransactionAsync(); // Begin transaction
+            using var transaction = await _context.Database.BeginTransactionAsync(); // Begin transaction
 
             try
             {
-                var CurrentCart = await Context.Carts
+                var CurrentCart = await _context.Carts
                     .Include(c => c.CartItems)
                     .ThenInclude(c => c.Medicine)
                     .ThenInclude(m => m.Company)
@@ -189,7 +207,7 @@ namespace Pharma_LinkAPI.Controllers
                     return NotFound("Cart not found.");
                 }
 
-                if (CurrentCart.CartItems == null)
+                if (CurrentCart.CartItems == null || CurrentCart.CartItems.Count == 0)
                 {
                     return NotFound("Cart items not found.");
                 }
@@ -197,8 +215,7 @@ namespace Pharma_LinkAPI.Controllers
 
 
 
-                var MedicinesForCompany = await Context.Medicines.Where(m => m.Company_Id == companyId).Include(m => m.Company)
-                                                                 .ToDictionaryAsync(m => m.ID);
+                var MedicinesForCompany = await _medicineRepositiry.GetMedicinesForCompany(companyId);
 
 
 
@@ -266,31 +283,15 @@ namespace Pharma_LinkAPI.Controllers
                     newOrder.OrderItems.Add(newOrderItem);
                 }
 
-                Context.Orders.Add(newOrder);
-
                 var CurCartItems = CurrentCart.CartItems.ToList();
 
                 // Deleted the CartItems
-                Context.CartItems.RemoveRange(CurCartItems);
+                _context.CartItems.RemoveRange(CurCartItems);
 
 
                 CurrentCart.TotalPrice = 0;
 
-                var company = await MyUsers.FindByIdAsync(companyId.ToString());
-                var pharmacy = await MyUsers.FindByIdAsync(CurrentCart.PharmacyId.ToString());
-
-                if (company == null)
-                {
-                    return NotFound("Company not found.");
-                }
-
-                if (pharmacy == null)
-                {
-                    return NotFound("Pharmacy not found.");
-                }
-
-                // Save changes to the database
-                await Context.SaveChangesAsync();
+                _orderRepositry.AddOrder(newOrder);
 
                 // Commit the transaction
                 await transaction.CommitAsync();
@@ -309,25 +310,28 @@ namespace Pharma_LinkAPI.Controllers
 
         [Authorize(Roles = SD.Role_Company)]
         [HttpPut("done/{OrderId:int}")]
-        public async Task<ActionResult<InvoiceDTO>> DoneOrder(int OrderId)
+        public async Task<ActionResult> DoneOrder(int OrderId)
         {
-            var order = await Context.Orders.Include(o => o.OrderItems).ThenInclude(ot => ot.Medicine).ThenInclude(m => m.Company)
-                                        .Include(o => o.Pharmacy)
-                                        .Include(o => o.Company)
-                                        .FirstOrDefaultAsync(o => o.OrderID == OrderId);
+            var order = await _orderRepositry.GetOrderById(OrderId);
 
             var currentUser = await _account.GetCurrentUser(User);
-            if (currentUser.Id != order.CompanyID)
-            {
-                return Problem("You are not authorized to view this order.");
-            }
 
             if (order == null)
             {
                 return NotFound("Orders not found.");
             }
 
-            if (order.OrderItems == null)
+            if (currentUser == null)
+            {
+                return NotFound("Company not found.");
+            }
+
+            if (currentUser.Id != order.CompanyID)
+            {
+                return Problem("You are not authorized to view this order.");
+            }
+
+            if (order.OrderItems == null || order.OrderItems.Count == 0)
             {
                 return NotFound("Order items not found.");
             }
@@ -347,65 +351,35 @@ namespace Pharma_LinkAPI.Controllers
                 return BadRequest($"Order is {order.StatusOrder}");
             }
 
-            order.StatusOrder = SD.StatusOrder_shipped;
+            _orderRepositry.ChangeStatusOrder(order, SD.StatusOrder_shipped);
 
-
-            var Invoice = new InvoiceDTO
-            {
-                OrderID = OrderId,
-                DRName = order.Pharmacy.DrName,
-                Phone = order.Pharmacy.PhoneNumber,
-                PharmacyLicense = order.Pharmacy.LiscnceNumber,
-                PharmacyName = order.Pharmacy.Name,
-                CompanyName = order.Company.Name,
-                CompanyLicense = order.Company.LiscnceNumber,
-                Street = order.Pharmacy.Street,
-                State = order.Pharmacy.State,
-                City = order.Pharmacy.City,
-                OrderDate = order.OrderDate,
-                StatusOrder = order.StatusOrder,
-                TotalPriceOrder = order.TotalPrice,
-                Medicines = new List<InvoiceMedicineDTO>()
-            };
-            foreach (var item in order.OrderItems)
-            {
-                var InvoiceMedicineDTO = new InvoiceMedicineDTO
-                {
-                    Name = item.MedicineName,
-                    Image_URL = item.MedicineImage,
-                    UnitPrice = item.UnitPrice,
-                    Count = item.Count,
-                    TotalPrice = item.TotalPrice
-                };
-                Invoice.Medicines.Add(InvoiceMedicineDTO);
-            }
-
-            await Context.SaveChangesAsync();
-
-            return Ok(Invoice);
+            return Ok("The order has been shipped successfully");
         }
 
         [Authorize(Roles = SD.Role_Company)]
         [HttpPut("deliver/{OrderId:int}")]
-        public async Task<ActionResult<InvoiceDTO>> DeliverOrder(int OrderId)
+        public async Task<ActionResult> DeliverOrder(int OrderId)
         {
-            var order = await Context.Orders.Include(o => o.OrderItems).ThenInclude(ot => ot.Medicine).ThenInclude(m => m.Company)
-                                        .Include(o => o.Pharmacy)
-                                        .Include(o => o.Company)
-                                        .FirstOrDefaultAsync(o => o.OrderID == OrderId);
+            var order = await _orderRepositry.GetOrderById(OrderId);
 
-            var currentUser = await _account.GetCurrentUser(User);
-            if (currentUser.Id != order.CompanyID)
-            {
-                return Problem("You are not authorized to view this order.");
-            }
+            var currentUser = await _account.GetCurrentUser(User);            
 
             if (order == null)
             {
                 return NotFound("Orders not found.");
             }
 
-            if (order.OrderItems == null)
+            if (currentUser == null)
+            {
+                return NotFound("Company not found.");
+            }
+
+            if (currentUser.Id != order.CompanyID)
+            {
+                return Problem("You are not authorized to view this order.");
+            }
+
+            if (order.OrderItems == null || order.OrderItems.Count == 0)
             {
                 return NotFound("Order items not found.");
             }
@@ -425,42 +399,9 @@ namespace Pharma_LinkAPI.Controllers
                 return BadRequest($"Order is {order.StatusOrder}");
             }
 
-            order.StatusOrder = SD.StatusOrder_delivered;
+            _orderRepositry.ChangeStatusOrder(order, SD.StatusOrder_delivered);
 
-
-            var Invoice = new InvoiceDTO
-            {
-                OrderID = OrderId,
-                DRName = order.Pharmacy.DrName,
-                Phone = order.Pharmacy.PhoneNumber,
-                PharmacyLicense = order.Pharmacy.LiscnceNumber,
-                PharmacyName = order.Pharmacy.Name,
-                CompanyName = order.Company.Name,
-                CompanyLicense = order.Company.LiscnceNumber,
-                Street = order.Pharmacy.Street,
-                State = order.Pharmacy.State,
-                City = order.Pharmacy.City,
-                OrderDate = order.OrderDate,
-                StatusOrder = order.StatusOrder,
-                TotalPriceOrder = order.TotalPrice,
-                Medicines = new List<InvoiceMedicineDTO>()
-            };
-            foreach (var item in order.OrderItems)
-            {
-                var InvoiceMedicineDTO = new InvoiceMedicineDTO
-                {
-                    Name = item.MedicineName,
-                    Image_URL = item.MedicineImage,
-                    UnitPrice = item.UnitPrice,
-                    Count = item.Count,
-                    TotalPrice = item.TotalPrice
-                };
-                Invoice.Medicines.Add(InvoiceMedicineDTO);
-            }
-
-            await Context.SaveChangesAsync();
-
-            return Ok(Invoice);
+            return Ok("The order has been delivered successfully");
         }
 
 
@@ -468,25 +409,30 @@ namespace Pharma_LinkAPI.Controllers
         [HttpDelete("Cancel/{OrderId:int}")]
         public async Task<ActionResult> CancelOrder(int OrderId)
         {
-            using var transaction = await Context.Database.BeginTransactionAsync(); // Begin transaction
+            using var transaction = await _context.Database.BeginTransactionAsync(); // Begin transaction
 
             try
             {
-                var order = await Context.Orders.Include(o => o.OrderItems)
-                              .FirstOrDefaultAsync(o => o.OrderID == OrderId);
+                var order = await _orderRepositry.GetOrderById(OrderId);
 
-                var currentUser = await _account.GetCurrentUser(User);
-                if (currentUser.Id != order.PharmacyID)
-                {
-                    return Problem("You are not authorized to view this order.");
-                }
+                var currentUser = await _account.GetCurrentUser(User);                
 
                 if (order == null)
                 {
                     return NotFound("Orders not found.");
                 }
 
-                if (order.OrderItems == null)
+                if(currentUser == null)
+                {
+                    return NotFound("Pharmacy not found.");
+                }
+
+                if (currentUser.Id != order.PharmacyID)
+                {
+                    return Problem("You are not authorized to view this order.");
+                }
+
+                if (order.OrderItems == null || order.OrderItems.Count == 0)
                 {
                     return NotFound("Order items not found.");
                 }
@@ -507,7 +453,7 @@ namespace Pharma_LinkAPI.Controllers
                 }
 
                 var companyId = order.CompanyID;
-                var Medicines = await Context.Medicines.Where(m => m.Company_Id == companyId).ToListAsync();
+                var Medicines = await _medicineRepositiry.GetMedicinesForCompany((int)companyId);
 
                 if (Medicines == null)
                 {
@@ -518,14 +464,15 @@ namespace Pharma_LinkAPI.Controllers
                 {
 
                     // Return the quantity
-                    Medicine CurMedicine = Medicines.FirstOrDefault(m => m.ID == item.MedicineID);
+                    Medicine CurMedicine = Medicines[item.MedicineID.Value];
+                    if (CurMedicine == null)
+                    {
+                        return NotFound("Medicine not found");
+                    }
                     CurMedicine.InStock += item.Count;
                 }
 
-                Context.Orders.Remove(order);
-
-                // Save changes to the database
-                await Context.SaveChangesAsync();
+                _orderRepositry.DeleteOrder(order);
 
                 // Commit the transaction
                 await transaction.CommitAsync();
