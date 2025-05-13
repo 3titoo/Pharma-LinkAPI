@@ -80,8 +80,9 @@ namespace Pharma_LinkAPI.Controllers
             if (user != null)
             {
                 res.CompanyName = user.Name;
+                res.CompanyUserName = user.UserName;
             }
-            return Ok(medicine);
+            return Ok(res);
         }
 
         [Authorize(Roles = SD.Role_Company)]
