@@ -213,6 +213,40 @@ namespace Pharma_LinkAPI.Controllers
             return Ok("Medicine stock updated successfully.");
         }
 
+        [Authorize(Roles = SD.Role_Company)]
+        [HttpPatch("uploadPhoto/{id}")]
+        public async Task<IActionResult> uploadPhoto(int id,IFormFile? img)
+        {
+            var medicne = _medicineRepositiry.GetById(id);
+            if (medicne == null)
+            {
+                return NotFound("User not found");
+            }
+            if (img == null || img.Length == 0)
+            {
+                return BadRequest("No file uploaded");
+            }
+
+            #region Image
+            if (img == null || img.Length == 0)
+                return BadRequest("No image uploaded.");
+            var imgExtension = Path.GetExtension(img.FileName).ToLower();
+            if (imgExtension != ".jpg" && imgExtension != ".png" && imgExtension != ".jpeg")
+                return BadRequest("Only JPG, PNG, and JPEG files are allowed.");
+            var uploadsFolder = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot/uploads");
+            Directory.CreateDirectory(uploadsFolder);
+            var imgPath = Path.Combine(uploadsFolder, img.FileName);
+            using (var stream = new FileStream(imgPath, FileMode.Create))
+            {
+                img.CopyTo(stream);
+            }
+            #endregion
+
+            medicne.Image_URL = imgPath;
+            _medicineRepositiry.Update(medicne);
+            return NoContent();
+        }
+
     }
 
 }
