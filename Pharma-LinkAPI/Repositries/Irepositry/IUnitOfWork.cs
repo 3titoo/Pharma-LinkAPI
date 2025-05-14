@@ -11,5 +11,8 @@ namespace Pharma_LinkAPI.Repositries.Irepositry
         IreviewRepositiry _reviewRepositiry { get; }
         ImedicineRepositiry _medicineRepositiry { get; }
         Task SaveAsync();
+        Task BeginTransactionAsync();
+        Task RollbackAsync();
+        Task CommitAsync();
     }
 }

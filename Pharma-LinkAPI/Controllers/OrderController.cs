@@ -21,10 +21,8 @@ namespace Pharma_LinkAPI.Controllers
     {
         private readonly IOrderRepositry _orderRepositry;
         private readonly IUnitOfWork _unitOfWork;
-        private readonly AppDbContext _context;
         public OrderController(IUnitOfWork unitOfWork,IOrderRepositry orderRepositry,AppDbContext context)
         {
-            _context = context;
             _unitOfWork = unitOfWork;
             _orderRepositry = orderRepositry;
         }
@@ -190,7 +188,7 @@ namespace Pharma_LinkAPI.Controllers
         public async Task<ActionResult> PlaceOrder(int CartId, int companyId)
         {
 
-            using var transaction = await _context.Database.BeginTransactionAsync(); // Begin transaction
+            await _unitOfWork.BeginTransactionAsync(); // Begin transaction
 
             try
             {
@@ -288,7 +286,7 @@ namespace Pharma_LinkAPI.Controllers
                 _orderRepositry.AddOrder(newOrder);
 
                 // Commit the transaction
-                await transaction.CommitAsync();
+                await _unitOfWork.CommitAsync();
 
                 return Ok("order created");
             }
@@ -296,7 +294,7 @@ namespace Pharma_LinkAPI.Controllers
             {
 
                 // Rollback the transaction if any error occurs
-                await transaction.RollbackAsync();
+                await _unitOfWork.RollbackAsync();
 
                 return Problem($"An error occurred while executing the request.: {ex.Message}");
             }
@@ -403,7 +401,7 @@ namespace Pharma_LinkAPI.Controllers
         [HttpDelete("Cancel/{OrderId:int}")]
         public async Task<ActionResult> CancelOrder(int OrderId)
         {
-            var transaction = await _context.Database.BeginTransactionAsync(); // Begin transaction
+            await _unitOfWork.BeginTransactionAsync(); // Begin transaction
 
             try
             {
@@ -469,7 +467,7 @@ namespace Pharma_LinkAPI.Controllers
                 _orderRepositry.DeleteOrder(order);
 
                 // Commit the transaction
-                await transaction.CommitAsync();
+                await _unitOfWork.CommitAsync();
 
                 return Ok("The order has been successfully cancelled.");
 
@@ -478,7 +476,7 @@ namespace Pharma_LinkAPI.Controllers
             {
 
                 // Rollback the transaction if any error occurs
-                await transaction.RollbackAsync();
+                await _unitOfWork.RollbackAsync();
 
                 return Problem($"An error occurred while executing the request.: {ex.Message}");
             }
