@@ -16,31 +16,24 @@ namespace Pharma_LinkAPI.Controllers
     public class AccountController : ControllerBase
     {
         private readonly UserManager<AppUser> _userManager;
-        private readonly RoleManager<AppRole> _roleManager;
         private readonly SignInManager<AppUser> _signInManager;
         private readonly IJwtService _jwtService;
-        private readonly IrequestRepositry _requestRepositry;
-        private readonly IreviewRepositiry _reviewRepositiry;
-        private readonly AppDbContext _context;
-        private readonly IAccountRepositry _accountRepositry;
+        private readonly IUnitOfWork _unitOfWork;
 
-        public AccountController(IAccountRepositry accountRepositry,UserManager<AppUser> userManager, RoleManager<AppRole> roleManager, SignInManager<AppUser> signInManager, IWebHostEnvironment env,IJwtService jwtService,IrequestRepositry irequest, IreviewRepositiry reviewRepositiry, AppDbContext db)
+        public AccountController(IUnitOfWork unitOfWork, UserManager<AppUser> userManager, SignInManager<AppUser> signInManager, IJwtService jwtService)
         {
+            _unitOfWork = unitOfWork;
             _userManager = userManager;
-            _roleManager = roleManager;
             _signInManager = signInManager;
             _jwtService = jwtService;
-            _requestRepositry = irequest;
-            _reviewRepositiry = reviewRepositiry;
-            _context = db;
-            _accountRepositry = accountRepositry;
+
         }
 
         [Authorize(Roles = SD.Role_Admin)]
         [HttpPost("Register/{Id}")]
         public async Task<ActionResult<AuthentcationResponse>> Register(int Id)
         {
-            var request =  _requestRepositry.GetById(Id);
+            var request = _unitOfWork._requestRepositry.GetById(Id);
             if (request == null)
             {
                 return NotFound("Request not found.");
@@ -66,7 +59,7 @@ namespace Pharma_LinkAPI.Controllers
                 DrName = request.DR_Name
             };
             string? password = request.Password;
-            if(password == null || password[0] == ' ')
+            if (password == null || password[0] == ' ')
             {
                 return BadRequest("Password is required.");
             }
@@ -76,19 +69,20 @@ namespace Pharma_LinkAPI.Controllers
                 await _userManager.AddToRoleAsync(user, SD.Role_Pharmacy);
 
                 await _signInManager.SignInAsync(user, isPersistent: false);
-                
+
                 //add cart to user
 
-                _context.Carts.Add(new Cart
+                var cart = new Cart
                 {
                     TotalPrice = 0,
                     PharmacyId = user.Id
-                });
+                };
+                _unitOfWork._cartRepositry.AddCart(cart);
 
                 // Generate JWT token 
 
                 var token = _jwtService.CreateToken(user);
-                _requestRepositry.Delete(Id);
+                _unitOfWork._requestRepositry.Delete(Id);
                 return Ok(token);
             }
             string error = string.Join(" | ", result.Errors.Select(x => x.Description));
@@ -156,7 +150,7 @@ namespace Pharma_LinkAPI.Controllers
 
 
             // Check if the user exists
-            var result = await _signInManager.PasswordSignInAsync(loginDTO.UserName, loginDTO.Password, isPersistent:loginDTO.RememberMe,lockoutOnFailure: false);
+            var result = await _signInManager.PasswordSignInAsync(loginDTO.UserName, loginDTO.Password, isPersistent: loginDTO.RememberMe, lockoutOnFailure: false);
             if (result.Succeeded)
             {
                 var user = await _userManager.FindByNameAsync(loginDTO.UserName);
@@ -182,14 +176,14 @@ namespace Pharma_LinkAPI.Controllers
             return NoContent();
         }
 
-        
+
 
         [Authorize(Roles = SD.Role_Admin)]
         [HttpDelete("DeleteUser")]
         public async Task<IActionResult> DeleteUser(string userName)
         {
 
-            if(userName == "admin")
+            if (userName == "admin")
             {
                 return BadRequest("You can't delete the admin account.");
             }
@@ -221,13 +215,13 @@ namespace Pharma_LinkAPI.Controllers
 
             if (user.Role == SD.Role_Pharmacy)
             {
-                var reviews = _reviewRepositiry.GetReviewsByPharmacyId(user.Id);
+                var reviews = _unitOfWork._reviewRepositiry.GetReviewsByPharmacyId(user.Id);
 
                 if (reviews != null)
                 {
                     foreach (var review in reviews)
                     {
-                        _reviewRepositiry.Delete(review.Id);
+                        _unitOfWork._reviewRepositiry.Delete(review.Id);
                     }
                 }
             }

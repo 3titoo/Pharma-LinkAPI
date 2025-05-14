@@ -6,5 +6,7 @@ namespace Pharma_LinkAPI.Repositries.Irepositry
     {
         IEnumerable<Medicine> Search(string word);
         Task<IDictionary<int, Medicine?>> GetMedicinesForCompany(int companyId);
+
+        Task<Medicine?> GetMedicineCompany(int companyId);
     }
 }

@@ -14,31 +14,28 @@ using System.Security.Claims;
 [Authorize(Roles = SD.Role_Pharmacy)]
 public class CartController : ControllerBase
 {
-    private readonly AppDbContext _context;
-    private readonly IAccountRepositry _accountRepositry;
-    public CartController(AppDbContext context, IAccountRepositry accountRepositry)
+    private readonly ICartRepositry _cartRepositry;
+    private readonly IUnitOfWork _unitOfWork;
+    public CartController(ICartRepositry cartRepositry, IUnitOfWork unitOfWork)
     {
-        _context = context;
-        _accountRepositry = accountRepositry;
+        _cartRepositry = cartRepositry;
+        _unitOfWork = unitOfWork;
     }
 
     // GET: api/Cart
     [HttpGet]
     public async Task<ActionResult<CartViewModel>> GetCurrentUserCart()
     {
-        var user = await _accountRepositry.GetCurrentUser(User);
+        var user = await _unitOfWork._accountRepositry.GetCurrentUser(User);
 
-
-        var cart = await _context.Carts
-            .Include(c => c.CartItems).ThenInclude(ci => ci.Medicine)
-            .FirstOrDefaultAsync(c => c.PharmacyId == user.Id);
+        var cart = await _cartRepositry.GetCart(user.Cart.CartId);
 
         if (cart == null)
         {
             return NotFound("Cart not found for the current user.");
         }
 
-        if(cart.CartItems == null || !cart.CartItems.Any())
+        if (cart.CartItems == null || !cart.CartItems.Any())
         {
             return Ok(new CartViewModel
             {
@@ -82,24 +79,21 @@ public class CartController : ControllerBase
 
 
 
-        var user = await _accountRepositry.GetCurrentUser(User);
+        var user = await _unitOfWork._accountRepositry.GetCurrentUser(User);
 
         if (user == null)
         {
             return BadRequest("user should log in");
         }
 
-        var cart = await _context.Carts
-            .Include(c => c.CartItems).ThenInclude(ci => ci.Medicine).ThenInclude(m => m.Company)
-            .FirstOrDefaultAsync(c => c.PharmacyId == user.Id);
+        var cart = await _cartRepositry.GetCart(user.Cart.CartId);
 
 
         if (cart.CartItems != null && cart.CartItems.Count > 0)
         {
             var company = cart.CartItems.FirstOrDefault().Medicine.Company;
 
-            var compMedicine = await _context.Medicines
-                .Include(m => m.Company).Where(d => dto.Id == d.ID).FirstOrDefaultAsync();
+            var compMedicine = await _unitOfWork._medicineRepositiry.GetMedicineCompany(dto.Id);
 
             if (company.Id != compMedicine.Company_Id)
             {
@@ -114,7 +108,7 @@ public class CartController : ControllerBase
         var existingItem = cart.CartItems.FirstOrDefault(ci => ci.MedicineId == dto.Id);
         if (existingItem != null)
         {
-            if(dto.Count + existingItem.Count > existingItem.Medicine.InStock)
+            if (dto.Count + existingItem.Count > existingItem.Medicine.InStock)
             {
                 return BadRequest("Not enough stock available.");
             }
@@ -122,8 +116,8 @@ public class CartController : ControllerBase
         }
         else
         {
-            var medicine = await _context.Medicines.FindAsync(dto.Id);
-            if(medicine == null)
+            var medicine = _unitOfWork._medicineRepositiry.GetById(dto.Id);
+            if (medicine == null)
             {
                 return BadRequest("medicine not found");
             }
@@ -135,7 +129,7 @@ public class CartController : ControllerBase
             });
         }
 
-        await _context.SaveChangesAsync();
+        await _unitOfWork.SaveAsync();
         return Ok("Item added to cart.");
     }
 
@@ -150,19 +144,16 @@ public class CartController : ControllerBase
                 .Select(e => e.ErrorMessage));
             return BadRequest($"Invalid data: {errorMessage}");
         }
-        var user = await _accountRepositry.GetCurrentUser(User);
-        var cart = await _context.Carts
-            .Include(c => c.CartItems).ThenInclude(ci => ci.Medicine)
-            .FirstOrDefaultAsync(c => c.PharmacyId == user.Id);
+        var user = await _unitOfWork._accountRepositry.GetCurrentUser(User);
+        var cart = await _cartRepositry.GetCart(user.Cart.CartId);
 
-        var cartItem = await _context.CartItems.FindAsync(dto.Id);
+        var cartItem = await _cartRepositry.GetCartItem(dto.Id);
         if (cartItem == null)
             return NotFound();
 
-        if(dto.Count <= 0)
+        if (dto.Count <= 0)
         {
-            _context.CartItems.Remove(cartItem);
-            await _context.SaveChangesAsync();
+            await _cartRepositry.DeleteCartItem(cartItem);
             return Ok("Item removed from cart.");
         }
 
@@ -172,7 +163,7 @@ public class CartController : ControllerBase
         }
 
         cartItem.Count = dto.Count;
-        await _context.SaveChangesAsync();
+        await _unitOfWork.SaveAsync();
 
         return Ok("Quantity updated.");
     }
@@ -180,12 +171,11 @@ public class CartController : ControllerBase
     [HttpDelete("DeleteCartItem/{id}")]
     public async Task<IActionResult> DeleteCartItem(int id)
     {
-        var cartItem = await _context.CartItems.FindAsync(id);
+        var cartItem = await _cartRepositry.GetCartItem(id);
         if (cartItem == null)
             return NotFound();
 
-        _context.CartItems.Remove(cartItem);
-        await _context.SaveChangesAsync();
+        await _cartRepositry.DeleteCartItem(cartItem);
 
         return Ok("Item removed from cart.");
     }
@@ -193,17 +183,13 @@ public class CartController : ControllerBase
     [HttpGet("Summary")]
     public async Task<ActionResult<SummaryDTO>> GetCartSummary()
     {
-        var user = await _accountRepositry.GetCurrentUser(User);
+        var user = await _unitOfWork._accountRepositry.GetCurrentUser(User);
         var cartId = user.Cart.CartId;
-        var cart = await _context.Carts.Include(ph=>ph.Pharmacy)
-            .Include(c => c.CartItems)
-            .ThenInclude(ci => ci.Medicine).ThenInclude(m => m.Company)
-            .FirstOrDefaultAsync(c => c.CartId == cartId);
+        var cart = await _cartRepositry.GetCart(cartId);
 
         if (cart.CartItems == null || cart.CartItems.Count == 0)
             return NotFound("Cart items not found.");
         var totalPrice = cart.CartItems.Sum(ci => ci.Count * ci.UnitPrice);
-
         var company = cart.CartItems.FirstOrDefault().Medicine.Company;
         //if (totalPrice < company.MinPriceToMakeOrder)
         //{

@@ -19,23 +19,21 @@ namespace Pharma_LinkAPI.Controllers
     [ApiController]
     public class OrderController : ControllerBase
     {
-        private readonly AppDbContext _context;
-        private readonly IAccountRepositry _account;
         private readonly IOrderRepositry _orderRepositry;
-        private readonly ImedicineRepositiry _medicineRepositiry;
-        public OrderController(AppDbContext context, IAccountRepositry account, IOrderRepositry orderRepositry, ImedicineRepositiry medicineRepositiry)
+        private readonly IUnitOfWork _unitOfWork;
+        private readonly AppDbContext _context;
+        public OrderController(IUnitOfWork unitOfWork,IOrderRepositry orderRepositry,AppDbContext context)
         {
             _context = context;
-            _account = account;
+            _unitOfWork = unitOfWork;
             _orderRepositry = orderRepositry;
-            _medicineRepositiry = medicineRepositiry;
         }
 
         [Authorize(Roles = SD.Role_Company)]
         [HttpGet("IndexCompanyOrder")]
         public async Task<ActionResult<IEnumerable<CompanyInvoiceDTO>>> IndexCompanyOrder()
         {
-            var currentUser = await _account.GetCurrentUser(User);
+            var currentUser = await _unitOfWork._accountRepositry.GetCurrentUser(User);
             var CompanyId = currentUser.Id;
 
             var orders = await _orderRepositry.GetAllOrdersForCompany(CompanyId);
@@ -76,7 +74,7 @@ namespace Pharma_LinkAPI.Controllers
         [HttpGet("IndexPharmacyOrder")]
         public async Task<ActionResult<IEnumerable<PharmacyInvoiceDTO>>> IndexPharmacyOrder()
         {
-            var currentUser = await _account.GetCurrentUser(User);
+            var currentUser = await _unitOfWork._accountRepositry.GetCurrentUser(User);
 
             if (currentUser == null)
             {
@@ -128,7 +126,7 @@ namespace Pharma_LinkAPI.Controllers
                 return NotFound("Orders not found.");
             }
 
-            var currentUser = await _account.GetCurrentUser(User);
+            var currentUser = await _unitOfWork._accountRepositry.GetCurrentUser(User);
 
             if(currentUser == null)
             {
@@ -196,11 +194,7 @@ namespace Pharma_LinkAPI.Controllers
 
             try
             {
-                var CurrentCart = await _context.Carts
-                    .Include(c => c.CartItems)
-                    .ThenInclude(c => c.Medicine)
-                    .ThenInclude(m => m.Company)
-                    .FirstOrDefaultAsync(c => c.CartId == CartId);
+                var CurrentCart = await _unitOfWork._cartRepositry.GetCart(CartId);
 
                 if (CurrentCart == null)
                 {
@@ -215,7 +209,7 @@ namespace Pharma_LinkAPI.Controllers
 
 
 
-                var MedicinesForCompany = await _medicineRepositiry.GetMedicinesForCompany(companyId);
+                var MedicinesForCompany = await _unitOfWork._medicineRepositiry.GetMedicinesForCompany(companyId);
 
 
 
@@ -286,7 +280,7 @@ namespace Pharma_LinkAPI.Controllers
                 var CurCartItems = CurrentCart.CartItems.ToList();
 
                 // Deleted the CartItems
-                _context.CartItems.RemoveRange(CurCartItems);
+                await _unitOfWork._cartRepositry.RemoveCartItems(CurCartItems);
 
 
                 CurrentCart.TotalPrice = 0;
@@ -314,7 +308,7 @@ namespace Pharma_LinkAPI.Controllers
         {
             var order = await _orderRepositry.GetOrderById(OrderId);
 
-            var currentUser = await _account.GetCurrentUser(User);
+            var currentUser = await _unitOfWork._accountRepositry.GetCurrentUser(User);
 
             if (order == null)
             {
@@ -362,7 +356,7 @@ namespace Pharma_LinkAPI.Controllers
         {
             var order = await _orderRepositry.GetOrderById(OrderId);
 
-            var currentUser = await _account.GetCurrentUser(User);            
+            var currentUser = await _unitOfWork._accountRepositry.GetCurrentUser(User);            
 
             if (order == null)
             {
@@ -409,13 +403,13 @@ namespace Pharma_LinkAPI.Controllers
         [HttpDelete("Cancel/{OrderId:int}")]
         public async Task<ActionResult> CancelOrder(int OrderId)
         {
-            using var transaction = await _context.Database.BeginTransactionAsync(); // Begin transaction
+            var transaction = await _context.Database.BeginTransactionAsync(); // Begin transaction
 
             try
             {
                 var order = await _orderRepositry.GetOrderById(OrderId);
 
-                var currentUser = await _account.GetCurrentUser(User);                
+                var currentUser = await _unitOfWork._accountRepositry.GetCurrentUser(User);                
 
                 if (order == null)
                 {
@@ -453,7 +447,7 @@ namespace Pharma_LinkAPI.Controllers
                 }
 
                 var companyId = order.CompanyID;
-                var Medicines = await _medicineRepositiry.GetMedicinesForCompany((int)companyId);
+                var Medicines = await _unitOfWork._medicineRepositiry.GetMedicinesForCompany((int)companyId);
 
                 if (Medicines == null)
                 {

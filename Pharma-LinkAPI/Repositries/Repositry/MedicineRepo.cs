@@ -1,4 +1,5 @@
-﻿using Microsoft.EntityFrameworkCore;
+﻿using Humanizer;
+using Microsoft.EntityFrameworkCore;
 using Pharma_LinkAPI.Data;
 using Pharma_LinkAPI.Models;
 using Pharma_LinkAPI.Repositries.Irepositry;
@@ -72,12 +73,19 @@ namespace Pharma_LinkAPI.Repositries.Repositry
             return medicines;
         }
 
-        public async Task<IDictionary<int,Medicine?>> GetMedicinesForCompany(int companyId)
+        public async Task<IDictionary<int, Medicine?>> GetMedicinesForCompany(int companyId)
         {
             var medicines = await _db.Medicines.Where(m => m.Company_Id == companyId).Include(m => m.Company)
                                                                  .ToDictionaryAsync(m => m.ID);
 
             return medicines;
+        }
+
+        public async Task<Medicine?> GetMedicineCompany(int Id)
+        {
+            var med = await _db.Medicines
+                  .Include(m => m.Company).Where(d => Id == d.ID).FirstOrDefaultAsync();
+            return med;
         }
     }
 }

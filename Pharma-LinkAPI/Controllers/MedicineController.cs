@@ -18,13 +18,11 @@ namespace Pharma_LinkAPI.Controllers
     public class MedicineController : ControllerBase
     {
         private readonly ImedicineRepositiry _medicineRepositiry;
-        private readonly IAccountRepositry _accountRepositry;
-        private readonly AppDbContext _context;
-        public MedicineController(ImedicineRepositiry medicineRepositiry, IAccountRepositry accountRepositry,AppDbContext context)
+        private readonly IUnitOfWork _unitOfWork;
+        public MedicineController(ImedicineRepositiry medicineRepositiry,IUnitOfWork unitOfWork)
         {
             _medicineRepositiry = medicineRepositiry;
-            _accountRepositry = accountRepositry;
-            _context = context;
+            _unitOfWork = unitOfWork;
         }
 
         [HttpGet]
@@ -47,7 +45,7 @@ namespace Pharma_LinkAPI.Controllers
                 };
                 if (medicine.Company_Id != null)
                 {
-                    var user = await _accountRepositry.GetUserById(medicine.Company_Id.Value);
+                    var user = await _unitOfWork._accountRepositry.GetUserById(medicine.Company_Id.Value);
                     if (user != null)
                     {
                         item.CompanyName = user.Name;
@@ -76,7 +74,7 @@ namespace Pharma_LinkAPI.Controllers
                 InStock = medicine.InStock,
                 ImageUrl = medicine.Image_URL,
             };
-            var user = await _accountRepositry.GetUserById(medicine.Company_Id.Value);
+            var user = await _unitOfWork._accountRepositry.GetUserById(medicine.Company_Id.Value);
             if (user != null)
             {
                 res.CompanyName = user.Name;
@@ -126,7 +124,7 @@ namespace Pharma_LinkAPI.Controllers
         [HttpPut("{id}")]
         public ActionResult<string> UpdateMedicine(int id, MedicinePutDTO medicine)
         {
-            var user = _accountRepositry.GetCurrentUser(User);
+            var user = _unitOfWork._accountRepositry.GetCurrentUser(User);
             var existingMedicine = _medicineRepositiry.GetById(id);
             if (existingMedicine == null)
             {
@@ -146,9 +144,9 @@ namespace Pharma_LinkAPI.Controllers
 
         [Authorize(Roles = SD.Role_Company)]
         [HttpDelete("{id}")]
-        public ActionResult<string> DeleteMedicine(int id)
+        public async Task<ActionResult<string>> DeleteMedicine(int id)
         {
-            var user = _accountRepositry.GetCurrentUser(User);
+            var user = _unitOfWork._accountRepositry.GetCurrentUser(User);
 
             var existingMedicine = _medicineRepositiry.GetById(id);
             if (existingMedicine == null)
@@ -159,7 +157,8 @@ namespace Pharma_LinkAPI.Controllers
             {
                 return BadRequest("You are not allowed to remove another company Products");
             }
-            _context.CartItems.RemoveRange(_context.CartItems.Where(x => x.MedicineId == id));
+            var items = await _unitOfWork._cartRepositry.GetCartItemsByMedicineId(id);
+            await _unitOfWork._cartRepositry.RemoveCartItems(items);
             _medicineRepositiry.Delete(existingMedicine.ID);
             return Ok("Medicine deleted successfully");
         }
@@ -192,11 +191,13 @@ namespace Pharma_LinkAPI.Controllers
             }
             return Ok(ret);
         }
+
+
         [Authorize(Roles = SD.Role_Company)]
         [HttpPatch("updateStock")]
         public ActionResult<string> UpdateStock(editMedicineQuantityDTO dto)
         {
-            var user = _accountRepositry.GetCurrentUser(User);
+            var user = _unitOfWork._accountRepositry.GetCurrentUser(User);
             var medicne = _medicineRepositiry.GetById(dto.medicineId);
             if (medicne == null)
             {

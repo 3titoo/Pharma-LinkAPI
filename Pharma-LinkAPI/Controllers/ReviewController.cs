@@ -13,22 +13,22 @@ namespace Pharma_LinkAPI.Controllers
     [ApiController]
     public class ReviewController : ControllerBase
     {
-        private readonly IreviewRepositiry ireviewRepositiry;
-        private readonly IAccountRepositry _accountRepositry;
-        public ReviewController(IreviewRepositiry ireviewRepositiry, IAccountRepositry accountRepositry)
+        private readonly IreviewRepositiry _ireviewRepositiry;
+        private readonly IUnitOfWork _unitOfWork;
+        public ReviewController(IreviewRepositiry ireviewRepositiry, IUnitOfWork unitOfWork)
         {
-            this.ireviewRepositiry = ireviewRepositiry;
-            _accountRepositry = accountRepositry;
+            _ireviewRepositiry = ireviewRepositiry;
+            _unitOfWork = unitOfWork;
         }
         [Authorize(Roles = SD.Role_Pharmacy)]
         [HttpPost("{CompanyId}")]
         public async Task<IActionResult> AddReview(int CompanyId, ReviewDTO review)
         {
-            var ph = await _accountRepositry.GetCurrentUser(User);
-            var exist =  ireviewRepositiry.GetReviewByphAndCo(ph.Id, CompanyId);
+            var ph = await _unitOfWork._accountRepositry.GetCurrentUser(User);
+            var exist = _ireviewRepositiry.GetReviewByphAndCo(ph.Id, CompanyId);
             if(exist != null)
             {
-                ireviewRepositiry.Delete(exist.Id);
+                _ireviewRepositiry.Delete(exist.Id);
             }
             var rev = new Review
             {
@@ -37,19 +37,19 @@ namespace Pharma_LinkAPI.Controllers
                 Rating = review.Rating.Value,
                 Comment = review.Review
             };
-            ireviewRepositiry.Add(rev);
+            _ireviewRepositiry.Add(rev);
             return Ok();
         }
         [Authorize]
         [HttpGet("{CompanyId}")]
         public async Task<ActionResult<ReviewDTO>> GetReview(int CompanyId)
         {
-            var ph = await _accountRepositry.GetCurrentUser(User);
+            var ph = await _unitOfWork._accountRepositry.GetCurrentUser(User);
             if (ph == null)
             {
                 return Problem("Pharmacy not found");
             }
-            var review = ireviewRepositiry.GetReviewByphAndCo(ph.Id, CompanyId);
+            var review = _ireviewRepositiry.GetReviewByphAndCo(ph.Id, CompanyId);
             if (review == null)
             {
                 return NoContent();

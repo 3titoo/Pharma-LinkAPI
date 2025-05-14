@@ -111,6 +111,9 @@ builder.Services.AddScoped<IrequestRepositry, RequestRepo>();
 builder.Services.AddScoped<IreviewRepositiry, ReviewRepo>();
 builder.Services.AddScoped<ImedicineRepositiry, MedicineRepo>();
 builder.Services.AddScoped<IOrderRepositry, OrderRepo>();
+builder.Services.AddScoped<ICartRepositry, CartRepo>();
+builder.Services.AddScoped<IUnitOfWork, UnitOfWork>();
+
 
 var app = builder.Build();
 using (var scope = app.Services.CreateScope())

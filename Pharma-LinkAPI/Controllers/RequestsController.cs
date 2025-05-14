@@ -21,12 +21,10 @@ namespace Pharma_LinkAPI.Controllers
     public class RequestsController : ControllerBase
     {
         private readonly IrequestRepositry _requestRepositry;
-        private readonly UserManager<AppUser> _userManager;
 
 
-        public RequestsController(IrequestRepositry irequestRepositry, UserManager<AppUser> userManager)
+        public RequestsController(IrequestRepositry irequestRepositry)
         {
-            _userManager = userManager;
             _requestRepositry = irequestRepositry;
         }
 
