@@ -46,7 +46,9 @@ namespace Pharma_LinkAPI.Controllers
                     PharmacyEmail = user.Email,
                     PharmacyLicenseNumber = user.LiscnceNumber,
                     PharmacyImagePath = user.ImagePath,
-                    Role = user.Role
+                    Role = user.Role,
+                    AboutUs = user.AboutUs
+                 
                 };
                 return Ok(profile);
             }
@@ -65,6 +67,7 @@ namespace Pharma_LinkAPI.Controllers
                     CompanyImagePath = user.ImagePath,
                     Role = user.Role,
                     MinPriceToOrder = user.MinPriceToMakeOrder,
+                    AboutUs = user.AboutUs
                 };
                 float totalRating = 0;
                 if (user.ReviewsReceived == null || user.ReviewsReceived.Count == 0)
@@ -240,6 +243,25 @@ namespace Pharma_LinkAPI.Controllers
             }
             string error = string.Join(" | ", result.Errors.Select(x => x.Description));
             return BadRequest(error);
+        }
+
+        [Authorize]
+        [HttpPatch("ChangeAboutUs")]
+        public async Task<IActionResult> ChangeAboutUs(ChangeAboutUsDTO dto)
+        {
+            if (!ModelState.IsValid)
+            {
+                string errors = string.Join(", ", ModelState.Values.SelectMany(v => v.Errors).Select(e => e.ErrorMessage));
+                return BadRequest(errors);
+            }
+            var user = await _accountRepositry.GetCurrentUser(User);
+            if (user == null)
+            {
+                return NotFound("User not found.");
+            }
+            user.AboutUs = dto.aboutUs;
+            await _accountRepositry.UpdateUser(user);
+            return NoContent();
         }
 
 

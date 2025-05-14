@@ -18,6 +18,8 @@ namespace Pharma_LinkAPI.Identity
 
         public string? DrName { get; set; }
 
+        public string? AboutUs { get; set; }
+
         public decimal MinPriceToMakeOrder { get; set; } = 0; // for company
 
         public ICollection<Review>? ReviewsGiven { get; set; } // for pharmacy

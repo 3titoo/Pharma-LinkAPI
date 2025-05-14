@@ -20,6 +20,7 @@
         public string? CompanyImagePath { get; set; }
         public float? CompanyRating { get; set; }
 
+        public string? AboutUs { get; set; }
         public string? Role { get; set; }
         public float CurrentUserReview { get; set; } = 0;
 

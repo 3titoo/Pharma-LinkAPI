@@ -14,6 +14,7 @@ namespace Pharma_LinkAPI.ViewModels
         public string? PharmacyEmail { get; set; }
         public string? PharmacyLicenseNumber { get; set; }
         public string? PharmacyImagePath { get; set; }
+        public string? AboutUs { get; set; }
         public string? Role { get; set; } = SD.Role_Pharmacy;
     }
 }
