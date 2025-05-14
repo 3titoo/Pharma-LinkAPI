@@ -233,14 +233,14 @@ namespace Pharma_LinkAPI.Controllers
 
                     if (CurMedicine == null)
                     {
-                        return NotFound("Medicine not found.");
+                        throw new Exception("Medicine not found.");
                     }
 
                     var availableStock = CurMedicine.InStock;
 
                     if (availableStock == null || availableStock < item.Count)
                     {
-                        return BadRequest($"Quantity not available for the medicine Name = {item.Medicine.Name}.");
+                        throw new Exception($"Quantity not available for the medicine Name = {item.Medicine.Name}.");
                     }
                 }
 
@@ -461,7 +461,7 @@ namespace Pharma_LinkAPI.Controllers
                     Medicine CurMedicine = Medicines[item.MedicineID.Value];
                     if (CurMedicine == null)
                     {
-                        return NotFound("Medicine not found");
+                        throw new Exception("Medicine not found");
                     }
                     CurMedicine.InStock += item.Count;
                 }
