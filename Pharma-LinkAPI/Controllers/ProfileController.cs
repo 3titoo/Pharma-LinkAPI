@@ -3,6 +3,7 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Pharma_LinkAPI.DTO.AccountDTO;
 using Pharma_LinkAPI.Identity;
+using Pharma_LinkAPI.Models;
 using Pharma_LinkAPI.Repositries.Irepositry;
 using Pharma_LinkAPI.ViewModels;
 using System.Security.Claims;
@@ -138,7 +139,10 @@ namespace Pharma_LinkAPI.Controllers
                 return BadRequest("Only JPG, PNG, and JPEG files are allowed.");
             var uploadsFolder = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot/uploads");
             Directory.CreateDirectory(uploadsFolder);
-            var imgPath = Path.Combine(uploadsFolder, img.FileName);
+
+            var uniqueFileName = $"{Guid.NewGuid()}{imgExtension}";
+            var imgPath = Path.Combine(uploadsFolder, uniqueFileName);
+
             using (var stream = new FileStream(imgPath, FileMode.Create))
             {
                 img.CopyTo(stream);
