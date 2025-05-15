@@ -9,6 +9,7 @@ using Pharma_LinkAPI.Identity;
 using Pharma_LinkAPI.Repositries.Irepositry;
 using Pharma_LinkAPI.Repositries.Repositry;
 using Pharma_LinkAPI.Services;
+using Pharma_LinkAPI.Services.EmailService;
 using Pharma_LinkAPI.Services.JWT;
 using System;
 using System.Text;
@@ -65,6 +66,7 @@ builder.Services.AddCors(options => {
 });
 
 builder.Services.AddTransient<IJwtService, JwtService>();
+builder.Services.AddTransient<IEmailService, EmailService>();
 
 builder.Services.AddIdentity<AppUser, AppRole>(options =>
 {
@@ -113,6 +115,7 @@ builder.Services.AddScoped<ImedicineRepositiry, MedicineRepo>();
 builder.Services.AddScoped<IOrderRepositry, OrderRepo>();
 builder.Services.AddScoped<ICartRepositry, CartRepo>();
 builder.Services.AddScoped<IUnitOfWork, UnitOfWork>();
+
 
 
 var app = builder.Build();

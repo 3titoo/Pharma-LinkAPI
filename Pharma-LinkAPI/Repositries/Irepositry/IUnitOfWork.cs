@@ -1,4 +1,5 @@
 ﻿using Pharma_LinkAPI.Data;
+using Pharma_LinkAPI.Services.EmailService;
 
 namespace Pharma_LinkAPI.Repositries.Irepositry
 {
@@ -10,6 +11,7 @@ namespace Pharma_LinkAPI.Repositries.Irepositry
         IrequestRepositry _requestRepositry { get; }
         IreviewRepositiry _reviewRepositiry { get; }
         ImedicineRepositiry _medicineRepositiry { get; }
+        IEmailService _emailService { get; }
         Task SaveAsync();
         Task BeginTransactionAsync();
         Task RollbackAsync();

@@ -2,6 +2,7 @@
 using Microsoft.EntityFrameworkCore.Storage;
 using Pharma_LinkAPI.Data;
 using Pharma_LinkAPI.Repositries.Irepositry;
+using Pharma_LinkAPI.Services.EmailService;
 
 namespace Pharma_LinkAPI.Repositries.Repositry
 {
@@ -14,10 +15,10 @@ namespace Pharma_LinkAPI.Repositries.Repositry
         public IrequestRepositry _requestRepositry { get; }
         public IreviewRepositiry _reviewRepositiry { get; }
         public ImedicineRepositiry _medicineRepositiry { get; }
-
+        public IEmailService _emailService { get; }
         IDbContextTransaction _transaction;
 
-        public UnitOfWork(ICartRepositry cartRepositry, IAccountRepositry accountRepositry, IOrderRepositry orderRepositry, IrequestRepositry requestRepositry, IreviewRepositiry reviewRepositiry, ImedicineRepositiry medicineRepositiry, AppDbContext db)
+        public UnitOfWork(ICartRepositry cartRepositry, IAccountRepositry accountRepositry, IOrderRepositry orderRepositry, IrequestRepositry requestRepositry, IreviewRepositiry reviewRepositiry, ImedicineRepositiry medicineRepositiry, AppDbContext db, IEmailService emailService)
         {
             _cartRepositry = cartRepositry;
             _accountRepositry = accountRepositry;
@@ -26,6 +27,7 @@ namespace Pharma_LinkAPI.Repositries.Repositry
             _reviewRepositiry = reviewRepositiry;
             _medicineRepositiry = medicineRepositiry;
             _db = db;
+            _emailService = emailService;
         }
 
 

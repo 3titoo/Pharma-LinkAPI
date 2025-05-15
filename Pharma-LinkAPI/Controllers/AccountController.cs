@@ -83,6 +83,7 @@ namespace Pharma_LinkAPI.Controllers
 
                 var token = _jwtService.CreateToken(user);
                 _unitOfWork._requestRepositry.Delete(Id);
+                await _unitOfWork._emailService.SendEmailAsync(request.Email, "Pharmacy Account Created", $"Your request has been Accepted successfully.\n username is {request.UserName},password is {request.Password}");
                 return Ok(token);
             }
             string error = string.Join(" | ", result.Errors.Select(x => x.Description));
