@@ -142,12 +142,11 @@ namespace Pharma_LinkAPI.Controllers
                 return BadRequest(errors);
             }
 
-            // Check if the userName and password are not null
-            if (loginDTO.UserName == null || loginDTO.Password == null)
+            var email = await _userManager.FindByEmailAsync(loginDTO.UserName);
+            if (email != null)
             {
-                return BadRequest("UserName and Password are required.");
+                loginDTO.UserName = email.UserName;
             }
-
 
             // Check if the user exists
             var result = await _signInManager.PasswordSignInAsync(loginDTO.UserName, loginDTO.Password, isPersistent: loginDTO.RememberMe, lockoutOnFailure: false);
