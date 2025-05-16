@@ -56,7 +56,7 @@ namespace Pharma_LinkAPI.Repositries.Repositry
                     medicine.InStock = entity.InStock;
                     medicine.Image_URL = entity.Image_URL;
                     medicine.Company_Id = entity.Company_Id;
-                    _db.Medicines.Update(medicine);
+                    //_db.Medicines.Update(medicine);
                     _db.SaveChanges();
                 }
                 catch (DbUpdateConcurrencyException)

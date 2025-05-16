@@ -122,9 +122,9 @@ namespace Pharma_LinkAPI.Controllers
         }
         [Authorize(Roles = SD.Role_Company)]
         [HttpPut("{id}")]
-        public ActionResult<string> UpdateMedicine(int id, MedicinePutDTO medicine)
+        public async Task<ActionResult<string>> UpdateMedicine(int id, MedicinePutDTO medicine)
         {
-            var user = _unitOfWork._accountRepositry.GetCurrentUser(User);
+                var user = await _unitOfWork._accountRepositry.GetCurrentUser(User);
             var existingMedicine = _medicineRepositiry.GetById(id);
             if (existingMedicine == null)
             {
@@ -146,7 +146,7 @@ namespace Pharma_LinkAPI.Controllers
         [HttpDelete("{id}")]
         public async Task<ActionResult<string>> DeleteMedicine(int id)
         {
-            var user = _unitOfWork._accountRepositry.GetCurrentUser(User);
+            var user = await _unitOfWork._accountRepositry.GetCurrentUser(User);
 
             var existingMedicine = _medicineRepositiry.GetById(id);
             if (existingMedicine == null)
@@ -195,9 +195,9 @@ namespace Pharma_LinkAPI.Controllers
 
         [Authorize(Roles = SD.Role_Company)]
         [HttpPatch("updateStock")]
-        public ActionResult<string> UpdateStock(editMedicineQuantityDTO dto)
+        public async Task<ActionResult<string>> UpdateStock(editMedicineQuantityDTO dto)
         {
-            var user = _unitOfWork._accountRepositry.GetCurrentUser(User);
+            var user = await _unitOfWork._accountRepositry.GetCurrentUser(User);
             var medicne = _medicineRepositiry.GetById(dto.medicineId);
             if (medicne == null)
             {
@@ -219,6 +219,7 @@ namespace Pharma_LinkAPI.Controllers
         public async Task<IActionResult> uploadPhoto(int id,IFormFile? img)
         {
             var medicne = _medicineRepositiry.GetById(id);
+            var user = await _unitOfWork._accountRepositry.GetCurrentUser(User);
             if (medicne == null)
             {
                 return NotFound("User not found");
@@ -227,6 +228,11 @@ namespace Pharma_LinkAPI.Controllers
             {
                 return BadRequest("No file uploaded");
             }
+            if(user.Id != medicne.Company_Id)
+            {
+                return BadRequest("You are not allowed to update another company Products");
+            }
+
 
             #region Image
             if (img == null || img.Length == 0)
