@@ -13,7 +13,7 @@ namespace Pharma_LinkAPI.Repositries.Repositry
         {
             _db = db;
         }
-        public void Add(Medicine entity)
+        public void Add(Medicine? entity)
         {
             _db.Medicines.Add(entity);
             _db.SaveChanges();
@@ -39,7 +39,7 @@ namespace Pharma_LinkAPI.Repositries.Repositry
             return _db.Medicines.FirstOrDefault(m => m.ID == id);
         }
 
-        public void Update(Medicine entity)
+        public void Update(Medicine? entity)
         {
             if (entity == null)
             {
@@ -73,7 +73,7 @@ namespace Pharma_LinkAPI.Repositries.Repositry
             return medicines;
         }
 
-        public async Task<IDictionary<int, Medicine?>> GetMedicinesForCompany(int companyId)
+        public async Task<IDictionary<int, Medicine>> GetMedicinesForCompany(int companyId)
         {
             var medicines = await _db.Medicines.Where(m => m.Company_Id == companyId).Include(m => m.Company)
                                                                  .ToDictionaryAsync(m => m.ID);

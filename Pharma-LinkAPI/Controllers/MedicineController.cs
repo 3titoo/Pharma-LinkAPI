@@ -19,7 +19,7 @@ namespace Pharma_LinkAPI.Controllers
     {
         private readonly ImedicineRepositiry _medicineRepositiry;
         private readonly IUnitOfWork _unitOfWork;
-        public MedicineController(ImedicineRepositiry medicineRepositiry,IUnitOfWork unitOfWork)
+        public MedicineController(ImedicineRepositiry medicineRepositiry, IUnitOfWork unitOfWork)
         {
             _medicineRepositiry = medicineRepositiry;
             _unitOfWork = unitOfWork;
@@ -124,13 +124,13 @@ namespace Pharma_LinkAPI.Controllers
         [HttpPut("{id}")]
         public async Task<ActionResult<string>> UpdateMedicine(int id, MedicinePutDTO medicine)
         {
-                var user = await _unitOfWork._accountRepositry.GetCurrentUser(User);
+            var user = await _unitOfWork._accountRepositry.GetCurrentUser(User);
             var existingMedicine = _medicineRepositiry.GetById(id);
             if (existingMedicine == null)
             {
                 return NotFound();
             }
-            if(existingMedicine.Company_Id != user.Id)
+            if (existingMedicine.Company_Id != user.Id)
             {
                 return BadRequest("You are not allowed to update another company Products");
             }
@@ -167,7 +167,7 @@ namespace Pharma_LinkAPI.Controllers
         [HttpGet("search")]
         public ActionResult<IEnumerable<SearchDTO>> search(string? word)
         {
-            if(string.IsNullOrEmpty(word))
+            if (string.IsNullOrEmpty(word))
             {
                 return NoContent();
             }
@@ -216,7 +216,7 @@ namespace Pharma_LinkAPI.Controllers
 
         [Authorize(Roles = SD.Role_Company)]
         [HttpPatch("uploadPhoto/{id}")]
-        public async Task<IActionResult> uploadPhoto(int id,IFormFile? img)
+        public async Task<IActionResult> uploadPhoto(int id, IFormFile? img)
         {
             var medicne = _medicineRepositiry.GetById(id);
             var user = await _unitOfWork._accountRepositry.GetCurrentUser(User);
@@ -228,7 +228,7 @@ namespace Pharma_LinkAPI.Controllers
             {
                 return BadRequest("No file uploaded");
             }
-            if(user.Id != medicne.Company_Id)
+            if (user.Id != medicne.Company_Id)
             {
                 return BadRequest("You are not allowed to update another company Products");
             }
@@ -255,6 +255,35 @@ namespace Pharma_LinkAPI.Controllers
             medicne.Image_URL = imgPath;
             _medicineRepositiry.Update(medicne);
             return NoContent();
+        }
+
+
+        [HttpGet("CompanyMedicnines")]
+        [Authorize(Roles = SD.Role_Company)]
+        public async Task<ActionResult<IEnumerable<MedicineViewModel>>>GetCompanyMedicines()
+        {
+            var user = await _unitOfWork._accountRepositry.GetCurrentUser(User);
+            var medicinesDictionary =
+                await _medicineRepositiry.GetMedicinesForCompany(user.Id);
+
+            var ret = new List<MedicineViewModel>();
+
+            foreach (var medicine in medicinesDictionary.Values)
+            {
+                var item = new MedicineViewModel
+                {
+                    Id = medicine.ID,
+                    MedicineName = medicine.Name,
+                    Description = medicine.Description,
+                    Price = medicine.Price,
+                    InStock = medicine.InStock,
+                    ImageUrl = medicine.Image_URL,
+                    CompanyName = user.Name,
+                    CompanyUserName = user.UserName
+                };
+                ret.Add(item);
+            }
+            return ret;
         }
 
     }
