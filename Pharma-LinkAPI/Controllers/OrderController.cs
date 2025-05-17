@@ -12,6 +12,7 @@ using System.Transactions;
 using static NuGet.Packaging.PackagingConstants;
 using Microsoft.AspNetCore.Authorization;
 using Pharma_LinkAPI.Repositries.Irepositry;
+using Azure.Core;
 
 namespace Pharma_LinkAPI.Controllers
 {
@@ -288,6 +289,16 @@ namespace Pharma_LinkAPI.Controllers
                 // Commit the transaction
                 await _unitOfWork.CommitAsync();
 
+                var PharmacyEmail = CurrentCart.Pharmacy.Email;
+
+                await _unitOfWork._emailService.SendEmailAsync(PharmacyEmail, "Order Confirmation – Thank You for Your Order", 
+                    $"Your order has been placed successfully and is now being processed. We will notify you once it is confirmed and ready for delivery.\n\nThank you for your trust.\n\nBest regards.");
+
+                var company = await _unitOfWork._accountRepositry.GetUserById(companyId);
+
+                await _unitOfWork._emailService.SendEmailAsync(company.Email, $"New Order from {CurrentCart.Pharmacy.Name} Pharmacy",
+                    $"{CurrentCart.Pharmacy.Name} Pharmacy has successfully placed a new order. Please review and proceed with the processing as soon as possible.\n\nYou will be notified of any updates regarding this order.\n\nBest regards.");
+
                 return Ok("order created");
             }
             catch (Exception ex)
@@ -295,7 +306,6 @@ namespace Pharma_LinkAPI.Controllers
 
                 // Rollback the transaction if any error occurs
                 await _unitOfWork.RollbackAsync();
-
                 return Problem($"An error occurred while executing the request.: {ex.Message}");
             }
         }
@@ -345,6 +355,11 @@ namespace Pharma_LinkAPI.Controllers
 
             _orderRepositry.ChangeStatusOrder(order, SD.StatusOrder_shipped);
 
+            var PharmacyEmail = order.Pharmacy.Email;
+
+            await _unitOfWork._emailService.SendEmailAsync(PharmacyEmail, "The order has been shipped successfully – Thank You for Your Order",
+                $"The order has been shipped successfully.\n\nThank you for your trust.\n\nBest regards.");
+
             return Ok("The order has been shipped successfully");
         }
 
@@ -391,7 +406,14 @@ namespace Pharma_LinkAPI.Controllers
                 return BadRequest($"Order is {order.StatusOrder}");
             }
 
+
+
             _orderRepositry.ChangeStatusOrder(order, SD.StatusOrder_delivered);
+
+            var PharmacyEmail = order.Pharmacy.Email;
+
+            await _unitOfWork._emailService.SendEmailAsync(PharmacyEmail, "The order has been delivered successfully – Thank You for Your Order",
+                $"The order has been delivered successfully.\n\nThank you for your trust.\n\nBest regards.");
 
             return Ok("The order has been delivered successfully");
         }
@@ -463,6 +485,16 @@ namespace Pharma_LinkAPI.Controllers
                     }
                     CurMedicine.InStock += item.Count;
                 }
+
+                var Pharmacy = order.Pharmacy;
+
+                await _unitOfWork._emailService.SendEmailAsync(Pharmacy.Email, "The order has been successfully cancelled",
+                    $"The order has been successfully cancelled.\n\nThank you for your trust.\n\nBest regards.");
+
+                var company = order.Company;
+
+                await _unitOfWork._emailService.SendEmailAsync(company.Email, $"cancel Order from {order.Pharmacy.Name} Pharmacy",
+                    $"{Pharmacy.Name} Pharmacy has been cancelled order.\n\nBest regards.");
 
                 _orderRepositry.DeleteOrder(order);
 
