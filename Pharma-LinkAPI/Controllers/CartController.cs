@@ -81,11 +81,6 @@ public class CartController : ControllerBase
 
         var user = await _unitOfWork._accountRepositry.GetCurrentUser(User);
 
-        if (user == null)
-        {
-            return BadRequest("user should log in");
-        }
-
         var cart = await _cartRepositry.GetCart(user.Cart.CartId);
 
 
