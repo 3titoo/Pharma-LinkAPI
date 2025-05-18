@@ -108,7 +108,7 @@ public class CartController : ControllerBase
         }
         else
         {
-            var medicine = _unitOfWork._medicineRepositiry.GetById(dto.Id);
+            var medicine = await _unitOfWork._medicineRepositiry.GetById(dto.Id);
             if (medicine == null)
             {
                 return BadRequest("medicine not found");

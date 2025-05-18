@@ -29,7 +29,7 @@ namespace Pharma_LinkAPI.Controllers
         [HttpPost("Register/{Id}")]
         public async Task<ActionResult<AuthentcationResponse>> Register(int Id)
         {
-            var request = _unitOfWork._requestRepositry.GetById(Id);
+            var request = await _unitOfWork._requestRepositry.GetById(Id);
             if (request == null)
             {
                 return NotFound("Request not found.");
@@ -69,8 +69,8 @@ namespace Pharma_LinkAPI.Controllers
                     TotalPrice = 0,
                     PharmacyId = user.Id
                 };
-                _unitOfWork._cartRepositry.AddCart(cart);
-                _unitOfWork._requestRepositry.Delete(Id);
+                await _unitOfWork._cartRepositry.AddCart(cart);
+                await _unitOfWork._requestRepositry.Delete(Id);
                 await _unitOfWork._emailService.SendEmailAsync(request.Email, "Your Pharmacy Account Has Been Created", $"Your request has been Accepted successfully.\n username is {request.UserName}\n\npassword is {request.Password}");
                 return Ok("User added succeffuly");
 
@@ -208,13 +208,13 @@ namespace Pharma_LinkAPI.Controllers
 
             if (user.Role == SD.Role_Pharmacy)
             {
-                var reviews = _unitOfWork._reviewRepositiry.GetReviewsByPharmacyId(user.Id);
+                var reviews = await _unitOfWork._reviewRepositiry.GetReviewsByPharmacyId(user.Id);
 
                 if (reviews != null)
                 {
                     foreach (var review in reviews)
                     {
-                        _unitOfWork._reviewRepositiry.Delete(review.Id);
+                        await _unitOfWork._reviewRepositiry.Delete(review.Id);
                     }
                 }
             }
@@ -225,12 +225,13 @@ namespace Pharma_LinkAPI.Controllers
                 {
                     foreach (var review in reviews.ReviewsReceived)
                     {
-                        _unitOfWork._reviewRepositiry.Delete(review.Id);
+                        await _unitOfWork._reviewRepositiry.Delete(review.Id);
                     }
                 }
 
             }
             user.IsDeleted = true;
+            await _unitOfWork.SaveAsync();
             return Ok("User deleted successfully.");
 
         }

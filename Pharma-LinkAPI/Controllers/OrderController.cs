@@ -344,7 +344,7 @@ namespace Pharma_LinkAPI.Controllers
                 return BadRequest($"Order is {order.StatusOrder}");
             }
 
-            _orderRepositry.ChangeStatusOrder(order, SD.StatusOrder_shipped);
+            await _orderRepositry.ChangeStatusOrder(order, SD.StatusOrder_shipped);
 
             var PharmacyEmail = order.Pharmacy.Email;
 
@@ -487,7 +487,7 @@ namespace Pharma_LinkAPI.Controllers
                 await _unitOfWork._emailService.SendEmailAsync(company.Email, $"cancel Order from {order.Pharmacy.Name} Pharmacy",
                     $"{Pharmacy.Name} Pharmacy has been cancelled order.\n\nBest regards.");
 
-                _orderRepositry.DeleteOrder(order);
+                await _orderRepositry.DeleteOrder(order);
 
                 // Commit the transaction
                 await _unitOfWork.CommitAsync();

@@ -7,7 +7,7 @@
 
         Task DeleteCartItem(CartItem cartItem);
 
-        void AddCart(Cart cart);
+        Task AddCart(Cart cart);
 
         Task<List<CartItem>> GetCartItemsByMedicineId(int medicineId);
 

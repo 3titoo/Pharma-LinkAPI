@@ -11,9 +11,9 @@ namespace Pharma_LinkAPI.Repositries.Repositry
         {
             _context = context;
         }
-        public void AddCart(Cart cart)
+        public async Task AddCart(Cart cart)
         {
-            _context.Carts.Add(cart);
+            await _context.Carts.AddAsync(cart);
         }
 
         public async Task DeleteCartItem(CartItem cartItem)
@@ -50,7 +50,6 @@ namespace Pharma_LinkAPI.Repositries.Repositry
                 return;
             }
             _context.CartItems.RemoveRange(cartItems);
-            await _context.SaveChangesAsync();
         }
     }
 }

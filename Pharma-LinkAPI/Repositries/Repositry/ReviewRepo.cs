@@ -1,4 +1,5 @@
-﻿using Pharma_LinkAPI.Data;
+﻿using Microsoft.EntityFrameworkCore;
+using Pharma_LinkAPI.Data;
 using Pharma_LinkAPI.Models;
 using Pharma_LinkAPI.Repositries.Irepositry;
 
@@ -11,28 +12,28 @@ namespace Pharma_LinkAPI.Repositries.Repositry
         {
             _db = db;
         }
-        public void Add(Review entity)
+        public async Task Add(Review? entity)
         {
-            _db.Reviews.Add(entity);
-            _db.SaveChanges();
+            await _db.Reviews.AddAsync(entity);
+            await _db.SaveChangesAsync();
         }
-        public void Delete(int id)
+        public async Task Delete(int id)
         {
-            var review = _db.Reviews.FirstOrDefault(i => i.Id == id);
+            var review = await _db.Reviews.FirstOrDefaultAsync(i => i.Id == id);
             if (review != null)
             {
                 _db.Reviews.Remove(review);
-                _db.SaveChanges();
+                await _db.SaveChangesAsync();
             }
         }
-        public IEnumerable<Review> GetAll()
+        public async Task<IEnumerable<Review?>> GetAll()
         {
-            var reviews = _db.Reviews.ToList();
+            var reviews = await _db.Reviews.ToListAsync();
             return reviews;
         }
-        public Review GetById(int id)
+        public async Task<Review> GetById(int id)
         {
-            var review = _db.Reviews.FirstOrDefault(i => i.Id == id);
+            var review = await _db.Reviews.FirstOrDefaultAsync(i => i.Id == id);
             if (review == null)
             {
                 throw new Exception("Review not found");
@@ -40,22 +41,22 @@ namespace Pharma_LinkAPI.Repositries.Repositry
             return review;
         }
 
-        public Review? GetReviewByphAndCo(int pharmacyId, int CompanyId)
+        public async Task<Review?> GetReviewByphAndCo(int pharmacyId, int CompanyId)
         {
-            var review = _db.Reviews
-                .FirstOrDefault(r => r.PharmacyId == pharmacyId && r.CompanyId == CompanyId);
+            var review = await _db.Reviews
+                .FirstOrDefaultAsync(r => r.PharmacyId == pharmacyId && r.CompanyId == CompanyId);
             return review;
         }
 
-        public IEnumerable<Review?> GetReviewsByPharmacyId(int pharmacyId)
+        public async Task<IEnumerable<Review?>> GetReviewsByPharmacyId(int pharmacyId)
         {
-            var reviews = _db.Reviews
+            var reviews = await _db.Reviews
                 .Where(r => r.PharmacyId == pharmacyId)
-                .ToList();
+                .ToListAsync();
             return reviews;
         }
 
-        public void Update(Review entity)
+        public async Task Update(Review? entity)
         {
             throw new NotImplementedException();
         }

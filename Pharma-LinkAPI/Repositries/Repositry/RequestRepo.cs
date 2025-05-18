@@ -14,31 +14,31 @@ namespace Pharma_LinkAPI.Repositries.Repositry
             _db = db;
         }
 
-        public void Add(Request entity)
+        public async Task Add(Request entity)
         {
-            _db.Requests.Add(entity);
-            _db.SaveChanges();
+           await _db.Requests.AddAsync(entity);
+           await _db.SaveChangesAsync();
         }
 
-        public void Delete(int id)
+        public async Task Delete(int id)
         {
-            var request = _db.Requests.FirstOrDefault(i => i.Id == id);
+            var request = await _db.Requests.FirstOrDefaultAsync(i => i.Id == id);
             if (request != null)
             {
                 _db.Requests.Remove(request);
-                _db.SaveChanges();
+                await _db.SaveChangesAsync();
             }
         }
 
-        public IEnumerable<Request?> GetAll()
+        public async Task<IEnumerable<Request?>> GetAll()
         {
-            var requests = _db.Requests.ToList();
+            var requests = await _db.Requests.ToListAsync();
             return requests;
         }
 
-        public Request? GetById(int id)
+        public async Task<Request?> GetById(int id)
         {
-            var request = _db.Requests.FirstOrDefault(i => i.Id == id);
+            var request = await _db.Requests.FirstOrDefaultAsync(i => i.Id == id);
             return request;
         }
 
@@ -52,7 +52,7 @@ namespace Pharma_LinkAPI.Repositries.Repositry
             return await _db.Requests.FirstOrDefaultAsync(i => i.UserName == username);
         }
 
-        public void Update(Request entity)
+        public async Task Update(Request entity)
         {
             throw new NotImplementedException();
         }

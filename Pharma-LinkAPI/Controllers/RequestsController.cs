@@ -4,6 +4,7 @@ using Pharma_LinkAPI.DTO.AccountDTO;
 using Pharma_LinkAPI.Identity;
 using Pharma_LinkAPI.Models;
 using Pharma_LinkAPI.Repositries.Irepositry;
+using System.Threading.Tasks;
 
 namespace Pharma_LinkAPI.Controllers
 {
@@ -20,29 +21,13 @@ namespace Pharma_LinkAPI.Controllers
         }
 
         [HttpPost("Register")]
-        public ActionResult<string> Register(PharmacyRequestDTO pharmacyRegisterDTO)
+        public async Task<ActionResult<string>> Register(PharmacyRequestDTO pharmacyRegisterDTO)
         {
             if (!ModelState.IsValid)
             {
                 string errors = string.Join(", ", ModelState.Values.SelectMany(v => v.Errors).Select(e => e.ErrorMessage));
                 return BadRequest(errors);
             }
-            //var img = pharmacyRegisterDTO.img;
-
-            //#region Image
-            //if (img == null || img.Length == 0)
-            //    return BadRequest("No image uploaded.");
-            //var imgExtension = Path.GetExtension(img.FileName).ToLower();
-            //if (imgExtension != ".jpg" && imgExtension != ".png" && imgExtension != ".jpeg")
-            //    return BadRequest("Only JPG, PNG, and JPEG files are allowed.");
-            //var uploadsFolder = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot/uploads");
-            //Directory.CreateDirectory(uploadsFolder);
-            //var imgPath = Path.Combine(uploadsFolder, img.FileName);
-            //using (var stream = new FileStream(imgPath, FileMode.Create))
-            //{
-            //    img.CopyTo(stream);
-            //}
-            //#endregion
 
             var requset = new Request()
             {
@@ -55,7 +40,6 @@ namespace Pharma_LinkAPI.Controllers
                 State = pharmacyRegisterDTO.State,
                 City = pharmacyRegisterDTO.City,
                 License_File = pharmacyRegisterDTO.pdfURL,
-                //ImageUrl = imgPath,
                 UserName = pharmacyRegisterDTO.UserName,
                 Password = pharmacyRegisterDTO.Password
             };
@@ -64,7 +48,7 @@ namespace Pharma_LinkAPI.Controllers
             {
                 return BadRequest("Password is required.");
             }
-            _requestRepositry.Add(requset);
+            await _requestRepositry.Add(requset);
             return Ok("request is added");
         }
 
@@ -75,17 +59,17 @@ namespace Pharma_LinkAPI.Controllers
         // GET: api/Requests
         [Authorize(Roles = SD.Role_Admin)]
         [HttpGet]
-        public ActionResult<IEnumerable<Request>> GetRequests()
+        public async  Task<ActionResult<IEnumerable<Request>>> GetRequests()
         {
-            var requests = _requestRepositry.GetAll();
+            var requests = await _requestRepositry.GetAll();
             return Ok(requests);
         }
         [Authorize(Roles = SD.Role_Admin)]
         // GET: api/Requests/5
         [HttpGet("{id}")]
-        public ActionResult<Request?> GetRequest(int id)
+        public async Task<ActionResult<Request?>> GetRequest(int id)
         {
-            var request = _requestRepositry.GetById(id);
+            var request = await _requestRepositry.GetById(id);
 
             if (request == null)
             {
@@ -100,15 +84,15 @@ namespace Pharma_LinkAPI.Controllers
         // DELETE: api/Requests/5
         [Authorize(Roles = SD.Role_Admin)]
         [HttpDelete("{id}")]
-        public IActionResult DeleteRequest(int id)
+        public async Task<IActionResult> DeleteRequest(int id)
         {
-            var request = _requestRepositry.GetById(id);
+            var request = await _requestRepositry.GetById(id);
             if (request == null)
             {
                 return NotFound();
             }
 
-            _requestRepositry.Delete(id);
+            await _requestRepositry.Delete(id);
 
             return NoContent();
         }

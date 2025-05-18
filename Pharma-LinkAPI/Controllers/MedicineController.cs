@@ -5,6 +5,7 @@ using Pharma_LinkAPI.Identity;
 using Pharma_LinkAPI.Models;
 using Pharma_LinkAPI.Repositries.Irepositry;
 using System.Security.Claims;
+using System.Threading.Tasks;
 
 namespace Pharma_LinkAPI.Controllers
 {
@@ -24,7 +25,7 @@ namespace Pharma_LinkAPI.Controllers
         [HttpGet]
         public async Task<ActionResult<IEnumerable<MedicineViewDTO>>> GetAllMedicines()
         {
-            var medicines = _medicineRepositiry.GetAll();
+            var medicines = await _medicineRepositiry.GetAll();
 
             var ret = new List<MedicineViewDTO>();
 
@@ -56,7 +57,7 @@ namespace Pharma_LinkAPI.Controllers
         [HttpGet("{id}")]
         public async Task<ActionResult<MedicineViewDTO>> GetMedicineById(int id)
         {
-            var medicine = _medicineRepositiry.GetById(id);
+            var medicine = await _medicineRepositiry.GetById(id);
             if (medicine == null)
             {
                 return NotFound();
@@ -101,7 +102,7 @@ namespace Pharma_LinkAPI.Controllers
                 img.CopyTo(stream);
             }
             #endregion
-            var userId = int.Parse(User.FindFirst(ClaimTypes.NameIdentifier)?.Value);
+            var user = await _unitOfWork._accountRepositry.GetCurrentUser(User);
 
             var medicineModel = new Medicine
             {
@@ -109,11 +110,11 @@ namespace Pharma_LinkAPI.Controllers
                 Description = medicine.Description,
                 Price = medicine.Price,
                 InStock = medicine.InStock,
-                Company_Id = userId,
+                Company_Id = user.Id,
                 Image_URL = imgPath,
             };
 
-            _medicineRepositiry.Add(medicineModel);
+            await _medicineRepositiry.Add(medicineModel);
             return Ok("Medicine added successfully");
         }
         [Authorize(Roles = SD.Role_Company)]
@@ -121,7 +122,7 @@ namespace Pharma_LinkAPI.Controllers
         public async Task<ActionResult<string>> UpdateMedicine(int id, MedicinePutDTO medicine)
         {
             var user = await _unitOfWork._accountRepositry.GetCurrentUser(User);
-            var existingMedicine = _medicineRepositiry.GetById(id);
+            var existingMedicine = await _medicineRepositiry.GetById(id);
             if (existingMedicine == null)
             {
                 return NotFound();
@@ -134,7 +135,7 @@ namespace Pharma_LinkAPI.Controllers
             existingMedicine.Description = medicine.Description;
             existingMedicine.Price = medicine.Price;
             existingMedicine.InStock = medicine.InStock;
-            _medicineRepositiry.Update(existingMedicine);
+            await _medicineRepositiry.Update(existingMedicine);
             return Ok("Medicine updated successfully");
         }
 
@@ -144,7 +145,7 @@ namespace Pharma_LinkAPI.Controllers
         {
             var user = await _unitOfWork._accountRepositry.GetCurrentUser(User);
 
-            var existingMedicine = _medicineRepositiry.GetById(id);
+            var existingMedicine = await _medicineRepositiry.GetById(id);
             if (existingMedicine == null)
             {
                 return NotFound();
@@ -155,19 +156,19 @@ namespace Pharma_LinkAPI.Controllers
             }
             var items = await _unitOfWork._cartRepositry.GetCartItemsByMedicineId(id);
             await _unitOfWork._cartRepositry.RemoveCartItems(items);
-            _medicineRepositiry.Delete(existingMedicine.ID);
+            await _medicineRepositiry.Delete(existingMedicine.ID);
             return Ok("Medicine deleted successfully");
         }
 
 
         [HttpGet("search")]
-        public ActionResult<IEnumerable<SearchDTO>> search(string? word)
+        public async Task<ActionResult<IEnumerable<SearchDTO>>> search(string? word)
         {
             if (string.IsNullOrEmpty(word))
             {
                 return NoContent();
             }
-            var medicines = _medicineRepositiry.Search(word);
+            var medicines = await _medicineRepositiry.Search(word);
             if (medicines == null)
             {
                 return NoContent();
@@ -194,7 +195,7 @@ namespace Pharma_LinkAPI.Controllers
         public async Task<ActionResult<string>> UpdateStock(editMedicineQuantityDTO dto)
         {
             var user = await _unitOfWork._accountRepositry.GetCurrentUser(User);
-            var medicne = _medicineRepositiry.GetById(dto.medicineId);
+            var medicne = await _medicineRepositiry.GetById(dto.medicineId);
             if (medicne == null)
             {
                 return NotFound("Medicine not found.");
@@ -206,7 +207,7 @@ namespace Pharma_LinkAPI.Controllers
             }
 
             medicne.InStock = dto.quantity;
-            _medicineRepositiry.Update(medicne);
+            await _medicineRepositiry.Update(medicne);
             return Ok("Medicine stock updated successfully.");
         }
 
@@ -214,7 +215,7 @@ namespace Pharma_LinkAPI.Controllers
         [HttpPatch("uploadPhoto/{id}")]
         public async Task<IActionResult> uploadPhoto(int id, IFormFile? img)
         {
-            var medicne = _medicineRepositiry.GetById(id);
+            var medicne = await _medicineRepositiry.GetById(id);
             var user = await _unitOfWork._accountRepositry.GetCurrentUser(User);
             if (medicne == null)
             {
@@ -249,7 +250,7 @@ namespace Pharma_LinkAPI.Controllers
             #endregion
 
             medicne.Image_URL = imgPath;
-            _medicineRepositiry.Update(medicne);
+            await _medicineRepositiry.Update(medicne);
             return NoContent();
         }
 

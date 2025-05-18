@@ -12,39 +12,39 @@ namespace Pharma_LinkAPI.Repositries.Repositry
         {
             _db = db;
         }
-        public void Add(Medicine? entity)
+        public async Task Add(Medicine? entity)
         {
-            _db.Medicines.Add(entity);
-            _db.SaveChanges();
+            await _db.Medicines.AddAsync(entity);
+            await _db.SaveChangesAsync();
         }
 
-        public void Delete(int id)
+        public async Task Delete(int id)
         {
-            var medicine = GetById(id);
+            var medicine = await GetById(id);
             if (medicine != null)
             {
                 medicine.IsDeleted = true;
-                _db.SaveChanges();
+                await _db.SaveChangesAsync();
             }
         }
 
-        public IEnumerable<Medicine> GetAll()
+        public async Task<IEnumerable<Medicine?>> GetAll()
         {
-            return _db.Medicines.ToList();
+            return await _db.Medicines.ToListAsync();
         }
 
-        public Medicine? GetById(int id)
+        public async Task<Medicine?> GetById(int id)
         {
-            return _db.Medicines.FirstOrDefault(m => m.ID == id);
+            return await _db.Medicines.FirstOrDefaultAsync(m => m.ID == id);
         }
 
-        public void Update(Medicine? entity)
+        public async Task Update(Medicine? entity)
         {
             if (entity == null)
             {
                 throw new ArgumentNullException(nameof(entity));
             }
-            var medicine = GetById(entity.ID);
+            var medicine = await GetById(entity.ID);
             if (medicine != null)
             {
                 try
@@ -55,8 +55,7 @@ namespace Pharma_LinkAPI.Repositries.Repositry
                     medicine.InStock = entity.InStock;
                     medicine.Image_URL = entity.Image_URL;
                     medicine.Company_Id = entity.Company_Id;
-                    //_db.Medicines.Update(medicine);
-                    _db.SaveChanges();
+                    await _db.SaveChangesAsync();
                 }
                 catch (DbUpdateConcurrencyException)
                 {
@@ -65,10 +64,10 @@ namespace Pharma_LinkAPI.Repositries.Repositry
             }
 
         }
-        public IEnumerable<Medicine> Search(string word)
+        public async Task<IEnumerable<Medicine>> Search(string word)
         {
-            var medicines = _db.Medicines.AsNoTracking().Include(c => c.Company)
-                 .Where(m => m.Name.Contains(word) || m.Company.Name.Contains(word)).ToList();
+            var medicines = await _db.Medicines.AsNoTracking().Include(c => c.Company)
+                 .Where(m => m.Name.Contains(word) || m.Company.Name.Contains(word)).ToListAsync();
             return medicines;
         }
 

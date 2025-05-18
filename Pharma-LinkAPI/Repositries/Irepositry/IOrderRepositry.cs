@@ -7,8 +7,8 @@ namespace Pharma_LinkAPI.Repositries.Irepositry
         Task<Order?> GetOrderById(int orderId);
         Task<IEnumerable<Order?>> GetAllOrdersForCompany(int companyId);
         Task<IEnumerable<Order?>> GetAllOrdersForPharmacy(int pharmacyId);
-        void ChangeStatusOrder(Order order, string newStatus);
-        void DeleteOrder(Order order);
-        void AddOrder(Order order);
+        Task ChangeStatusOrder(Order order, string newStatus);
+        Task DeleteOrder(Order order);
+        Task AddOrder(Order order);
     }
 }

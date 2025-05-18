@@ -40,25 +40,25 @@ namespace Pharma_LinkAPI.Repositries.Repositry
             return orders;
         }
 
-        public void AddOrder(Order order)
+        public async Task AddOrder(Order order)
         {
-            _context.Orders.Add(order);
+           await _context.Orders.AddAsync(order);
 
-            _context.SaveChanges();
+           await _context.SaveChangesAsync();
         }
 
-        public void DeleteOrder(Order order)
+        public async Task DeleteOrder(Order order)
         {
 
             _context.Orders.Remove(order);
 
-            _context.SaveChanges();
+            await _context.SaveChangesAsync();
         }
-        public void ChangeStatusOrder(Order order, string newStatus)
+        public async Task ChangeStatusOrder(Order order, string newStatus)
         {
             order.StatusOrder = newStatus;
 
-            _context.SaveChanges();
+            await _context.SaveChangesAsync();
         }
     }
 }

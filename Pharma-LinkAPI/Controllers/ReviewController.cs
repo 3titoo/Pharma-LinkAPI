@@ -23,10 +23,10 @@ namespace Pharma_LinkAPI.Controllers
         public async Task<IActionResult> AddReview(int CompanyId, ReviewDTO review)
         {
             var ph = await _unitOfWork._accountRepositry.GetCurrentUser(User);
-            var exist = _ireviewRepositiry.GetReviewByphAndCo(ph.Id, CompanyId);
+            var exist = await _ireviewRepositiry.GetReviewByphAndCo(ph.Id, CompanyId);
             if (exist != null)
             {
-                _ireviewRepositiry.Delete(exist.Id);
+               await _ireviewRepositiry.Delete(exist.Id);
             }
             var rev = new Review
             {
@@ -35,7 +35,7 @@ namespace Pharma_LinkAPI.Controllers
                 Rating = review.Rating.Value,
                 Comment = review.Review
             };
-            _ireviewRepositiry.Add(rev);
+            await _ireviewRepositiry.Add(rev);
             return Ok();
         }
         [Authorize]
@@ -47,7 +47,7 @@ namespace Pharma_LinkAPI.Controllers
             {
                 return Problem("Pharmacy not found");
             }
-            var review = _ireviewRepositiry.GetReviewByphAndCo(ph.Id, CompanyId);
+            var review = await _ireviewRepositiry.GetReviewByphAndCo(ph.Id, CompanyId);
             if (review == null)
             {
                 return NoContent();

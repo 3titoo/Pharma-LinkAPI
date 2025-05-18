@@ -4,8 +4,8 @@ namespace Pharma_LinkAPI.Repositries.Irepositry
 {
     public interface IreviewRepositiry : Irepo<Review>
     {
-        Review? GetReviewByphAndCo(int pharmacyId, int CompanyId);
-        IEnumerable<Review?> GetReviewsByPharmacyId(int pharmacyId);
+        Task<Review?> GetReviewByphAndCo(int pharmacyId, int CompanyId);
+        Task<IEnumerable<Review?>> GetReviewsByPharmacyId(int pharmacyId);
 
     }
 }
