@@ -17,7 +17,7 @@
         public string? CompanyLicense { get; set; }
         public string? CompanyName { get; set; }
 
-        public DateOnly? OrderDate { get; set; }
+        public DateTime? OrderDate { get; set; }
 
         public decimal? TotalPriceOrder { get; set; }
         public string? StatusOrder { get; set; }

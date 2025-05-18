@@ -60,7 +60,7 @@ namespace Pharma_LinkAPI.Controllers
                     Street = item.Pharmacy.Street,
                     State = item.Pharmacy.State,
                     City = item.Pharmacy.City,
-                    OrderDate = (DateOnly)item.OrderDate,
+                    OrderDate = (DateTime)item.OrderDate,
                     StatusOrder = item.StatusOrder
                 };
                 CompanyInvoices.Add(TempCompanyInvoice);
@@ -105,7 +105,7 @@ namespace Pharma_LinkAPI.Controllers
                     Street = item.Company.Street,
                     State = item.Company.State,
                     City = item.Company.City,
-                    OrderDate = (DateOnly)item.OrderDate,
+                    OrderDate = (DateTime)item.OrderDate,
                     StatusOrder = item.StatusOrder
                 };
                 PharmacyInvoices.Add(TempPharmacyInvoice);
@@ -211,7 +211,6 @@ namespace Pharma_LinkAPI.Controllers
                 var MedicinesForCompany = await _unitOfWork._medicineRepositiry.GetMedicinesForCompany(companyId);
 
 
-
                 if (MedicinesForCompany == null)
                 {
                     return NotFound("Medicines for Company not found.");
@@ -247,7 +246,9 @@ namespace Pharma_LinkAPI.Controllers
                 Order newOrder = new Order
                 {
                     OrderItems = new List<OrderItem>(),
-                    OrderDate = DateOnly.FromDateTime(DateTime.Now),
+                    OrderDate = TimeZoneInfo.ConvertTimeFromUtc(
+                                DateTime.UtcNow,
+                                TimeZoneInfo.FindSystemTimeZoneById("Egypt Standard Time") ),
                     StatusOrder = SD.StatusOrder_pending,
                     PharmacyID = CurrentCart.PharmacyId,
                     CompanyID = companyId,

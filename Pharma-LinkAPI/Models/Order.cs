@@ -10,7 +10,7 @@ namespace Pharma_LinkAPI.Models
         [Key]
         public int OrderID { get; set; }
 
-        public DateOnly? OrderDate { get; set; }
+        public DateTime? OrderDate { get; set; }
         public string? StatusOrder { get; set; }
         public decimal? TotalPrice { get; set; }
 
