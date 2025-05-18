@@ -19,6 +19,8 @@ namespace Pharma_LinkAPI.Identity
 
         public string? AboutUs { get; set; }
 
+        public bool IsDeleted { get; set; } = false;
+
         public decimal MinPriceToMakeOrder { get; set; } = 0; // for company
 
         public ICollection<Review>? ReviewsGiven { get; set; } // for pharmacy

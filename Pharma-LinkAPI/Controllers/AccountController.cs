@@ -10,7 +10,6 @@ namespace Pharma_LinkAPI.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
-    [AllowAnonymous]
     public class AccountController : ControllerBase
     {
         private readonly UserManager<AppUser> _userManager;
@@ -26,7 +25,6 @@ namespace Pharma_LinkAPI.Controllers
             _jwtService = jwtService;
 
         }
-
         [Authorize(Roles = SD.Role_Admin)]
         [HttpPost("Register/{Id}")]
         public async Task<ActionResult<AuthentcationResponse>> Register(int Id)
@@ -150,6 +148,10 @@ namespace Pharma_LinkAPI.Controllers
                 {
                     return BadRequest("User not found.");
                 }
+                if (user.IsDeleted)
+                {
+                    return BadRequest("User is banned.");
+                }
                 await _signInManager.SignInAsync(user, isPersistent: false);
 
                 // Generate JWT token 
@@ -167,7 +169,6 @@ namespace Pharma_LinkAPI.Controllers
             await _signInManager.SignOutAsync();
             return NoContent();
         }
-
 
 
         [Authorize(Roles = SD.Role_Admin)]
@@ -217,14 +218,21 @@ namespace Pharma_LinkAPI.Controllers
                     }
                 }
             }
-
-            var result = await _userManager.DeleteAsync(user);
-            if (result.Succeeded)
+            if (user.Role == SD.Role_Company)
             {
-                return Ok("User deleted successfully.");
+                var reviews = await _unitOfWork._accountRepositry.GetUserById(user.Id);
+                if (reviews.ReviewsReceived != null)
+                {
+                    foreach (var review in reviews.ReviewsReceived)
+                    {
+                        _unitOfWork._reviewRepositiry.Delete(review.Id);
+                    }
+                }
+
             }
-            string error = string.Join(" | ", result.Errors.Select(x => x.Description));
-            return BadRequest(error);
+            user.IsDeleted = true;
+            return Ok("User deleted successfully.");
+
         }
 
     }
