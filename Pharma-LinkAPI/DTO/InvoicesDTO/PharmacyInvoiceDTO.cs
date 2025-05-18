@@ -12,7 +12,7 @@
         public string State { get; set; }
         public string City { get; set; }
         // End Company Address information
-        public DateOnly OrderDate { get; set; }
+        public DateTime OrderDate { get; set; }
         public string StatusOrder { get; set; }
     }
 }
