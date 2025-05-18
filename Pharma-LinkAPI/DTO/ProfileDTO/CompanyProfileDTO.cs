@@ -1,13 +1,13 @@
-﻿namespace Pharma_LinkAPI.ViewModels
+﻿namespace Pharma_LinkAPI.DTO.ProfileDTO
 {
-    public class ReviewViewModel
+    public class ReviewsDTO
     {
         public int Id { get; set; }
         public string? ReviewerName { get; set; }
         public float Rating { get; set; }
         public string? Comment { get; set; }
     }
-    public class CompanyProfileViewModel
+    public class CompanyProfileDTO
     {
         public int Id { get; set; }
         public string? CompanyName { get; set; }
@@ -28,7 +28,7 @@
 
         public int TotalReviws { get; set; } = 0;
 
-        public List<ReviewViewModel>? Reviews { get; set; } = new List<ReviewViewModel>();
+        public List<ReviewsDTO>? Reviews { get; set; } = new List<ReviewsDTO>();
 
 
     }

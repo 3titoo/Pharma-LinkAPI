@@ -1,18 +1,10 @@
-﻿using Microsoft.AspNetCore.Http;
+﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
 using Pharma_LinkAPI.Data;
-using Pharma_LinkAPI.DTO;
-using Pharma_LinkAPI.Models;
+using Pharma_LinkAPI.DTO.InvoicesDTO;
 using Pharma_LinkAPI.Identity;
-using Microsoft.AspNetCore.Identity;
-using System.ComponentModel.Design;
-using static Microsoft.EntityFrameworkCore.DbLoggerCategory.Database;
-using System.Transactions;
-using static NuGet.Packaging.PackagingConstants;
-using Microsoft.AspNetCore.Authorization;
+using Pharma_LinkAPI.Models;
 using Pharma_LinkAPI.Repositries.Irepositry;
-using Azure.Core;
 
 namespace Pharma_LinkAPI.Controllers
 {
@@ -22,7 +14,7 @@ namespace Pharma_LinkAPI.Controllers
     {
         private readonly IOrderRepositry _orderRepositry;
         private readonly IUnitOfWork _unitOfWork;
-        public OrderController(IUnitOfWork unitOfWork,IOrderRepositry orderRepositry,AppDbContext context)
+        public OrderController(IUnitOfWork unitOfWork, IOrderRepositry orderRepositry, AppDbContext context)
         {
             _unitOfWork = unitOfWork;
             _orderRepositry = orderRepositry;
@@ -119,15 +111,15 @@ namespace Pharma_LinkAPI.Controllers
         public async Task<ActionResult<InvoiceDTO>> GetInvoice(int OrderId)
         {
             var order = await _orderRepositry.GetOrderById(OrderId);
-            
-            if(order == null)
+
+            if (order == null)
             {
                 return NotFound("Orders not found.");
             }
 
             var currentUser = await _unitOfWork._accountRepositry.GetCurrentUser(User);
 
-            if(currentUser == null)
+            if (currentUser == null)
             {
                 return NotFound("currentUser not found.");
             }
@@ -135,7 +127,7 @@ namespace Pharma_LinkAPI.Controllers
             if (currentUser.Id != order.CompanyID && currentUser.Id != order.PharmacyID)
             {
                 return Problem("You are not authorized to view this order.");
-            }      
+            }
 
             if (order.OrderItems == null || order.OrderItems.Count == 0)
             {
@@ -291,7 +283,7 @@ namespace Pharma_LinkAPI.Controllers
 
                 var PharmacyEmail = CurrentCart.Pharmacy.Email;
 
-                await _unitOfWork._emailService.SendEmailAsync(PharmacyEmail, "Order Confirmation – Thank You for Your Order", 
+                await _unitOfWork._emailService.SendEmailAsync(PharmacyEmail, "Order Confirmation – Thank You for Your Order",
                     $"Your order has been placed successfully and is now being processed. We will notify you once it is confirmed and ready for delivery.\n\nThank you for your trust.\n\nBest regards.");
 
                 var company = await _unitOfWork._accountRepositry.GetUserById(companyId);
@@ -369,7 +361,7 @@ namespace Pharma_LinkAPI.Controllers
         {
             var order = await _orderRepositry.GetOrderById(OrderId);
 
-            var currentUser = await _unitOfWork._accountRepositry.GetCurrentUser(User);            
+            var currentUser = await _unitOfWork._accountRepositry.GetCurrentUser(User);
 
             if (order == null)
             {
@@ -429,14 +421,14 @@ namespace Pharma_LinkAPI.Controllers
             {
                 var order = await _orderRepositry.GetOrderById(OrderId);
 
-                var currentUser = await _unitOfWork._accountRepositry.GetCurrentUser(User);                
+                var currentUser = await _unitOfWork._accountRepositry.GetCurrentUser(User);
 
                 if (order == null)
                 {
                     return NotFound("Orders not found.");
                 }
 
-                if(currentUser == null)
+                if (currentUser == null)
                 {
                     return NotFound("Pharmacy not found.");
                 }

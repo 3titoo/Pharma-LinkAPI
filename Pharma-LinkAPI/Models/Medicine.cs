@@ -1,9 +1,7 @@
 ﻿using Microsoft.AspNetCore.Mvc.ModelBinding.Validation;
-using Newtonsoft.Json;
 using Pharma_LinkAPI.Identity;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
-using static Microsoft.EntityFrameworkCore.DbLoggerCategory.Database;
 
 namespace Pharma_LinkAPI.Models
 {
@@ -26,7 +24,7 @@ namespace Pharma_LinkAPI.Models
 
         [ForeignKey("Company_Id")]
         [ValidateNever]
-        public  AppUser? Company { get; set; }
+        public AppUser? Company { get; set; }
 
         public bool IsDeleted { get; set; } = false;
 

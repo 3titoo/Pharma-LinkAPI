@@ -1,5 +1,4 @@
-﻿using Pharma_LinkAPI.Data;
-using Pharma_LinkAPI.Services.EmailService;
+﻿using Pharma_LinkAPI.Services.EmailService;
 
 namespace Pharma_LinkAPI.Repositries.Irepositry
 {

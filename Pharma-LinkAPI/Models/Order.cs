@@ -1,7 +1,6 @@
-﻿using System.ComponentModel.DataAnnotations;
+﻿using Pharma_LinkAPI.Identity;
+using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
-using Pharma_LinkAPI.Identity;
-using Pharma_LinkAPI.Data;
 
 namespace Pharma_LinkAPI.Models
 {

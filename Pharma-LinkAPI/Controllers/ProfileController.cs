@@ -2,11 +2,9 @@
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Pharma_LinkAPI.DTO.AccountDTO;
+using Pharma_LinkAPI.DTO.ProfileDTO;
 using Pharma_LinkAPI.Identity;
-using Pharma_LinkAPI.Models;
 using Pharma_LinkAPI.Repositries.Irepositry;
-using Pharma_LinkAPI.ViewModels;
-using System.Security.Claims;
 
 
 namespace Pharma_LinkAPI.Controllers
@@ -34,7 +32,7 @@ namespace Pharma_LinkAPI.Controllers
             }
             if (user.Role == SD.Role_Pharmacy)
             {
-                var profile = new PharmacyProfileViewModel
+                var profile = new PharmacyProfileDTO
                 {
                     Id = user.Id,
                     PharmacyName = user.Name,
@@ -48,13 +46,13 @@ namespace Pharma_LinkAPI.Controllers
                     PharmacyImagePath = user.ImagePath,
                     Role = user.Role,
                     AboutUs = user.AboutUs
-                 
+
                 };
                 return Ok(profile);
             }
             else if (user.Role == SD.Role_Company)
             {
-                var companyProfile = new CompanyProfileViewModel
+                var companyProfile = new CompanyProfileDTO
                 {
                     Id = user.Id,
                     CompanyName = user.Name,
@@ -84,22 +82,23 @@ namespace Pharma_LinkAPI.Controllers
                 {
                     totalRating += review.Rating;
                     var pharmacy = await _accountRepositry.GetUserById(review.PharmacyId.Value);
-                    if(review.Rating != 0)
+                    if (review.Rating != 0)
                     {
                         count++;
                     }
-                    companyProfile.Reviews.Add(new ReviewViewModel
+                    companyProfile.Reviews.Add(new ReviewsDTO
                     {
                         Id = review.Id,
                         ReviewerName = pharmacy.UserName,
                         Rating = review.Rating,
                         Comment = review.Comment
                     });
-                    if (pharmacy == curr) {
+                    if (pharmacy == curr)
+                    {
                         companyProfile.CurrentUserReview = review.Rating;
                     }
                 }
-                if(count == 0)
+                if (count == 0)
                 {
                     companyProfile.CompanyRating = 0;
                 }

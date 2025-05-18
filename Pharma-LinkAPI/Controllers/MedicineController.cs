@@ -1,14 +1,10 @@
 ﻿using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
-using Pharma_LinkAPI.Data;
-using Pharma_LinkAPI.DTO;
+using Pharma_LinkAPI.DTO.MdeicineDTO;
 using Pharma_LinkAPI.Identity;
 using Pharma_LinkAPI.Models;
 using Pharma_LinkAPI.Repositries.Irepositry;
-using Pharma_LinkAPI.ViewModels;
 using System.Security.Claims;
-using System.Threading.Tasks;
 
 namespace Pharma_LinkAPI.Controllers
 {
@@ -26,15 +22,15 @@ namespace Pharma_LinkAPI.Controllers
         }
 
         [HttpGet]
-        public async Task<ActionResult<IEnumerable<MedicineViewModel>>> GetAllMedicines()
+        public async Task<ActionResult<IEnumerable<MedicineViewDTO>>> GetAllMedicines()
         {
             var medicines = _medicineRepositiry.GetAll();
 
-            var ret = new List<MedicineViewModel>();
+            var ret = new List<MedicineViewDTO>();
 
             foreach (var medicine in medicines)
             {
-                var item = new MedicineViewModel
+                var item = new MedicineViewDTO
                 {
                     Id = medicine.ID,
                     MedicineName = medicine.Name,
@@ -58,14 +54,14 @@ namespace Pharma_LinkAPI.Controllers
         }
 
         [HttpGet("{id}")]
-        public async Task<ActionResult<MedicineViewModel>> GetMedicineById(int id)
+        public async Task<ActionResult<MedicineViewDTO>> GetMedicineById(int id)
         {
             var medicine = _medicineRepositiry.GetById(id);
             if (medicine == null)
             {
                 return NotFound();
             }
-            var res = new MedicineViewModel
+            var res = new MedicineViewDTO
             {
                 Id = medicine.ID,
                 MedicineName = medicine.Name,
@@ -260,17 +256,17 @@ namespace Pharma_LinkAPI.Controllers
 
         [HttpGet("CompanyMedicnines")]
         [Authorize(Roles = SD.Role_Company)]
-        public async Task<ActionResult<IEnumerable<MedicineViewModel>>>GetCompanyMedicines()
+        public async Task<ActionResult<IEnumerable<MedicineViewDTO>>> GetCompanyMedicines()
         {
             var user = await _unitOfWork._accountRepositry.GetCurrentUser(User);
             var medicinesDictionary =
                 await _medicineRepositiry.GetMedicinesForCompany(user.Id);
 
-            var ret = new List<MedicineViewModel>();
+            var ret = new List<MedicineViewDTO>();
 
             foreach (var medicine in medicinesDictionary.Values)
             {
-                var item = new MedicineViewModel
+                var item = new MedicineViewDTO
                 {
                     Id = medicine.ID,
                     MedicineName = medicine.Name,

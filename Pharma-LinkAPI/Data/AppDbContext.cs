@@ -1,11 +1,7 @@
-﻿using Microsoft.AspNetCore.Identity;
-using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
+﻿using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
 using Pharma_LinkAPI.Identity;
 using Pharma_LinkAPI.Models;
-using Pharma_LinkAPI.Services;
-using System.Reflection.Emit;
-using Pharma_LinkAPI.DTO;
 
 namespace Pharma_LinkAPI.Data
 {
@@ -80,7 +76,7 @@ namespace Pharma_LinkAPI.Data
                 .HasMany(u => u.Ordersrequested)
                 .WithOne(o => o.Pharmacy)
                 .HasForeignKey(o => o.PharmacyID)
-                .OnDelete(DeleteBehavior.Cascade); 
+                .OnDelete(DeleteBehavior.Cascade);
             #endregion
 
             #region OrdersforPharmacy&Company

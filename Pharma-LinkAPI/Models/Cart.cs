@@ -12,10 +12,10 @@ namespace Pharma_LinkAPI
         public decimal? TotalPrice { get; set; }
 
         // علاقة: الكارت مرتبط بواحدة صيدلية (اختياري حسب المشروع)
-         public int? PharmacyId { get; set; }
+        public int? PharmacyId { get; set; }
 
         [ForeignKey("PharmacyId")]
-         public AppUser? Pharmacy { get; set; }
+        public AppUser? Pharmacy { get; set; }
 
         // كارت يحتوي على عناصر (CartItems)
         public ICollection<CartItem>? CartItems { get; set; }

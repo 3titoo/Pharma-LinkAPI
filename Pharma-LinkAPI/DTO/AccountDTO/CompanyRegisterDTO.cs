@@ -1,5 +1,4 @@
-﻿using Microsoft.AspNetCore.Mvc;
-using Pharma_LinkAPI.Services.Attributes;
+﻿using Pharma_LinkAPI.Services.Attributes;
 using System.ComponentModel.DataAnnotations;
 
 namespace Pharma_LinkAPI.DTO.AccountDTO

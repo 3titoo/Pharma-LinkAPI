@@ -1,6 +1,5 @@
 ﻿using Microsoft.AspNetCore.Identity;
 using Pharma_LinkAPI.Models;
-using System.ComponentModel.DataAnnotations;
 
 namespace Pharma_LinkAPI.Identity
 {

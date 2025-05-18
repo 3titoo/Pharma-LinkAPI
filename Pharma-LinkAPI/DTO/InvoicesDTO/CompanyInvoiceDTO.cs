@@ -1,6 +1,4 @@
-﻿using static System.Runtime.InteropServices.JavaScript.JSType;
-
-namespace Pharma_LinkAPI.DTO
+﻿namespace Pharma_LinkAPI.DTO.InvoicesDTO
 {
     public class CompanyInvoiceDTO
     {
@@ -18,6 +16,6 @@ namespace Pharma_LinkAPI.DTO
         // End Pharmacy Address information
         public DateOnly OrderDate { get; set; }
         public string StatusOrder { get; set; }
-        
+
     }
 }

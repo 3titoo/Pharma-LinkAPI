@@ -1,4 +1,4 @@
-﻿namespace Pharma_LinkAPI.ViewModels
+﻿namespace Pharma_LinkAPI.DTO.CartDTO
 {
 
     public class SummaryItemDTO

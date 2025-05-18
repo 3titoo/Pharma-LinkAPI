@@ -1,4 +1,4 @@
-﻿namespace Pharma_LinkAPI.DTO
+﻿namespace Pharma_LinkAPI.DTO.InvoicesDTO
 {
     public class PharmacyInvoiceDTO
     {

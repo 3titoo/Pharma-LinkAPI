@@ -1,9 +1,7 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using Pharma_LinkAPI.Data;
-using Pharma_LinkAPI.Identity;
 using Pharma_LinkAPI.Models;
 using Pharma_LinkAPI.Repositries.Irepositry;
-using System.ComponentModel.Design;
 
 namespace Pharma_LinkAPI.Repositries.Repositry
 {
@@ -51,9 +49,9 @@ namespace Pharma_LinkAPI.Repositries.Repositry
 
         public void DeleteOrder(Order order)
         {
-            
+
             _context.Orders.Remove(order);
-    
+
             _context.SaveChanges();
         }
         public void ChangeStatusOrder(Order order, string newStatus)

@@ -1,18 +1,9 @@
 ﻿using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Http;
-using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
-using Pharma_LinkAPI.Data;
 using Pharma_LinkAPI.DTO.AccountDTO;
 using Pharma_LinkAPI.Identity;
 using Pharma_LinkAPI.Models;
 using Pharma_LinkAPI.Repositries.Irepositry;
-using Pharma_LinkAPI.Services.JWT;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
 
 namespace Pharma_LinkAPI.Controllers
 {
@@ -84,9 +75,9 @@ namespace Pharma_LinkAPI.Controllers
         // GET: api/Requests
         [Authorize(Roles = SD.Role_Admin)]
         [HttpGet]
-        public  ActionResult<IEnumerable<Request>> GetRequests()
+        public ActionResult<IEnumerable<Request>> GetRequests()
         {
-            var requests =  _requestRepositry.GetAll();
+            var requests = _requestRepositry.GetAll();
             return Ok(requests);
         }
         [Authorize(Roles = SD.Role_Admin)]
@@ -94,7 +85,7 @@ namespace Pharma_LinkAPI.Controllers
         [HttpGet("{id}")]
         public ActionResult<Request?> GetRequest(int id)
         {
-            var request =  _requestRepositry.GetById(id);
+            var request = _requestRepositry.GetById(id);
 
             if (request == null)
             {
@@ -111,7 +102,7 @@ namespace Pharma_LinkAPI.Controllers
         [HttpDelete("{id}")]
         public IActionResult DeleteRequest(int id)
         {
-            var request =  _requestRepositry.GetById(id);
+            var request = _requestRepositry.GetById(id);
             if (request == null)
             {
                 return NotFound();

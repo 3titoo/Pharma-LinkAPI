@@ -1,6 +1,6 @@
-﻿namespace Pharma_LinkAPI.ViewModels
+﻿namespace Pharma_LinkAPI.DTO.MdeicineDTO
 {
-    public class MedicineViewModel
+    public class MedicineViewDTO
     {
         public int Id { get; set; }
         public string? MedicineName { get; set; }
@@ -10,6 +10,5 @@
         public string? CompanyName { get; set; }
         public string? CompanyUserName { get; set; }
         public string? ImageUrl { get; set; }
-
     }
 }

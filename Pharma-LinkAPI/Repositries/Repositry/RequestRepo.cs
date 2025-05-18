@@ -1,5 +1,4 @@
 ﻿using Microsoft.EntityFrameworkCore;
-using Microsoft.VisualStudio.Web.CodeGenerators.Mvc.Templates.BlazorIdentity.Pages.Manage;
 using Pharma_LinkAPI.Data;
 using Pharma_LinkAPI.Models;
 using Pharma_LinkAPI.Repositries.Irepositry;
@@ -23,7 +22,7 @@ namespace Pharma_LinkAPI.Repositries.Repositry
 
         public void Delete(int id)
         {
-            var request =  _db.Requests.FirstOrDefault(i=> i.Id == id);
+            var request = _db.Requests.FirstOrDefault(i => i.Id == id);
             if (request != null)
             {
                 _db.Requests.Remove(request);

@@ -1,5 +1,4 @@
-﻿using Microsoft.AspNetCore.Mvc;
-using Pharma_LinkAPI.Services.Attributes;
+﻿using Pharma_LinkAPI.Services.Attributes;
 using System.ComponentModel.DataAnnotations;
 
 namespace Pharma_LinkAPI.DTO.AccountDTO
@@ -34,7 +33,7 @@ namespace Pharma_LinkAPI.DTO.AccountDTO
         public string? UserName { get; set; }
 
         [Required]
-        public string? DrName { get; set; } 
+        public string? DrName { get; set; }
 
         [Required]
         public string? pdfURL { get; set; }

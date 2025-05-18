@@ -1,13 +1,10 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
 using Pharma_LinkAPI;
-using Pharma_LinkAPI.Data;
 using Pharma_LinkAPI.DTO;
+using Pharma_LinkAPI.DTO.CartDTO;
 using Pharma_LinkAPI.Identity;
 using Pharma_LinkAPI.Repositries.Irepositry;
-using Pharma_LinkAPI.ViewModels;
-using System.Security.Claims;
 
 [Route("api/[controller]")]
 [ApiController]
@@ -24,7 +21,7 @@ public class CartController : ControllerBase
 
     // GET: api/Cart
     [HttpGet]
-    public async Task<ActionResult<CartViewModel>> GetCurrentUserCart()
+    public async Task<ActionResult<CartViewDTO>> GetCurrentUserCart()
     {
         var user = await _unitOfWork._accountRepositry.GetCurrentUser(User);
 
@@ -37,21 +34,21 @@ public class CartController : ControllerBase
 
         if (cart.CartItems == null || !cart.CartItems.Any())
         {
-            return Ok(new CartViewModel
+            return Ok(new CartViewDTO
             {
                 CartId = cart.CartId,
                 TotalPrice = 0,
-                CartItems = new List<CartItemViewModel>()
+                CartItems = new List<CartItemDTO>()
             });
         }
 
         var totalPrice = cart.CartItems.Sum(ci => ci.Count * ci.UnitPrice);
 
-        var ret = new CartViewModel
+        var ret = new CartViewDTO
         {
             CartId = cart.CartId,
             TotalPrice = totalPrice,
-            CartItems = cart.CartItems.Select(ci => new CartItemViewModel
+            CartItems = cart.CartItems.Select(ci => new CartItemDTO
             {
                 CartItemId = ci.CartItemId,
                 MedicineId = ci.MedicineId.Value,
@@ -67,7 +64,7 @@ public class CartController : ControllerBase
 
 
     [HttpPost("AddToCart")]
-    public async Task<IActionResult> AddToCart(CartItemDTO dto)
+    public async Task<IActionResult> AddToCart(AddToCartDTO dto)
     {
         if (!ModelState.IsValid)
         {
@@ -130,7 +127,7 @@ public class CartController : ControllerBase
 
 
     [HttpPut("UpdateCartItem")]
-    public async Task<IActionResult> UpdateCartItem(CartItemDTO dto)
+    public async Task<IActionResult> UpdateCartItem(AddToCartDTO dto)
     {
         if (!ModelState.IsValid)
         {

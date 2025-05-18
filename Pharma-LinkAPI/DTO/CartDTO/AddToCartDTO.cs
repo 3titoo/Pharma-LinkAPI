@@ -1,8 +1,8 @@
 ﻿using System.ComponentModel.DataAnnotations;
 
-namespace Pharma_LinkAPI.DTO
+namespace Pharma_LinkAPI.DTO.CartDTO
 {
-    public class CartItemDTO
+    public class AddToCartDTO
     {
         [Required]
         public int Id { get; set; } // medicineId or cartItemId

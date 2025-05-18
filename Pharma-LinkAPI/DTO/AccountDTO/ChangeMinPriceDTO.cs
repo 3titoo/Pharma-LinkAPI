@@ -7,7 +7,7 @@ namespace Pharma_LinkAPI.DTO.AccountDTO
         [Required]
         public string username { get; set; } = string.Empty;
         [Required]
-        [Range(0, int.MaxValue,ErrorMessage = "should be positive")]
+        [Range(0, int.MaxValue, ErrorMessage = "should be positive")]
         public decimal MinPriceToOrder { get; set; } = 0;
 
     }

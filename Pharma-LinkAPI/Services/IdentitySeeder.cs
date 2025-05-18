@@ -11,7 +11,7 @@ namespace Pharma_LinkAPI.Services
             var userManager = serviceProvider.GetRequiredService<UserManager<AppUser>>();
 
             // Define roles to seed
-            var roles = new[] { SD.Role_Admin, SD.Role_Pharmacy, SD.Role_Company};
+            var roles = new[] { SD.Role_Admin, SD.Role_Pharmacy, SD.Role_Company };
 
             // Seed roles
             foreach (var role in roles)

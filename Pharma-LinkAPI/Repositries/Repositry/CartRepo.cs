@@ -45,7 +45,7 @@ namespace Pharma_LinkAPI.Repositries.Repositry
 
         public async Task RemoveCartItems(List<CartItem> cartItems)
         {
-            if(cartItems == null || cartItems.Count == 0)
+            if (cartItems == null || cartItems.Count == 0)
             {
                 return;
             }

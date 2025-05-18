@@ -1,11 +1,9 @@
 ﻿using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Pharma_LinkAPI.DTO.AccountDTO;
 using Pharma_LinkAPI.Identity;
 using Pharma_LinkAPI.Models;
 using Pharma_LinkAPI.Repositries.Irepositry;
-using Pharma_LinkAPI.ViewModels;
 
 namespace Pharma_LinkAPI.Controllers
 {
@@ -26,7 +24,7 @@ namespace Pharma_LinkAPI.Controllers
         {
             var ph = await _unitOfWork._accountRepositry.GetCurrentUser(User);
             var exist = _ireviewRepositiry.GetReviewByphAndCo(ph.Id, CompanyId);
-            if(exist != null)
+            if (exist != null)
             {
                 _ireviewRepositiry.Delete(exist.Id);
             }

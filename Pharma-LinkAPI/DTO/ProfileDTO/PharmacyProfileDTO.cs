@@ -1,8 +1,8 @@
 ﻿using Pharma_LinkAPI.Identity;
 
-namespace Pharma_LinkAPI.ViewModels
+namespace Pharma_LinkAPI.DTO.ProfileDTO
 {
-    public class PharmacyProfileViewModel
+    public class PharmacyProfileDTO
     {
         public int Id { get; set; }
         public string? PharmacyName { get; set; }

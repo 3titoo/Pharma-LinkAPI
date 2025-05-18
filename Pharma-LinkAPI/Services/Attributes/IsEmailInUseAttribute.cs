@@ -1,17 +1,16 @@
 ﻿using Microsoft.AspNetCore.Identity;
 using Pharma_LinkAPI.Identity;
-using Pharma_LinkAPI.Models;
 using Pharma_LinkAPI.Repositries.Irepositry;
 using System.ComponentModel.DataAnnotations;
 
 namespace Pharma_LinkAPI.Services.Attributes
 {
-    public class IsEmailInUseAttribute: ValidationAttribute
+    public class IsEmailInUseAttribute : ValidationAttribute
     {
 
         protected override ValidationResult? IsValid(object? value, ValidationContext validationContext)
         {
-            if(value != null)
+            if (value != null)
             {
                 string email = (string)value;
                 var userManager = (UserManager<AppUser>)validationContext.GetService(typeof(UserManager<AppUser>));

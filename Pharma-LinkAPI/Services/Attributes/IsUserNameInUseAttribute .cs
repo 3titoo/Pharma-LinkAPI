@@ -1,5 +1,4 @@
 ﻿using Microsoft.AspNetCore.Identity;
-using Microsoft.VisualStudio.Web.CodeGenerators.Mvc.Templates.BlazorIdentity.Pages.Manage;
 using Pharma_LinkAPI.Identity;
 using Pharma_LinkAPI.Repositries.Irepositry;
 using System.ComponentModel.DataAnnotations;
@@ -11,7 +10,7 @@ namespace Pharma_LinkAPI.Services.Attributes
 
         protected override ValidationResult? IsValid(object? value, ValidationContext validationContext)
         {
-            if(value != null)
+            if (value != null)
             {
                 string username = (string)value;
                 var userManager = (UserManager<AppUser>)validationContext.GetService(typeof(UserManager<AppUser>));

@@ -1,8 +1,6 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
-using Pharma_LinkAPI.Data;
 using Pharma_LinkAPI.DTO.AccountDTO;
 using Pharma_LinkAPI.Identity;
 using Pharma_LinkAPI.Repositries.Irepositry;
@@ -55,7 +53,6 @@ namespace Pharma_LinkAPI.Controllers
                 Name = request.Pharmacy_Name,
                 Role = SD.Role_Pharmacy,
                 EmailConfirmed = true,
-                //ImagePath = request.ImageUrl,
                 DrName = request.DR_Name
             };
             string? password = request.Password;
@@ -67,9 +64,6 @@ namespace Pharma_LinkAPI.Controllers
             if (result.Succeeded)
             {
                 await _userManager.AddToRoleAsync(user, SD.Role_Pharmacy);
-
-                await _signInManager.SignInAsync(user, isPersistent: false);
-
                 //add cart to user
 
                 var cart = new Cart
@@ -78,13 +72,10 @@ namespace Pharma_LinkAPI.Controllers
                     PharmacyId = user.Id
                 };
                 _unitOfWork._cartRepositry.AddCart(cart);
-
-                // Generate JWT token 
-
-                var token = _jwtService.CreateToken(user);
                 _unitOfWork._requestRepositry.Delete(Id);
-                await _unitOfWork._emailService.SendEmailAsync(request.Email, "Your Pharmacy Account Has Been Created", $"Your request has been Accepted successfully.\n username is {request.UserName},password is {request.Password}");
-                return Ok(token);
+                await _unitOfWork._emailService.SendEmailAsync(request.Email, "Your Pharmacy Account Has Been Created", $"Your request has been Accepted successfully.\n username is {request.UserName}\n\npassword is {request.Password}");
+                return Ok("User added succeffuly");
+
             }
             string error = string.Join(" | ", result.Errors.Select(x => x.Description));
             return BadRequest(error);
@@ -127,6 +118,7 @@ namespace Pharma_LinkAPI.Controllers
             if (result.Succeeded)
             {
                 await _userManager.AddToRoleAsync(user, SD.Role_Company);
+                await _unitOfWork._emailService.SendEmailAsync(user.Email, "Your Company Account Has Been Created", $"Your Account has been Added successfully.\n username is {user.UserName}\n\npassword is {password}");
                 return Ok("company is created");
             }
             string error = string.Join(" | ", result.Errors.Select(x => x.Description));

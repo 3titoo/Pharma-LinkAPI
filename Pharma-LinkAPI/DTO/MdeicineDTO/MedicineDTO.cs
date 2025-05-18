@@ -1,8 +1,6 @@
-﻿using Microsoft.AspNetCore.Http;
-using Microsoft.AspNetCore.Mvc;
-using System.ComponentModel.DataAnnotations;
+﻿using System.ComponentModel.DataAnnotations;
 
-namespace Pharma_LinkAPI.DTO
+namespace Pharma_LinkAPI.DTO.MdeicineDTO
 {
     public class MedicineDTO
     {

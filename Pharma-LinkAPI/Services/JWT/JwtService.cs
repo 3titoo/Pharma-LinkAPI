@@ -23,7 +23,7 @@ namespace Pharma_LinkAPI.Services.JWT
                 new Claim(JwtRegisteredClaimNames.Sub,user.Id.ToString()), // user ID
                 new Claim(JwtRegisteredClaimNames.Jti,Guid.NewGuid().ToString()), // token ID
                 new Claim(JwtRegisteredClaimNames.Email,user.Email), // user email
-                new Claim(ClaimTypes.NameIdentifier, user.Id.ToString()), 
+                new Claim(ClaimTypes.NameIdentifier, user.Id.ToString()),
                 new Claim(ClaimTypes.Name, user.UserName),// <-- username
                 new Claim(ClaimTypes.Role,user.Role) // user role
             };

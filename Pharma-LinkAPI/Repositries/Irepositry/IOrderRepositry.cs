@@ -1,6 +1,4 @@
-﻿using Pharma_LinkAPI.Identity;
-using Pharma_LinkAPI.Models;
-using System.Threading.Tasks;
+﻿using Pharma_LinkAPI.Models;
 
 namespace Pharma_LinkAPI.Repositries.Irepositry
 {

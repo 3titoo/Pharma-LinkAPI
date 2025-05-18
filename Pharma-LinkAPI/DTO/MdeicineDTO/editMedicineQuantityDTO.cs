@@ -1,6 +1,6 @@
 ﻿using System.ComponentModel.DataAnnotations;
 
-namespace Pharma_LinkAPI.DTO
+namespace Pharma_LinkAPI.DTO.MdeicineDTO
 {
     public class editMedicineQuantityDTO
     {

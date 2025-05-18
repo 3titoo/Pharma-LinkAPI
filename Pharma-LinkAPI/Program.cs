@@ -11,7 +11,6 @@ using Pharma_LinkAPI.Repositries.Repositry;
 using Pharma_LinkAPI.Services;
 using Pharma_LinkAPI.Services.EmailService;
 using Pharma_LinkAPI.Services.JWT;
-using System;
 using System.Text;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -57,8 +56,10 @@ builder.Services.AddSwaggerGen(c =>
 builder.Services.AddDbContext<AppDbContext>(options =>
     options.UseSqlServer(builder.Configuration.GetConnectionString("PharmaLinkDB")));
 
-builder.Services.AddCors(options => {
-    options.AddPolicy("AllowSwagger", builder => {
+builder.Services.AddCors(options =>
+{
+    options.AddPolicy("AllowSwagger", builder =>
+    {
         builder.AllowAnyOrigin()
                .AllowAnyMethod()
                .AllowAnyHeader();

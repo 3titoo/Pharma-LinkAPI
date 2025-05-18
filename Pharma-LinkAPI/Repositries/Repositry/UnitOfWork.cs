@@ -1,5 +1,4 @@
-﻿using Microsoft.EntityFrameworkCore;
-using Microsoft.EntityFrameworkCore.Storage;
+﻿using Microsoft.EntityFrameworkCore.Storage;
 using Pharma_LinkAPI.Data;
 using Pharma_LinkAPI.Repositries.Irepositry;
 using Pharma_LinkAPI.Services.EmailService;
