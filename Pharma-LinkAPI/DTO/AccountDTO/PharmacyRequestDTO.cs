@@ -23,7 +23,8 @@ namespace Pharma_LinkAPI.DTO.AccountDTO
         public string? Email { get; set; }
         [Required]
         [DataType(DataType.Password)]
-        [MinLength(6, ErrorMessage = "Password must be at least 6 characters long.")]
+        [RegularExpression(@"^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[^a-zA-Z\d\s])(?!.*\s).{8,}$",
+    ErrorMessage = "كلمة المرور يجب أن تكون 8 أحرف على الأقل وتحتوي على حرف كبير وصغير ورقم ورمز بدون مسافات.")]
         public string? Password { get; set; }
         [Required]
         public string? LicenseNumber { get; set; }

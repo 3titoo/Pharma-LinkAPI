@@ -71,8 +71,17 @@ namespace Pharma_LinkAPI.Controllers
                 };
                 await _unitOfWork._cartRepositry.AddCart(cart);
                 await _unitOfWork._requestRepositry.Delete(Id);
-                await _unitOfWork._emailService.SendEmailAsync(request.Email, "Your Pharmacy Account Has Been Created", $"Your request has been Accepted successfully.\n username is {request.UserName}\n\npassword is {request.Password}");
-                return Ok("User added succeffuly");
+                _ = Task.Run(async () =>
+                {
+                    try
+                    {
+                        await _unitOfWork._emailService.SendEmailAsync(request.Email, "Your Pharmacy Account Has Been Created", $"Your request has been Accepted successfully.\n username is {request.UserName}\n\npassword is {request.Password}");
+                    }
+                    catch (Exception ex)
+                    {
+                        Console.WriteLine($"Failed to send email: {ex.Message}");
+                    }
+                }); return Ok("User added succeffuly");
 
             }
             string error = string.Join(" | ", result.Errors.Select(x => x.Description));

@@ -275,21 +275,41 @@ namespace Pharma_LinkAPI.Controllers
 
                 CurrentCart.TotalPrice = 0;
 
-                _orderRepositry.AddOrder(newOrder);
+                await _orderRepositry.AddOrder(newOrder);
 
                 // Commit the transaction
                 await _unitOfWork.CommitAsync();
 
                 var PharmacyEmail = CurrentCart.Pharmacy.Email;
 
-                await _unitOfWork._emailService.SendEmailAsync(PharmacyEmail, "Order Confirmation – Thank You for Your Order",
-                    $"Your order has been placed successfully and is now being processed. We will notify you once it is confirmed and ready for delivery.\n\nThank you for your trust.\n\nBest regards.");
+               _ = Task.Run(async () =>
+               {
+                   try
+                   {
+                       await _unitOfWork._emailService.SendEmailAsync(PharmacyEmail, "Order Confirmation – Thank You for Your Order",
+                           $"Your order has been placed successfully and is now being processed. We will notify you once it is confirmed and ready for delivery.\n\nThank you for your trust.\n\nBest regards.");
+                   }
+                   catch (Exception ex)
+                   {
+                       Console.WriteLine($"Error sending email: {ex.Message}");
+                   }
+               });
 
                 var company = await _unitOfWork._accountRepositry.GetUserById(companyId);
 
-                await _unitOfWork._emailService.SendEmailAsync(company.Email, $"New Order from {CurrentCart.Pharmacy.Name} Pharmacy",
-                    $"{CurrentCart.Pharmacy.Name} Pharmacy has successfully placed a new order. Please review and proceed with the processing as soon as possible.\n\nYou will be notified of any updates regarding this order.\n\nBest regards.");
 
+                _ = Task.Run(async () =>
+                {
+                    try
+                    {
+                        await _unitOfWork._emailService.SendEmailAsync(company.Email, $"New Order from {CurrentCart.Pharmacy.Name} Pharmacy",
+                            $"{CurrentCart.Pharmacy.Name} Pharmacy has successfully placed a new order. Please review and proceed with the processing as soon as possible.\n\nYou will be notified of any updates regarding this order.\n\nBest regards.");
+                    }
+                    catch (Exception ex)
+                    {
+                        Console.WriteLine($"Error sending email: {ex.Message}");
+                    }
+                });
                 return Ok("order created");
             }
             catch (Exception ex)
@@ -348,8 +368,19 @@ namespace Pharma_LinkAPI.Controllers
 
             var PharmacyEmail = order.Pharmacy.Email;
 
-            await _unitOfWork._emailService.SendEmailAsync(PharmacyEmail, "The order has been shipped successfully – Thank You for Your Order",
-                $"The order has been shipped successfully.\n\nThank you for your trust.\n\nBest regards.");
+
+            _ = Task.Run(async () =>
+            {
+                try
+                {
+                    await _unitOfWork._emailService.SendEmailAsync(PharmacyEmail, "The order has been shipped successfully – Thank You for Your Order",
+                        $"The order has been shipped successfully.\n\nThank you for your trust.\n\nBest regards.");
+                }
+                catch (Exception ex)
+                {
+                    Console.WriteLine($"Error sending email: {ex.Message}");
+                }
+            });
 
             return Ok("The order has been shipped successfully");
         }
@@ -399,12 +430,22 @@ namespace Pharma_LinkAPI.Controllers
 
 
 
-            _orderRepositry.ChangeStatusOrder(order, SD.StatusOrder_delivered);
+            await _orderRepositry.ChangeStatusOrder(order, SD.StatusOrder_delivered);
 
             var PharmacyEmail = order.Pharmacy.Email;
 
-            await _unitOfWork._emailService.SendEmailAsync(PharmacyEmail, "The order has been delivered successfully – Thank You for Your Order",
-                $"The order has been delivered successfully.\n\nThank you for your trust.\n\nBest regards.");
+            _ = Task.Run(async () =>
+            {
+                try
+                {
+                    await _unitOfWork._emailService.SendEmailAsync(PharmacyEmail, "The order has been delivered successfully – Thank You for Your Order",
+                        $"The order has been delivered successfully.\n\nThank you for your trust.\n\nBest regards.");
+                }
+                catch (Exception ex)
+                {
+                    Console.WriteLine($"Error sending email: {ex.Message}");
+                }
+            });
 
             return Ok("The order has been delivered successfully");
         }
@@ -479,13 +520,35 @@ namespace Pharma_LinkAPI.Controllers
 
                 var Pharmacy = order.Pharmacy;
 
-                await _unitOfWork._emailService.SendEmailAsync(Pharmacy.Email, "The order has been successfully cancelled",
-                    $"The order has been successfully cancelled.\n\nThank you for your trust.\n\nBest regards.");
+                _ = Task.Run(async () =>
+                {
+                    try
+                    {
+                        await _unitOfWork._emailService.SendEmailAsync(Pharmacy.Email, "The order has been cancelled",
+                            $"The order has been cancelled.\n\nThank you for your trust.\n\nBest regards.");
+                    }
+                    catch (Exception ex)
+                    {
+                        Console.WriteLine($"Error sending email: {ex.Message}");
+                    }
+                });
+
 
                 var company = order.Company;
 
-                await _unitOfWork._emailService.SendEmailAsync(company.Email, $"cancel Order from {order.Pharmacy.Name} Pharmacy",
-                    $"{Pharmacy.Name} Pharmacy has been cancelled order.\n\nBest regards.");
+                _ = Task.Run(async () =>
+                {
+                    try
+                    {
+                        await _unitOfWork._emailService.SendEmailAsync(company.Email, $"cancel Order from {Pharmacy.Name} Pharmacy",
+                            $"{Pharmacy.Name} Pharmacy has been cancelled order.\n\nBest regards.");
+                    }
+                    catch (Exception ex)
+                    {
+                        Console.WriteLine($"Error sending email: {ex.Message}");
+                    }
+                });
+
 
                 await _orderRepositry.DeleteOrder(order);
 
