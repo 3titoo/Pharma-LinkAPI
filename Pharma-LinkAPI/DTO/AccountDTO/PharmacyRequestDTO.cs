@@ -24,7 +24,7 @@ namespace Pharma_LinkAPI.DTO.AccountDTO
         [Required]
         [DataType(DataType.Password)]
         [RegularExpression(@"^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[^a-zA-Z\d\s])(?!.*\s).{8,}$",
-    ErrorMessage = "كلمة المرور يجب أن تكون 8 أحرف على الأقل وتحتوي على حرف كبير وصغير ورقم ورمز بدون مسافات.")]
+    ErrorMessage = "The password must be at least 8 characters and contain an uppercase and lowercase letter, a number, and a symbol, with no spaces.")]
         public string? Password { get; set; }
         [Required]
         public string? LicenseNumber { get; set; }
