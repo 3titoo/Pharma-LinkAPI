@@ -38,6 +38,8 @@ namespace Pharma_LinkAPI.Models
         public string? UserName { get; set; }
         [Required]
         [DataType(DataType.Password)]
+        [RegularExpression(@"^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[^a-zA-Z\d\s])(?!.*\s).{8,}$",
+    ErrorMessage = "كلمة المرور يجب أن تكون 8 أحرف على الأقل وتحتوي على حرف كبير وصغير ورقم ورمز بدون مسافات.")]
         public string? Password { get; set; }
     }
 }
