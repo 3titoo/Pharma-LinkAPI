@@ -99,8 +99,8 @@ namespace Pharma_LinkAPI.Repositries.Repositry
 
         public async Task<(string Name,string UserName)?> GetCompanyDetails(int id)
         {
-            var company = _db.Users.Where(c => c.Id == id)
-                          .Select(c => new {c.Name,c.UserName}).FirstOrDefault();
+            var company = await _db.Users.Where(c => c.Id == id)
+                          .Select(c => new {c.Name,c.UserName}).FirstOrDefaultAsync();
             if (company == null)
                 return null;
 
