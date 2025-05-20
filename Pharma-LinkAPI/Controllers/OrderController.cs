@@ -483,7 +483,7 @@ namespace Pharma_LinkAPI.Controllers
                 }
 
                 var companyId = order.CompanyID;
-                var Medicines = await _unitOfWork._medicineRepositiry.GetMedicinesForCompany((int)companyId);
+                var Medicines = await _unitOfWork._medicineRepositiry.GetMedicinesForCompanyTracking((int)companyId);
 
                 if (Medicines == null)
                 {
@@ -494,7 +494,7 @@ namespace Pharma_LinkAPI.Controllers
                 {
 
                     // Return the quantity
-                    MedicineViewDTO CurMedicine = Medicines[item.MedicineID.Value];
+                    Medicine CurMedicine = Medicines[item.MedicineID.Value];
                     if (CurMedicine == null)
                     {
                         throw new Exception("Medicine not found");
