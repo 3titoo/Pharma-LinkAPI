@@ -1,5 +1,6 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using Pharma_LinkAPI.Data;
+using Pharma_LinkAPI.DTO.MdeicineDTO;
 using Pharma_LinkAPI.Models;
 using Pharma_LinkAPI.Repositries.Irepositry;
 
@@ -71,10 +72,20 @@ namespace Pharma_LinkAPI.Repositries.Repositry
             return medicines;
         }
 
-        public async Task<IDictionary<int, Medicine>> GetMedicinesForCompany(int companyId)
+        public async Task<IDictionary<int, MedicineViewDTO>> GetMedicinesForCompany(int companyId)
         {
-            var medicines = await _db.Medicines.Where(m => m.Company_Id == companyId).Include(m => m.Company)
-                                                                 .ToDictionaryAsync(m => m.ID);
+            var medicines = await _db.Medicines.Where(m => m.Company_Id == companyId).Select(c => new MedicineViewDTO
+            {
+                Id = c.ID,
+                MedicineName = c.Name,
+                Description = c.Description,
+                Price = c.Price,
+                InStock = c.InStock,
+                ImageUrl = c.Image_URL,
+                CompanyName = c.Company.Name,
+                CompanyUserName = c.Company.UserName
+            })
+            .ToDictionaryAsync(m => m.Id);
 
             return medicines;
         }

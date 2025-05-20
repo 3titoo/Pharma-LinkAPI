@@ -2,6 +2,7 @@
 using Microsoft.AspNetCore.Mvc;
 using Pharma_LinkAPI.Data;
 using Pharma_LinkAPI.DTO.InvoicesDTO;
+using Pharma_LinkAPI.DTO.MdeicineDTO;
 using Pharma_LinkAPI.Identity;
 using Pharma_LinkAPI.Models;
 using Pharma_LinkAPI.Repositries.Irepositry;
@@ -219,7 +220,7 @@ namespace Pharma_LinkAPI.Controllers
                 // First check all the items on the card.
                 foreach (var item in CurrentCart.CartItems)
                 {
-                    Medicine CurMedicine = MedicinesForCompany[item.MedicineId.Value];
+                    MedicineViewDTO CurMedicine = MedicinesForCompany[item.MedicineId.Value];
 
                     if (CurMedicine == null)
                     {
@@ -249,7 +250,7 @@ namespace Pharma_LinkAPI.Controllers
                 {
 
                     // Quantity discount
-                    Medicine CurMedicine = MedicinesForCompany[item.MedicineId.Value];
+                    MedicineViewDTO CurMedicine = MedicinesForCompany[item.MedicineId.Value];
 
                     CurMedicine.InStock -= item.Count;
 
@@ -510,7 +511,7 @@ namespace Pharma_LinkAPI.Controllers
                 {
 
                     // Return the quantity
-                    Medicine CurMedicine = Medicines[item.MedicineID.Value];
+                    MedicineViewDTO CurMedicine = Medicines[item.MedicineID.Value];
                     if (CurMedicine == null)
                     {
                         throw new Exception("Medicine not found");

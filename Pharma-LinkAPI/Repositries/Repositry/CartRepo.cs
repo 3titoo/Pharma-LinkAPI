@@ -34,6 +34,7 @@ namespace Pharma_LinkAPI.Repositries.Repositry
                         .Include(c => c.CartItems)
                         .ThenInclude(ci => ci.Medicine).ThenInclude(m => m.Company)
                         .FirstOrDefaultAsync(c => c.CartId == cartId);
+            
             return cart;
         }
 

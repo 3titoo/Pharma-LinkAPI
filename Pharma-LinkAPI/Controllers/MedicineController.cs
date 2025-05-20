@@ -269,12 +269,12 @@ namespace Pharma_LinkAPI.Controllers
             {
                 var item = new MedicineViewDTO
                 {
-                    Id = medicine.ID,
-                    MedicineName = medicine.Name,
+                    Id = medicine.Id,
+                    MedicineName = medicine.MedicineName,
                     Description = medicine.Description,
                     Price = medicine.Price,
                     InStock = medicine.InStock,
-                    ImageUrl = medicine.Image_URL,
+                    ImageUrl = medicine.ImageUrl,
                     CompanyName = user.Name,
                     CompanyUserName = user.UserName
                 };
