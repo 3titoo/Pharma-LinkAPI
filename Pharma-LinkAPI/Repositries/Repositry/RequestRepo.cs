@@ -32,24 +32,24 @@ namespace Pharma_LinkAPI.Repositries.Repositry
 
         public async Task<IEnumerable<Request?>> GetAll()
         {
-            var requests = await _db.Requests.ToListAsync();
+            var requests = await _db.Requests.AsNoTracking().ToListAsync();
             return requests;
         }
 
         public async Task<Request?> GetById(int id)
         {
-            var request = await _db.Requests.FirstOrDefaultAsync(i => i.Id == id);
+            var request = await _db.Requests.AsNoTracking().FirstOrDefaultAsync(i => i.Id == id);
             return request;
         }
 
         public async Task<Request?> GetUserByEmail(string email)
         {
-            return await _db.Requests.FirstOrDefaultAsync(i => i.Email == email);
+            return await _db.Requests.AsNoTracking().FirstOrDefaultAsync(i => i.Email == email);
         }
 
         public async Task<Request?> GetUserByusername(string username)
         {
-            return await _db.Requests.FirstOrDefaultAsync(i => i.UserName == username);
+            return await _db.Requests.AsNoTracking().FirstOrDefaultAsync(i => i.UserName == username);
         }
 
         public async Task Update(Request entity)

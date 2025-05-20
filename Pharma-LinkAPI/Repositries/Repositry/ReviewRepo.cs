@@ -43,7 +43,7 @@ namespace Pharma_LinkAPI.Repositries.Repositry
 
         public async Task<Review?> GetReviewByphAndCo(int pharmacyId, int CompanyId)
         {
-            var review = await _db.Reviews
+            var review = await _db.Reviews.AsNoTracking()
                 .FirstOrDefaultAsync(r => r.PharmacyId == pharmacyId && r.CompanyId == CompanyId);
             return review;
         }

@@ -31,7 +31,7 @@ namespace Pharma_LinkAPI.Repositries.Repositry
 
         public async Task<IEnumerable<Medicine?>> GetAll()
         {
-            return await _db.Medicines.ToListAsync();
+            return await _db.Medicines.AsNoTracking().ToListAsync();
         }
 
         public async Task<Medicine?> GetById(int id)
@@ -95,6 +95,16 @@ namespace Pharma_LinkAPI.Repositries.Repositry
             var med = await _db.Medicines
                   .Include(m => m.Company).Where(d => Id == d.ID).FirstOrDefaultAsync();
             return med;
+        }
+
+        public async Task<(string Name,string UserName)?> GetCompanyDetails(int id)
+        {
+            var company = _db.Users.Where(c => c.Id == id)
+                          .Select(c => new {c.Name,c.UserName}).FirstOrDefault();
+            if (company == null)
+                return null;
+
+            return (company.Name, company.UserName);
         }
     }
 }

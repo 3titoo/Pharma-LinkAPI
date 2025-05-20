@@ -239,7 +239,9 @@ namespace Pharma_LinkAPI.Controllers
                 Order newOrder = new Order
                 {
                     OrderItems = new List<OrderItem>(),
-                    OrderDate = DateTime.UtcNow.AddHours(3),
+                    OrderDate = TimeZoneInfo.ConvertTimeFromUtc(
+                                DateTime.UtcNow,
+                                TimeZoneInfo.FindSystemTimeZoneById("Egypt Standard Time")),
                     StatusOrder = SD.StatusOrder_pending,
                     PharmacyID = CurrentCart.PharmacyId,
                     CompanyID = companyId,

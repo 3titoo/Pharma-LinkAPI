@@ -42,11 +42,11 @@ namespace Pharma_LinkAPI.Controllers
                 };
                 if (medicine.Company_Id != null)
                 {
-                    var user = await _unitOfWork._accountRepositry.GetUserById(medicine.Company_Id.Value);
+                    var user = await _unitOfWork._medicineRepositiry.GetCompanyDetails(medicine.Company_Id.Value);
                     if (user != null)
                     {
-                        item.CompanyName = user.Name;
-                        item.CompanyUserName = user.UserName;
+                        item.CompanyName = user.Value.Name;
+                        item.CompanyUserName = user.Value.UserName;
                     }
                 }
                 ret.Add(item);
