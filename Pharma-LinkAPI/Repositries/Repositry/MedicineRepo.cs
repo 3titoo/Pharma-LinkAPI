@@ -90,6 +90,14 @@ namespace Pharma_LinkAPI.Repositries.Repositry
             return medicines;
         }
 
+        public async Task<IDictionary<int, Medicine>> GetMedicinesForCompanyTracking(int companyId)
+        {
+            var medicines = await _db.Medicines.Where(m => m.Company_Id == companyId).Include(m => m.Company)
+                                                                 .ToDictionaryAsync(m => m.ID);
+
+            return medicines;
+        }
+
         public async Task<Medicine?> GetMedicineCompany(int Id)
         {
             var med = await _db.Medicines
