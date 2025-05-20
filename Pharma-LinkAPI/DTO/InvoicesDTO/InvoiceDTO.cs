@@ -3,25 +3,28 @@
     public class InvoiceDTO
     {
         public int OrderID { get; set; }
-        public string? DRName { get; set; }
-        public string? Phone { get; set; } // Pharmacy phone
-        public string? PharmacyLicense { get; set; }
+        // Pharmacy information 
         public string? PharmacyName { get; set; }
-
+        public string? PharmacyPhone { get; set; }
         // Pharmacy Address information 
-        public string? Street { get; set; }
-        public string? State { get; set; }
-        public string? City { get; set; }
+        public string? PharmacyStreet { get; set; }
+        public string? PharmacyState { get; set; }
+        public string? PharmacyCity { get; set; }
         // End Pharmacy Address information
+        // End Pharmacy information
 
-        public string? CompanyLicense { get; set; }
+        // Company information 
         public string? CompanyName { get; set; }
-
+        public string? CompanyPhone { get; set; }
+        // Company Address information 
+        public string? CompanyStreet { get; set; }
+        public string? CompanyState { get; set; }
+        public string? CompanyCity { get; set; }
+        // End Company Address information
+        // End Company information
         public DateTime? OrderDate { get; set; }
-
         public decimal? TotalPriceOrder { get; set; }
         public string? StatusOrder { get; set; }
-
         public ICollection<InvoiceMedicineDTO>? Medicines { get; set; }
 
     }

@@ -13,7 +13,14 @@ namespace Pharma_LinkAPI.Repositries.Repositry
             _context = context;
         }
 
-        public async Task<Order?> GetOrderById(int orderId)
+        public async Task<Order?> GetOrderOnlyById(int orderId)
+        {
+            var order = await _context.Orders.Include(o => o.Pharmacy)
+                                        .FirstOrDefaultAsync(o => o.OrderID == orderId);
+            return order;
+        }
+
+        public async Task<Order?> GetOrderAndOrderItemsById(int orderId)
         {
             var order = await _context.Orders.Include(o => o.OrderItems).ThenInclude(ot => ot.Medicine)
                                         .Include(o => o.Pharmacy)
