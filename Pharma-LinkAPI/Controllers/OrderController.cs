@@ -110,7 +110,7 @@ namespace Pharma_LinkAPI.Controllers
         [HttpGet("Invoice/{OrderId:int}")]
         public async Task<ActionResult<InvoiceDTO>> GetInvoice(int OrderId)
         {
-            var order = await _orderRepositry.GetOrderById(OrderId);
+            var order = await _orderRepositry.GetOrderAndOrderItemsById(OrderId);
 
             if (order == null)
             {
@@ -147,15 +147,16 @@ namespace Pharma_LinkAPI.Controllers
             var Invoice = new InvoiceDTO
             {
                 OrderID = OrderId,
-                DRName = order.Pharmacy.DrName,
-                Phone = order.Pharmacy.PhoneNumber,
-                PharmacyLicense = order.Pharmacy.LiscnceNumber,
                 PharmacyName = order.Pharmacy.Name,
+                PharmacyPhone = order.Pharmacy.PhoneNumber,
+                PharmacyStreet = order.Pharmacy.Street,
+                PharmacyState = order.Pharmacy.State,
+                PharmacyCity = order.Pharmacy.City,
                 CompanyName = order.Company.Name,
-                CompanyLicense = order.Company.LiscnceNumber,
-                Street = order.Pharmacy.Street,
-                State = order.Pharmacy.State,
-                City = order.Pharmacy.City,
+                CompanyPhone = order.Company.PhoneNumber,
+                CompanyStreet = order.Company.Street,
+                CompanyState = order.Company.State,
+                CompanyCity = order.Company.City,
                 OrderDate = order.OrderDate,
                 StatusOrder = order.StatusOrder,
                 TotalPriceOrder = order.TotalPrice,
@@ -166,7 +167,6 @@ namespace Pharma_LinkAPI.Controllers
                 var InvoiceMedicineDTO = new InvoiceMedicineDTO
                 {
                     Name = item.MedicineName,
-                    Image_URL = item.MedicineImage,
                     UnitPrice = item.UnitPrice,
                     Count = item.Count,
                     TotalPrice = item.TotalPrice
@@ -257,7 +257,6 @@ namespace Pharma_LinkAPI.Controllers
                     {
                         MedicineID = item.MedicineId,
                         MedicineName = item.Medicine.Name,
-                        MedicineImage = item.Medicine.Image_URL,
                         Count = item.Count,
                         UnitPrice = item.UnitPrice,
                         TotalPrice = item.Count * item.UnitPrice
@@ -325,7 +324,7 @@ namespace Pharma_LinkAPI.Controllers
         [HttpPatch("done/{OrderId:int}")]
         public async Task<ActionResult> DoneOrder(int OrderId)
         {
-            var order = await _orderRepositry.GetOrderById(OrderId);
+            var order = await _orderRepositry.GetOrderOnlyById(OrderId);
 
             var currentUser = await _unitOfWork._accountRepositry.GetCurrentUser(User);
 
@@ -344,16 +343,6 @@ namespace Pharma_LinkAPI.Controllers
                 return Problem("You are not authorized to view this order.");
             }
 
-            if (order.OrderItems == null || order.OrderItems.Count == 0)
-            {
-                return NotFound("Order items not found.");
-            }
-
-            if (order.Company == null)
-            {
-                return NotFound("Company not found.");
-            }
-
             if (order.Pharmacy == null)
             {
                 return NotFound("Pharmacy not found.");
@@ -363,6 +352,8 @@ namespace Pharma_LinkAPI.Controllers
             {
                 return BadRequest($"Order is {order.StatusOrder}");
             }
+
+            // Change order status
 
             await _orderRepositry.ChangeStatusOrder(order, SD.StatusOrder_shipped);
 
@@ -389,7 +380,7 @@ namespace Pharma_LinkAPI.Controllers
         [HttpPatch("deliver/{OrderId:int}")]
         public async Task<ActionResult> DeliverOrder(int OrderId)
         {
-            var order = await _orderRepositry.GetOrderById(OrderId);
+            var order = await _orderRepositry.GetOrderOnlyById(OrderId);
 
             var currentUser = await _unitOfWork._accountRepositry.GetCurrentUser(User);
 
@@ -408,16 +399,6 @@ namespace Pharma_LinkAPI.Controllers
                 return Problem("You are not authorized to view this order.");
             }
 
-            if (order.OrderItems == null || order.OrderItems.Count == 0)
-            {
-                return NotFound("Order items not found.");
-            }
-
-            if (order.Company == null)
-            {
-                return NotFound("Company not found.");
-            }
-
             if (order.Pharmacy == null)
             {
                 return NotFound("Pharmacy not found.");
@@ -429,7 +410,7 @@ namespace Pharma_LinkAPI.Controllers
             }
 
 
-
+            // Change order status
             await _orderRepositry.ChangeStatusOrder(order, SD.StatusOrder_delivered);
 
             var PharmacyEmail = order.Pharmacy.Email;
@@ -459,7 +440,7 @@ namespace Pharma_LinkAPI.Controllers
 
             try
             {
-                var order = await _orderRepositry.GetOrderById(OrderId);
+                var order = await _orderRepositry.GetOrderAndOrderItemsById(OrderId);
 
                 var currentUser = await _unitOfWork._accountRepositry.GetCurrentUser(User);
 
