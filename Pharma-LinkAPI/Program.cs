@@ -13,6 +13,7 @@ using Pharma_LinkAPI.Services.EmailService;
 using Pharma_LinkAPI.Services.JWT;
 using System.Text;
 
+
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
