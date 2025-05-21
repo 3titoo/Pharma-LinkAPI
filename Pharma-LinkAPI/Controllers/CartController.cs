@@ -24,7 +24,7 @@ public class CartController : ControllerBase
     {
         var user = await _unitOfWork._accountRepositry.GetCurrentUser(User);
 
-        var cart = await _cartRepositry.GetCart(user.Cart.CartId);
+        var cart = await _cartRepositry.GetCartView(user.Cart.CartId);
 
         if (cart == null)
         {
@@ -41,23 +41,8 @@ public class CartController : ControllerBase
             });
         }
 
-        var totalPrice = cart.CartItems.Sum(ci => ci.Count * ci.UnitPrice);
 
-        var ret = new CartViewDTO
-        {
-            CartId = cart.CartId,
-            TotalPrice = totalPrice,
-            CartItems = cart.CartItems.Select(ci => new CartItemDTO
-            {
-                CartItemId = ci.CartItemId,
-                MedicineId = ci.MedicineId.Value,
-                MedicineName = ci.Medicine.Name,
-                MedicineImage = ci.Medicine.Image_URL,
-                MedicinePrice = ci.UnitPrice.ToString("c"),
-                Count = ci.Count
-            }).ToList()
-        };
-        return Ok(ret);
+        return Ok(cart);
     }
 
 
@@ -182,10 +167,10 @@ public class CartController : ControllerBase
             return NotFound("Cart items not found.");
         var totalPrice = cart.CartItems.Sum(ci => ci.Count * ci.UnitPrice);
         var company = cart.CartItems.FirstOrDefault().Medicine.Company;
-        //if (totalPrice < company.MinPriceToMakeOrder)
-        //{
-        //    return BadRequest($"Total price must be at least {company.MinPriceToMakeOrder} to make an order for {company.Name}.");
-        //} 
+        if (totalPrice < company.MinPriceToMakeOrder)
+        {
+            return BadRequest($"Total price must be at least {company.MinPriceToMakeOrder} to make an order for {company.Name}.");
+        }
 
 
         var summary = new SummaryDTO

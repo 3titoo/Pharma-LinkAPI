@@ -1,6 +1,9 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using Pharma_LinkAPI.Data;
+using Pharma_LinkAPI.DTO.CartDTO;
+using Pharma_LinkAPI.Models;
 using Pharma_LinkAPI.Repositries.Irepositry;
+using static Microsoft.EntityFrameworkCore.DbLoggerCategory.Database;
 
 namespace Pharma_LinkAPI.Repositries.Repositry
 {
@@ -37,6 +40,31 @@ namespace Pharma_LinkAPI.Repositries.Repositry
             
             return cart;
         }
+
+        public async Task<CartViewDTO?> GetCartView(int cartId)
+        {
+            CartViewDTO? dto = await _context.Carts
+                .Where(c => c.CartId == cartId)
+                .Select(c => new CartViewDTO
+                {
+                    CartId = c.CartId,
+                    TotalPrice = c.CartItems.Sum(p => p.Count * p.UnitPrice),
+                    CartItems = c.CartItems.Select(ci => new CartItemDTO
+                    {
+                        CartItemId = ci.CartItemId,
+                        MedicineId = ci.MedicineId.Value,
+                        MedicineName = ci.Medicine.Name,
+                        MedicinePrice = ci.UnitPrice.ToString(),
+                        MedicineImage = ci.Medicine.Image_URL,
+                        Count = ci.Count,
+                    }).ToList()
+                }).FirstOrDefaultAsync();
+
+
+            return dto;
+        }
+
+
 
         public async Task<List<CartItem>> GetCartItemsByMedicineId(int medicineId)
         {

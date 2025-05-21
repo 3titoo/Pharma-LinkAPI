@@ -1,4 +1,6 @@
-﻿namespace Pharma_LinkAPI.Repositries.Irepositry
+﻿using Pharma_LinkAPI.DTO.CartDTO;
+
+namespace Pharma_LinkAPI.Repositries.Irepositry
 {
     public interface ICartRepositry
     {
@@ -12,6 +14,10 @@
         Task<List<CartItem>> GetCartItemsByMedicineId(int medicineId);
 
         Task RemoveCartItems(List<CartItem> cartItems);
+
+        Task<CartViewDTO?> GetCartView(int cartId);
+
+        Task<SummaryDTO?> GetCartSummary(int cartId, int companyId);
 
 
     }
