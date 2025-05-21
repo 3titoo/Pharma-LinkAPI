@@ -247,6 +247,7 @@ namespace Pharma_LinkAPI.Controllers
                     CompanyID = companyId,
                     TotalPrice = 0
                 };
+                
 
                 foreach (var item in CurrentCart.CartItems)
                 {

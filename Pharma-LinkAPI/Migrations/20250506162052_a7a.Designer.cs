@@ -3,6 +3,7 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Pharma_LinkAPI.Data;
 
@@ -11,9 +12,11 @@ using Pharma_LinkAPI.Data;
 namespace Pharma_LinkAPI.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    partial class AppDbContextModelSnapshot : ModelSnapshot
+    [Migration("20250506162052_a7a")]
+    partial class a7a
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -235,9 +238,6 @@ namespace Pharma_LinkAPI.Migrations
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
 
-                    b.Property<string>("AboutUs")
-                        .HasColumnType("nvarchar(max)");
-
                     b.Property<int>("AccessFailedCount")
                         .HasColumnType("int");
 
@@ -260,9 +260,6 @@ namespace Pharma_LinkAPI.Migrations
 
                     b.Property<string>("ImagePath")
                         .HasColumnType("nvarchar(max)");
-
-                    b.Property<bool>("IsDeleted")
-                        .HasColumnType("bit");
 
                     b.Property<string>("LiscnceNumber")
                         .HasColumnType("nvarchar(max)");
@@ -351,9 +348,6 @@ namespace Pharma_LinkAPI.Migrations
                     b.Property<int?>("InStock")
                         .HasColumnType("int");
 
-                    b.Property<bool>("IsDeleted")
-                        .HasColumnType("bit");
-
                     b.Property<string>("Name")
                         .HasColumnType("nvarchar(max)");
 
@@ -378,8 +372,8 @@ namespace Pharma_LinkAPI.Migrations
                     b.Property<int?>("CompanyID")
                         .HasColumnType("int");
 
-                    b.Property<DateTime?>("OrderDate")
-                        .HasColumnType("datetime2");
+                    b.Property<DateOnly?>("OrderDate")
+                        .HasColumnType("date");
 
                     b.Property<int?>("PharmacyID")
                         .HasColumnType("int");
@@ -412,9 +406,6 @@ namespace Pharma_LinkAPI.Migrations
 
                     b.Property<int?>("MedicineID")
                         .HasColumnType("int");
-
-                    b.Property<string>("MedicineName")
-                        .HasColumnType("nvarchar(max)");
 
                     b.Property<int?>("OrderID")
                         .HasColumnType("int");

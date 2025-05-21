@@ -199,6 +199,12 @@ public class CartController : ControllerBase
             CartId = cart.CartId,
             CompanyId = company.Id, // company ID from the first medicine in the cart
             MinPriceToMakeOrder = company.MinPriceToMakeOrder,
+            CompayName = company.Name,
+            CompanyAddress = company.City + ", " + company.State + ", " + company.Street,
+            CompanyPhone = company.PhoneNumber,
+            orderDate = TimeZoneInfo.ConvertTimeFromUtc(
+                                DateTime.UtcNow,
+                                TimeZoneInfo.FindSystemTimeZoneById("Egypt Standard Time")),
 
             Medicines = cart.CartItems.Select(ci => new SummaryItemDTO
             {

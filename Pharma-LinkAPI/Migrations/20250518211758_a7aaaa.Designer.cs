@@ -3,6 +3,7 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Pharma_LinkAPI.Data;
 
@@ -11,9 +12,11 @@ using Pharma_LinkAPI.Data;
 namespace Pharma_LinkAPI.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    partial class AppDbContextModelSnapshot : ModelSnapshot
+    [Migration("20250518211758_a7aaaa")]
+    partial class a7aaaa
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -261,9 +264,6 @@ namespace Pharma_LinkAPI.Migrations
                     b.Property<string>("ImagePath")
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<bool>("IsDeleted")
-                        .HasColumnType("bit");
-
                     b.Property<string>("LiscnceNumber")
                         .HasColumnType("nvarchar(max)");
 
@@ -412,6 +412,9 @@ namespace Pharma_LinkAPI.Migrations
 
                     b.Property<int?>("MedicineID")
                         .HasColumnType("int");
+
+                    b.Property<string>("MedicineImage")
+                        .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("MedicineName")
                         .HasColumnType("nvarchar(max)");
