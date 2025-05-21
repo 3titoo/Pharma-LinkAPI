@@ -26,7 +26,7 @@ namespace Pharma_LinkAPI.Controllers
             var exist = await _ireviewRepositiry.GetReviewByphAndCo(ph.Id, CompanyId);
             if (exist != null)
             {
-               await _ireviewRepositiry.Delete(exist.Id);
+                await _ireviewRepositiry.Delete(exist.Id);
             }
             var rev = new Review
             {

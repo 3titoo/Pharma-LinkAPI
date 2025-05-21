@@ -4,7 +4,6 @@ using Pharma_LinkAPI.DTO.AccountDTO;
 using Pharma_LinkAPI.Identity;
 using Pharma_LinkAPI.Models;
 using Pharma_LinkAPI.Repositries.Irepositry;
-using System.Threading.Tasks;
 
 namespace Pharma_LinkAPI.Controllers
 {
@@ -59,7 +58,7 @@ namespace Pharma_LinkAPI.Controllers
         // GET: api/Requests
         [Authorize(Roles = SD.Role_Admin)]
         [HttpGet]
-        public async  Task<ActionResult<IEnumerable<Request>>> GetRequests()
+        public async Task<ActionResult<IEnumerable<Request>>> GetRequests()
         {
             var requests = await _requestRepositry.GetAll();
             return Ok(requests);

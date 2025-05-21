@@ -2,7 +2,6 @@
 using Microsoft.AspNetCore.Mvc;
 using Pharma_LinkAPI.Data;
 using Pharma_LinkAPI.DTO.InvoicesDTO;
-using Pharma_LinkAPI.DTO.MdeicineDTO;
 using Pharma_LinkAPI.Identity;
 using Pharma_LinkAPI.Models;
 using Pharma_LinkAPI.Repositries.Irepositry;
@@ -247,7 +246,7 @@ namespace Pharma_LinkAPI.Controllers
                     CompanyID = companyId,
                     TotalPrice = 0
                 };
-                
+
 
                 foreach (var item in CurrentCart.CartItems)
                 {
@@ -285,18 +284,18 @@ namespace Pharma_LinkAPI.Controllers
 
                 var PharmacyEmail = CurrentCart.Pharmacy.Email;
 
-               _ = Task.Run(async () =>
-               {
-                   try
-                   {
-                       await _unitOfWork._emailService.SendEmailAsync(PharmacyEmail, "Order Confirmation – Thank You for Your Order",
-                           $"Your order has been placed successfully and is now being processed. We will notify you once it is confirmed and ready for delivery.\n\nThank you for your trust.\n\nBest regards.");
-                   }
-                   catch (Exception ex)
-                   {
-                       Console.WriteLine($"Error sending email: {ex.Message}");
-                   }
-               });
+                _ = Task.Run(async () =>
+                {
+                    try
+                    {
+                        await _unitOfWork._emailService.SendEmailAsync(PharmacyEmail, "Order Confirmation – Thank You for Your Order",
+                            $"Your order has been placed successfully and is now being processed. We will notify you once it is confirmed and ready for delivery.\n\nThank you for your trust.\n\nBest regards.");
+                    }
+                    catch (Exception ex)
+                    {
+                        Console.WriteLine($"Error sending email: {ex.Message}");
+                    }
+                });
 
                 var company = await _unitOfWork._accountRepositry.GetUserById(companyId);
 

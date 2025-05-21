@@ -4,8 +4,6 @@ using Pharma_LinkAPI.DTO.MdeicineDTO;
 using Pharma_LinkAPI.Identity;
 using Pharma_LinkAPI.Models;
 using Pharma_LinkAPI.Repositries.Irepositry;
-using System.Security.Claims;
-using System.Threading.Tasks;
 
 namespace Pharma_LinkAPI.Controllers
 {

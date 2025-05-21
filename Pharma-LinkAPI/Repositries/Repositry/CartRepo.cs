@@ -1,8 +1,6 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using Pharma_LinkAPI.Data;
-using Pharma_LinkAPI.Models;
 using Pharma_LinkAPI.Repositries.Irepositry;
-using static Microsoft.EntityFrameworkCore.DbLoggerCategory.Database;
 
 namespace Pharma_LinkAPI.Repositries.Repositry
 {
@@ -32,43 +30,11 @@ namespace Pharma_LinkAPI.Repositries.Repositry
 
         public async Task<Cart?> GetCart(int cartId)
         {
-            var cart = await _context.Carts
-    .Where(c => c.CartId == cartId)
-    .Select(c => new Cart
-    {
-        CartId = c.CartId,
-        Pharmacy = new Identity.AppUser
-        {
-            UserName = c.Pharmacy.UserName,
-            Email = c.Pharmacy.Email,
-            PhoneNumber = c.Pharmacy.PhoneNumber,
-            City = c.Pharmacy.City,
-            State = c.Pharmacy.State,
-            Street = c.Pharmacy.Street,
-        },
-        CartItems = c.CartItems.Select(ci => new CartItem
-        {
-            CartItemId = ci.CartItemId,
-            Count = ci.Count,
-            UnitPrice = ci.UnitPrice,
-            MedicineId = ci.MedicineId,
-            Medicine = new Medicine
-            {
-                Name = ci.Medicine.Name,
-                Image_URL = ci.Medicine.Image_URL,
-                InStock = ci.Medicine.InStock,
-                Price = ci.Medicine.Price,
-                Company = new Identity.AppUser
-                {
-                    Id = ci.Medicine.Company.Id,
-                    Name = ci.Medicine.Company.Name,
-                    MinPriceToMakeOrder = ci.Medicine.Company.MinPriceToMakeOrder
-                }
-            }
-        }).ToList()
-    })
-    .FirstOrDefaultAsync();
-
+            var cart = await _context.Carts.Include(ph => ph.Pharmacy)
+                        .Include(c => c.CartItems)
+                        .ThenInclude(ci => ci.Medicine).ThenInclude(m => m.Company)
+                        .FirstOrDefaultAsync(c => c.CartId == cartId);
+            
             return cart;
         }
 

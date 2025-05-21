@@ -1,7 +1,6 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Pharma_LinkAPI;
-using Pharma_LinkAPI.DTO;
 using Pharma_LinkAPI.DTO.CartDTO;
 using Pharma_LinkAPI.Identity;
 using Pharma_LinkAPI.Repositries.Irepositry;

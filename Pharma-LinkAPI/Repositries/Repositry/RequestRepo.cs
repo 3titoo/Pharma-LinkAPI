@@ -16,8 +16,8 @@ namespace Pharma_LinkAPI.Repositries.Repositry
 
         public async Task Add(Request entity)
         {
-           await _db.Requests.AddAsync(entity);
-           await _db.SaveChangesAsync();
+            await _db.Requests.AddAsync(entity);
+            await _db.SaveChangesAsync();
         }
 
         public async Task Delete(int id)

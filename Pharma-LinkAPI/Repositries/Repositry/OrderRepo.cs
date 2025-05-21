@@ -49,9 +49,9 @@ namespace Pharma_LinkAPI.Repositries.Repositry
 
         public async Task AddOrder(Order order)
         {
-           await _context.Orders.AddAsync(order);
+            await _context.Orders.AddAsync(order);
 
-           await _context.SaveChangesAsync();
+            await _context.SaveChangesAsync();
         }
 
         public async Task DeleteOrder(Order order)
