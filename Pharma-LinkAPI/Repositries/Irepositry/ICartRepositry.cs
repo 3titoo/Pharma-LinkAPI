@@ -17,8 +17,6 @@ namespace Pharma_LinkAPI.Repositries.Irepositry
 
         Task<CartViewDTO?> GetCartView(int cartId);
 
-        Task<SummaryDTO?> GetCartSummary(int cartId, int companyId);
-
 
     }
 }
