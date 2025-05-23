@@ -82,6 +82,13 @@ namespace Pharma_LinkAPI.Controllers
         [HttpPost]
         public async Task<ActionResult<string>> addMedicine([FromForm] MedicineDTO medicine)
         {
+            var user = await _unitOfWork._accountRepositry.GetCurrentUser(User);
+            var MedicineExist = await _medicineRepositiry.IsUExist(user.Id, medicine.Name);
+            if (MedicineExist)
+            {
+                return BadRequest("Medicine already exists.");
+            }
+
             #region Image
             var img = medicine.Image;
             if (img == null || img.Length == 0)
@@ -100,8 +107,6 @@ namespace Pharma_LinkAPI.Controllers
                 img.CopyTo(stream);
             }
             #endregion
-            var user = await _unitOfWork._accountRepositry.GetCurrentUser(User);
-
             var medicineModel = new Medicine
             {
                 Name = medicine.Name,
@@ -120,6 +125,11 @@ namespace Pharma_LinkAPI.Controllers
         public async Task<ActionResult<string>> UpdateMedicine(int id, MedicinePutDTO medicine)
         {
             var user = await _unitOfWork._accountRepositry.GetCurrentUser(User);
+            var MedicineExist = await _medicineRepositiry.IsUExist(user.Id, medicine.Name);
+            if (MedicineExist)
+            {
+                return BadRequest("Medicine already exists.");
+            }
             var existingMedicine = await _medicineRepositiry.GetById(id);
             if (existingMedicine == null)
             {

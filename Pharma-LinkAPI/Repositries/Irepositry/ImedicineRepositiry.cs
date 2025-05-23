@@ -12,5 +12,6 @@ namespace Pharma_LinkAPI.Repositries.Irepositry
         Task<Medicine?> GetMedicineCompany(int companyId);
         Task<(string Name, string UserName)?> GetCompanyDetails(int id);
 
+        Task<bool> IsUExist(int companyId, string name);
     }
 }
