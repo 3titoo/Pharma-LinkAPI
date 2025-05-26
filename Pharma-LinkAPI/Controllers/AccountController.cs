@@ -229,6 +229,14 @@ namespace Pharma_LinkAPI.Controllers
                         await _unitOfWork._reviewRepositiry.Delete(review.Id);
                     }
                 }
+                var medicineOrders = await _unitOfWork._medicineRepositiry.GetMedicinesForCompany(user.Id);
+                if (medicineOrders != null)
+                {
+                    foreach (var medicine in medicineOrders)
+                    {
+                        await _unitOfWork._medicineRepositiry.Delete(medicine.Value.Id);
+                    }
+                }
 
             }
             user.IsDeleted = true;
