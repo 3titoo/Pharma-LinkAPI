@@ -126,11 +126,11 @@ namespace Pharma_LinkAPI.Controllers
         {
             var user = await _unitOfWork._accountRepositry.GetCurrentUser(User);
             var MedicineExist = await _medicineRepositiry.IsUExist(user.Id, medicine.Name);
-            if (MedicineExist)
+            var existingMedicine = await _medicineRepositiry.GetById(id);
+            if (MedicineExist && existingMedicine.Name != medicine.Name)
             {
                 return BadRequest("Medicine already exists.");
             }
-            var existingMedicine = await _medicineRepositiry.GetById(id);
             if (existingMedicine == null)
             {
                 return NotFound();

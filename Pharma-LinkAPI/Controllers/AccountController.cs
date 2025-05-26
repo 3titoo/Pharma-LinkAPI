@@ -135,41 +135,33 @@ namespace Pharma_LinkAPI.Controllers
         [HttpPost("login")]
         public async Task<IActionResult> Login(LoginDTO loginDTO)
         {
-            // Check if the model state is valid
             if (!ModelState.IsValid)
             {
                 string errors = string.Join(", ", ModelState.Values.SelectMany(v => v.Errors).Select(e => e.ErrorMessage));
                 return BadRequest(errors);
             }
 
-            var email = await _userManager.FindByEmailAsync(loginDTO.UserName);
-            if (email != null)
+            AppUser? user = await _userManager.FindByEmailAsync(loginDTO.UserName);
+
+            if(user == null)
             {
-                loginDTO.UserName = email.UserName;
+                user = await _userManager.FindByNameAsync(loginDTO.UserName);
             }
 
-            // Check if the user exists
-            var result = await _signInManager.PasswordSignInAsync(loginDTO.UserName, loginDTO.Password, isPersistent: loginDTO.RememberMe, lockoutOnFailure: false);
-            if (result.Succeeded)
-            {
-                var user = await _userManager.FindByNameAsync(loginDTO.UserName);
-                if (user == null)
-                {
-                    return BadRequest("User not found.");
-                }
-                if (user.IsDeleted)
-                {
-                    return BadRequest("User is banned.");
-                }
-                await _signInManager.SignInAsync(user, isPersistent: false);
+            if (user == null)
+                return BadRequest("User not found.");
 
-                // Generate JWT token 
+            if (user.IsDeleted)
+                return BadRequest("User is banned.");
 
-                var token = _jwtService.CreateToken(user);
+            var result = await _signInManager.PasswordSignInAsync(user.UserName, loginDTO.Password, loginDTO.RememberMe, false);
 
-                return Ok(token);
-            }
-            return BadRequest("Invalid User Name or Password");
+            if (!result.Succeeded)
+                return BadRequest("Invalid User Name or Password");
+
+            var token = _jwtService.CreateToken(user);
+
+            return Ok(token);
         }
 
         [HttpGet("logout")]

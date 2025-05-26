@@ -167,10 +167,10 @@ public class CartController : ControllerBase
             return NotFound("Cart items not found.");
         var totalPrice = cart.CartItems.Sum(ci => ci.Count * ci.UnitPrice);
         var company = cart.CartItems.FirstOrDefault().Medicine.Company;
-        if (totalPrice < company.MinPriceToMakeOrder)
-        {
-            return BadRequest($"Total price must be at least {company.MinPriceToMakeOrder} to make an order for {company.Name}.");
-        }
+        //if (totalPrice < company.MinPriceToMakeOrder)
+        //{
+        //    return BadRequest($"Total price must be at least {company.MinPriceToMakeOrder} to make an order for {company.Name}.");
+        //}
 
 
         var summary = new SummaryDTO
