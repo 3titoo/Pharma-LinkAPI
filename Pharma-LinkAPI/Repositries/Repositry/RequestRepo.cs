@@ -1,4 +1,5 @@
-﻿using Microsoft.EntityFrameworkCore;
+﻿using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 using Pharma_LinkAPI.Data;
 using Pharma_LinkAPI.Models;
 using Pharma_LinkAPI.Repositries.Irepositry;
@@ -35,12 +36,12 @@ namespace Pharma_LinkAPI.Repositries.Repositry
             var requests = await _db.Requests.ToListAsync();
             foreach (var request in requests)
             {
-                if(request.CreatedAt > DateTime.UtcNow.AddDays(-1))
+                if(request.CreatedAt.AddDays(1) < DateTime.UtcNow && request.IsEmailConfirmed == false)
                 {
                     await Delete(request.Id);
                 }
             }
-            var ret = requests.Where(i => i.IsEmailConfirmed == false);
+            var ret = await _db.Requests.AsNoTracking().Where(r => r.IsEmailConfirmed == true).ToListAsync();
             return ret;
         }
 

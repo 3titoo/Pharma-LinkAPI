@@ -106,8 +106,8 @@ namespace Pharma_LinkAPI.Controllers
             return NoContent();
         }
 
-        [HttpPatch("ConfirmEmail/{email}")]
-        public async Task<IActionResult> ConfirmEmail(string email)
+        [HttpPatch("ConfirmEmail")]
+        public async Task<IActionResult> ConfirmEmail([FromBody] string email)
         {
             if (string.IsNullOrEmpty(email))
             {
