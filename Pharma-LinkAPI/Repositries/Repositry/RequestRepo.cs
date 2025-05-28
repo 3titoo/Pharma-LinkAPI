@@ -32,8 +32,16 @@ namespace Pharma_LinkAPI.Repositries.Repositry
 
         public async Task<IEnumerable<Request?>> GetAll()
         {
-            var requests = await _db.Requests.AsNoTracking().ToListAsync();
-            return requests;
+            var requests = await _db.Requests.ToListAsync();
+            foreach (var request in requests)
+            {
+                if(request.CreatedAt > DateTime.UtcNow.AddDays(-1))
+                {
+                    await Delete(request.Id);
+                }
+            }
+            var ret = requests.Where(i => i.IsEmailConfirmed == false);
+            return ret;
         }
 
         public async Task<Request?> GetById(int id)
@@ -44,7 +52,7 @@ namespace Pharma_LinkAPI.Repositries.Repositry
 
         public async Task<Request?> GetUserByEmail(string email)
         {
-            return await _db.Requests.AsNoTracking().FirstOrDefaultAsync(i => i.Email == email);
+            return await _db.Requests.FirstOrDefaultAsync(i => i.Email == email);
         }
 
         public async Task<Request?> GetUserByusername(string username)
@@ -54,7 +62,8 @@ namespace Pharma_LinkAPI.Repositries.Repositry
 
         public async Task Update(Request entity)
         {
-            throw new NotImplementedException();
+            _db.Requests.Update(entity);
+            await _db.SaveChangesAsync();
         }
     }
 }

@@ -39,5 +39,9 @@ namespace Pharma_LinkAPI.Models
         [Required]
         [DataType(DataType.Password)]
         public string? Password { get; set; }
+
+        public bool IsEmailConfirmed { get; set; } = false;
+
+        public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
     }
 }

@@ -12,11 +12,13 @@ namespace Pharma_LinkAPI.Controllers
     public class RequestsController : ControllerBase
     {
         private readonly IrequestRepositry _requestRepositry;
+        private readonly IUnitOfWork _unitOfWork;
 
 
-        public RequestsController(IrequestRepositry irequestRepositry)
+        public RequestsController(IrequestRepositry irequestRepositry,IUnitOfWork unitOfWork)
         {
             _requestRepositry = irequestRepositry;
+            _unitOfWork = unitOfWork;
         }
 
         [HttpPost("Register")]
@@ -48,6 +50,14 @@ namespace Pharma_LinkAPI.Controllers
                 return BadRequest("Password is required.");
             }
             await _requestRepositry.Add(requset);
+            _ = Task.Run(async () =>
+            {
+                await _unitOfWork._emailService.SendEmailAsync(
+                    requset.Email,
+                    "Pharmacy Email Confirmation",
+                    $"To confirm your email, please click <a href=\"https://mozakeer.github.io/PharmaLink/confirm-email?email={requset.Email}\">here</a>"
+                );
+            });
             return Ok("request is added");
         }
 
@@ -94,6 +104,23 @@ namespace Pharma_LinkAPI.Controllers
             await _requestRepositry.Delete(id);
 
             return NoContent();
+        }
+
+        [HttpPatch("ConfirmEmail/{email}")]
+        public async Task<IActionResult> ConfirmEmail(string email)
+        {
+            if (string.IsNullOrEmpty(email))
+            {
+                return BadRequest("Email is required.");
+            }
+            var request = await _requestRepositry.GetUserByEmail(email);
+            if (request == null)
+            {
+                return NotFound("Request not found.");
+            }
+            request.IsEmailConfirmed = true;
+            await _requestRepositry.Update(request);
+            return Ok("Email confirmed successfully.");
         }
     }
 }
