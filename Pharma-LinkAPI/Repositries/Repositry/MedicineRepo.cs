@@ -116,7 +116,7 @@ namespace Pharma_LinkAPI.Repositries.Repositry
         }
         public async Task<bool> IsUExist(int companyId, string name)
         {
-            var medicine = await _db.Medicines.AnyAsync(m => m.Company_Id == companyId && m.Name == name);
+            var medicine = await _db.Medicines.AnyAsync(m => m.Company_Id == companyId && m.Name.ToLower() == name.ToLower());
             return medicine;
         }
     }
