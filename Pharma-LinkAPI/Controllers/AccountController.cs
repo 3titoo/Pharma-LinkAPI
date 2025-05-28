@@ -125,7 +125,7 @@ namespace Pharma_LinkAPI.Controllers
             if (result.Succeeded)
             {
                 await _userManager.AddToRoleAsync(user, SD.Role_Company);
-                await _unitOfWork._emailService.SendEmailAsync(user.Email, "Your Company Account Has Been Created", $"Your Account has been Added successfully.\n username is {user.UserName}\n\npassword is {password}");
+                await _unitOfWork._emailService.SendEmailAsync(user.Email, "Your Company Account Has Been Created", $"Your Account has been Created successfully.\n username is {user.UserName}\n\npassword is {password}");
                 return Ok("company is created");
             }
             string error = string.Join(" | ", result.Errors.Select(x => x.Description));

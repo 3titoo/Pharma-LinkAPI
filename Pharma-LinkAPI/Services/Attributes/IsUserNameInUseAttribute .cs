@@ -15,8 +15,8 @@ namespace Pharma_LinkAPI.Services.Attributes
                 string username = (string)value;
                 var userManager = (UserManager<AppUser>)validationContext.GetService(typeof(UserManager<AppUser>));
                 var x = (IrequestRepositry)validationContext.GetService(typeof(IrequestRepositry));
-                var request = x.GetUserByusername(username).Result;
-                var user = userManager.Users.Any(u => u.UserName == username);
+                var request = x.GetUserByusername(username.ToLower()).Result;
+                var user = userManager.Users.Any(u => u.UserName.ToLower() == username.ToLower());
                 if (user == false && request == null)
                 {
                     return ValidationResult.Success;
