@@ -36,12 +36,12 @@ namespace Pharma_LinkAPI.Controllers
                 DR_Name = pharmacyRegisterDTO.DrName,
                 Pharmacy_Name = pharmacyRegisterDTO.Name,
                 Phone = pharmacyRegisterDTO.PhoneNumber,
-                Email = pharmacyRegisterDTO.Email,
+                Email = pharmacyRegisterDTO.Email.ToLower(),
                 Street = pharmacyRegisterDTO.Street,
                 State = pharmacyRegisterDTO.State,
                 City = pharmacyRegisterDTO.City,
                 License_File = pharmacyRegisterDTO.pdfURL,
-                UserName = pharmacyRegisterDTO.UserName,
+                UserName = pharmacyRegisterDTO.UserName.ToLower(),
                 Password = pharmacyRegisterDTO.Password
             };
             string? password = pharmacyRegisterDTO.Password;
