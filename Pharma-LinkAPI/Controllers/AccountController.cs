@@ -54,10 +54,6 @@ namespace Pharma_LinkAPI.Controllers
                 DrName = request.DR_Name
             };
             string? password = request.Password;
-            if (password == null || password[0] == ' ')
-            {
-                return BadRequest("Password is required.");
-            }
             var result = await _userManager.CreateAsync(user, password);
             if (result.Succeeded)
             {
@@ -96,12 +92,6 @@ namespace Pharma_LinkAPI.Controllers
                 string errors = string.Join(", ", ModelState.Values.SelectMany(v => v.Errors).Select(e => e.ErrorMessage));
                 return BadRequest(errors);
             }
-            var existEmail = await _userManager.FindByEmailAsync(companyRegisterDTO.Email);
-            if (existEmail != null)
-            {
-                return BadRequest("Email is already in use");
-            }
-
             var user = new AppUser
             {
                 UserName = companyRegisterDTO.UserName.ToLower(),
@@ -117,10 +107,6 @@ namespace Pharma_LinkAPI.Controllers
                 EmailConfirmed = true
             };
             string? password = companyRegisterDTO.Password;
-            if (password == null || password[0] == ' ')
-            {
-                return BadRequest("Password is required.");
-            }
             var result = await _userManager.CreateAsync(user, password);
             if (result.Succeeded)
             {
@@ -163,14 +149,6 @@ namespace Pharma_LinkAPI.Controllers
 
             return Ok(token);
         }
-
-        [HttpGet("logout")]
-        public async Task<IActionResult> Logout()
-        {
-            await _signInManager.SignOutAsync();
-            return NoContent();
-        }
-
 
         [Authorize(Roles = SD.Role_Admin)]
         [HttpDelete("DeleteUser")]
