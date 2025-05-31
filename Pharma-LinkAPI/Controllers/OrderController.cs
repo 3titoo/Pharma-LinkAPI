@@ -25,6 +25,12 @@ namespace Pharma_LinkAPI.Controllers
         public async Task<ActionResult<IEnumerable<CompanyInvoiceDTO>>> IndexCompanyOrder()
         {
             var currentUser = await _unitOfWork._accountRepositry.GetCurrentUser(User);
+
+            if (currentUser == null)
+            {
+                return NotFound("currentUser not found.");
+            }
+
             var CompanyId = currentUser.Id;
 
             var orders = await _orderRepositry.GetAllOrdersForCompany(CompanyId);
