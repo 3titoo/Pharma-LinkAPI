@@ -5,7 +5,6 @@ namespace Pharma_LinkAPI.Repositries.Irepositry
 {
     public interface ImedicineRepositiry : Irepo<Medicine>
     {
-        Task<IEnumerable<Medicine>> Search(string word);
         Task<IDictionary<int, MedicineViewDTO>> GetMedicinesForCompany(int companyId);
         Task<IDictionary<int, Medicine>> GetMedicinesForCompanyTracking(int companyId);
 

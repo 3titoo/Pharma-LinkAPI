@@ -24,12 +24,6 @@ namespace Pharma_LinkAPI.Controllers
         [HttpPost("Register")]
         public async Task<ActionResult<string>> Register(PharmacyRequestDTO pharmacyRegisterDTO)
         {
-            if (!ModelState.IsValid)
-            {
-                string errors = string.Join(", ", ModelState.Values.SelectMany(v => v.Errors).Select(e => e.ErrorMessage));
-                return BadRequest(errors);
-            }
-
             var requset = new Request()
             {
                 Pharmacy_License = pharmacyRegisterDTO.LicenseNumber,

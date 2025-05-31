@@ -160,11 +160,6 @@ namespace Pharma_LinkAPI.Controllers
         [HttpPatch("ChangePassword")]
         public async Task<IActionResult> ChangePassword(ChangePassDTO changePasswordDTO)
         {
-            if (!ModelState.IsValid)
-            {
-                string errors = string.Join(", ", ModelState.Values.SelectMany(v => v.Errors).Select(e => e.ErrorMessage));
-                return BadRequest(errors);
-            }
             var user = await _accountRepositry.GetUserByuserName(changePasswordDTO.username);
             var current = await _accountRepositry.GetCurrentUser(User);
 

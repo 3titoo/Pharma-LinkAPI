@@ -65,12 +65,6 @@ namespace Pharma_LinkAPI.Repositries.Repositry
             }
 
         }
-        public async Task<IEnumerable<Medicine>> Search(string word)
-        {
-            var medicines = await _db.Medicines.AsNoTracking().Include(c => c.Company)
-                 .Where(m => m.Name.Contains(word) || m.Company.Name.Contains(word)).ToListAsync();
-            return medicines;
-        }
 
         public async Task<IDictionary<int, MedicineViewDTO>> GetMedicinesForCompany(int companyId)
         {

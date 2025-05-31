@@ -50,16 +50,6 @@ public class CartController : ControllerBase
     [HttpPost("AddToCart")]
     public async Task<IActionResult> AddToCart(AddToCartDTO dto)
     {
-        if (!ModelState.IsValid)
-        {
-            string errorMessage = string.Join(", ", ModelState.Values
-                .SelectMany(v => v.Errors)
-                .Select(e => e.ErrorMessage));
-            return BadRequest($"Invalid data: {errorMessage}");
-        }
-
-
-
         var user = await _unitOfWork._accountRepositry.GetCurrentUser(User);
 
         var cart = await _cartRepositry.GetCart(user.Cart.CartId);
@@ -113,13 +103,6 @@ public class CartController : ControllerBase
     [HttpPut("UpdateCartItem")]
     public async Task<IActionResult> UpdateCartItem(AddToCartDTO dto)
     {
-        if (!ModelState.IsValid)
-        {
-            string errorMessage = string.Join(", ", ModelState.Values
-                .SelectMany(v => v.Errors)
-                .Select(e => e.ErrorMessage));
-            return BadRequest($"Invalid data: {errorMessage}");
-        }
         var user = await _unitOfWork._accountRepositry.GetCurrentUser(User);
         var cart = await _cartRepositry.GetCart(user.Cart.CartId);
 

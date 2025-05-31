@@ -168,36 +168,6 @@ namespace Pharma_LinkAPI.Controllers
             return Ok("Medicine deleted successfully");
         }
 
-
-        [HttpGet("search")]
-        public async Task<ActionResult<IEnumerable<SearchDTO>>> search(string? word)
-        {
-            if (string.IsNullOrEmpty(word))
-            {
-                return NoContent();
-            }
-            var medicines = await _medicineRepositiry.Search(word);
-            if (medicines == null)
-            {
-                return NoContent();
-            }
-            var ret = new List<SearchDTO>();
-            foreach (var medicine in medicines)
-            {
-                var item = new SearchDTO
-                {
-                    Name = medicine.Name,
-                    CompanyName = medicine.Company.Name,
-                    Price = medicine.Price,
-                    InStock = medicine.InStock,
-                    img = medicine.Image_URL,
-                };
-                ret.Add(item);
-            }
-            return Ok(ret);
-        }
-
-
         [Authorize(Roles = SD.Role_Company)]
         [HttpPatch("updateStock")]
         public async Task<ActionResult<string>> UpdateStock(editMedicineQuantityDTO dto)

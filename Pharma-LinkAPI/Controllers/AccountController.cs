@@ -87,11 +87,6 @@ namespace Pharma_LinkAPI.Controllers
         [HttpPost("CompanyRegister")]
         public async Task<ActionResult<string>> Register(CompanyRegisterDTO companyRegisterDTO)
         {
-            if (!ModelState.IsValid)
-            {
-                string errors = string.Join(", ", ModelState.Values.SelectMany(v => v.Errors).Select(e => e.ErrorMessage));
-                return BadRequest(errors);
-            }
             var user = new AppUser
             {
                 UserName = companyRegisterDTO.UserName.ToLower(),
@@ -121,11 +116,6 @@ namespace Pharma_LinkAPI.Controllers
         [HttpPost("login")]
         public async Task<IActionResult> Login(LoginDTO loginDTO)
         {
-            if (!ModelState.IsValid)
-            {
-                string errors = string.Join(", ", ModelState.Values.SelectMany(v => v.Errors).Select(e => e.ErrorMessage));
-                return BadRequest(errors);
-            }
 
             AppUser? user = await _userManager.FindByEmailAsync(loginDTO.UserName.ToLower());
 
@@ -152,7 +142,7 @@ namespace Pharma_LinkAPI.Controllers
 
         [Authorize(Roles = SD.Role_Admin)]
         [HttpDelete("DeleteUser")]
-        public async Task<IActionResult> DeleteUser(string userName)
+        public async Task<IActionResult> DeleteUser(string? userName)
         {
 
             if (userName == "admin")

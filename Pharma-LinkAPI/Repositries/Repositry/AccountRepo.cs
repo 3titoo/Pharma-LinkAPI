@@ -79,16 +79,6 @@ namespace Pharma_LinkAPI.Repositries.Repositry
             return userWithReviews;
         }
 
-        public async Task<IEnumerable<AppUser?>> GetAllUsers(string role = SD.Role_Pharmacy)
-        {
-            var users = await _userManager.GetUsersInRoleAsync(role);
-            if (users == null)
-            {
-                return null;
-            }
-            return users;
-        }
-
         public async Task<AppUser?> GetCompanyByEmailWithReviews(string email)
         {
             var company = await _userManager.Users
