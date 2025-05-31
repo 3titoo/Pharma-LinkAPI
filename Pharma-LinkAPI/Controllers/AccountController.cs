@@ -41,8 +41,8 @@ namespace Pharma_LinkAPI.Controllers
             }
             var user = new AppUser
             {
-                UserName = request.UserName,
-                Email = request.Email,
+                UserName = request.UserName.ToLower(),
+                Email = request.Email.ToLower(),
                 PhoneNumber = request.Phone,
                 LiscnceNumber = request.Pharmacy_License,
                 Street = request.Street,
@@ -54,10 +54,6 @@ namespace Pharma_LinkAPI.Controllers
                 DrName = request.DR_Name
             };
             string? password = request.Password;
-            if (password == null || password[0] == ' ')
-            {
-                return BadRequest("Password is required.");
-            }
             var result = await _userManager.CreateAsync(user, password);
             if (result.Succeeded)
             {
@@ -96,16 +92,10 @@ namespace Pharma_LinkAPI.Controllers
                 string errors = string.Join(", ", ModelState.Values.SelectMany(v => v.Errors).Select(e => e.ErrorMessage));
                 return BadRequest(errors);
             }
-            var existEmail = await _userManager.FindByEmailAsync(companyRegisterDTO.Email);
-            if (existEmail != null)
-            {
-                return BadRequest("Email is already in use");
-            }
-
             var user = new AppUser
             {
-                UserName = companyRegisterDTO.UserName,
-                Email = companyRegisterDTO.Email,
+                UserName = companyRegisterDTO.UserName.ToLower(),
+                Email = companyRegisterDTO.Email.ToLower(),
                 PhoneNumber = companyRegisterDTO.PhoneNumber,
                 LiscnceNumber = companyRegisterDTO.LicenseNumber,
                 Street = companyRegisterDTO.Street,
@@ -117,10 +107,6 @@ namespace Pharma_LinkAPI.Controllers
                 EmailConfirmed = true
             };
             string? password = companyRegisterDTO.Password;
-            if (password == null || password[0] == ' ')
-            {
-                return BadRequest("Password is required.");
-            }
             var result = await _userManager.CreateAsync(user, password);
             if (result.Succeeded)
             {
@@ -141,11 +127,11 @@ namespace Pharma_LinkAPI.Controllers
                 return BadRequest(errors);
             }
 
-            AppUser? user = await _userManager.FindByEmailAsync(loginDTO.UserName);
+            AppUser? user = await _userManager.FindByEmailAsync(loginDTO.UserName.ToLower());
 
             if(user == null)
             {
-                user = await _userManager.FindByNameAsync(loginDTO.UserName);
+                user = await _userManager.FindByNameAsync(loginDTO.UserName.ToLower());
             }
 
             if (user == null)
@@ -154,7 +140,7 @@ namespace Pharma_LinkAPI.Controllers
             if (user.IsDeleted)
                 return BadRequest("User is banned.");
 
-            var result = await _signInManager.PasswordSignInAsync(user.UserName, loginDTO.Password, loginDTO.RememberMe, false);
+            var result = await _signInManager.PasswordSignInAsync(user.UserName.ToLower(), loginDTO.Password, loginDTO.RememberMe, false);
 
             if (!result.Succeeded)
                 return BadRequest("Invalid User Name or Password");
@@ -163,14 +149,6 @@ namespace Pharma_LinkAPI.Controllers
 
             return Ok(token);
         }
-
-        [HttpGet("logout")]
-        public async Task<IActionResult> Logout()
-        {
-            await _signInManager.SignOutAsync();
-            return NoContent();
-        }
-
 
         [Authorize(Roles = SD.Role_Admin)]
         [HttpDelete("DeleteUser")]

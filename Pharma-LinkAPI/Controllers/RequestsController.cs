@@ -36,12 +36,12 @@ namespace Pharma_LinkAPI.Controllers
                 DR_Name = pharmacyRegisterDTO.DrName,
                 Pharmacy_Name = pharmacyRegisterDTO.Name,
                 Phone = pharmacyRegisterDTO.PhoneNumber,
-                Email = pharmacyRegisterDTO.Email,
+                Email = pharmacyRegisterDTO.Email.ToLower(),
                 Street = pharmacyRegisterDTO.Street,
                 State = pharmacyRegisterDTO.State,
                 City = pharmacyRegisterDTO.City,
                 License_File = pharmacyRegisterDTO.pdfURL,
-                UserName = pharmacyRegisterDTO.UserName,
+                UserName = pharmacyRegisterDTO.UserName.ToLower(),
                 Password = pharmacyRegisterDTO.Password
             };
             string? password = pharmacyRegisterDTO.Password;
@@ -52,11 +52,7 @@ namespace Pharma_LinkAPI.Controllers
             await _requestRepositry.Add(requset);
             _ = Task.Run(async () =>
             {
-                await _unitOfWork._emailService.SendEmailAsync(
-                    requset.Email,
-                    "Pharmacy Email Confirmation",
-                    $"To confirm your email, please click <a href=\"https://mozakeer.github.io/PharmaLink/confirm-email?email={requset.Email}\">here</a>"
-                );
+                await _unitOfWork._emailService.SendEmailAsync(requset.Email,"Pharmacy Email Confirmation", $"To Confirm Your Email visit : https://mozakeer.github.io/PharmaLink/confirm.html?email={requset.Email}");
             });
             return Ok("request is added");
         }
@@ -107,7 +103,7 @@ namespace Pharma_LinkAPI.Controllers
         }
 
         [HttpPatch("ConfirmEmail")]
-        public async Task<IActionResult> ConfirmEmail([FromBody] string email)
+        public async Task<IActionResult> ConfirmEmail([FromForm] string email)
         {
             if (string.IsNullOrEmpty(email))
             {
