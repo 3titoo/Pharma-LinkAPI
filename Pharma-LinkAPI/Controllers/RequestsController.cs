@@ -92,6 +92,10 @@ namespace Pharma_LinkAPI.Controllers
             }
 
             await _requestRepositry.Delete(id);
+            _ = Task.Run(async () =>
+            {
+                await _unitOfWork._emailService.SendEmailAsync(request.Email, "Pharmacy Regection Request", $"invalid information in lisecnenec ");
+            });
 
             return NoContent();
         }

@@ -77,7 +77,8 @@ namespace Pharma_LinkAPI.Controllers
                     {
                         Console.WriteLine($"Failed to send email: {ex.Message}");
                     }
-                }); return Ok("User added succeffuly");
+                });
+                return Ok("User added succeffuly");
 
             }
             string error = string.Join(" | ", result.Errors.Select(x => x.Description));
