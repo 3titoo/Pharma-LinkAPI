@@ -28,7 +28,14 @@ namespace Pharma_LinkAPI.Repositries.Repositry
                 await _db.SaveChangesAsync();
             }
         }
-
+        public async Task<IEnumerable<Medicine?>> GetMedicinesWithPages(int pageNumber, int pageSize)
+        {
+            return await _db.Medicines
+                .Where(m => !m.IsDeleted)
+                .Skip((pageNumber - 1) * pageSize)
+                .Take(pageSize)
+                .ToListAsync();
+        }
         public async Task<IEnumerable<Medicine?>> GetAll()
         {
             return await _db.Medicines.AsNoTracking().ToListAsync();
@@ -112,6 +119,11 @@ namespace Pharma_LinkAPI.Repositries.Repositry
         {
             var medicine = await _db.Medicines.AnyAsync(m => m.Company_Id == companyId && m.Name.ToLower() == name.ToLower());
             return medicine;
+        }
+
+        public async Task<int> sz()
+        {
+            return await _db.Medicines.CountAsync(m => !m.IsDeleted);
         }
     }
 }

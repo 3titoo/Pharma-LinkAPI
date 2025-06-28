@@ -1,5 +1,6 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Pharma_LinkAPI.DTO;
 using Pharma_LinkAPI.DTO.MdeicineDTO;
 using Pharma_LinkAPI.Identity;
 using Pharma_LinkAPI.Models;
@@ -21,14 +22,16 @@ namespace Pharma_LinkAPI.Controllers
         }
 
         [HttpGet]
-        public async Task<ActionResult<IEnumerable<MedicineViewDTO>>> GetAllMedicines()
+        public async Task<ActionResult<GetAllViewDTO>> GetAllMedicines([FromQuery]GetAllMedicinesDTO getAll)
         {
-            var medicines = await _medicineRepositiry.GetAll();
+            var medicines = await _medicineRepositiry.GetMedicinesWithPages(getAll.pageNumber,(int)getAll.pageSize);
 
             var ret = new List<MedicineViewDTO>();
+            
 
             foreach (var medicine in medicines)
             {
+                var img = medicine.Image_URL.Substring(medicine.Image_URL.IndexOf("/uploads"));
                 var item = new MedicineViewDTO
                 {
                     Id = medicine.ID,
@@ -36,7 +39,7 @@ namespace Pharma_LinkAPI.Controllers
                     Description = medicine.Description,
                     Price = medicine.Price,
                     InStock = medicine.InStock,
-                    ImageUrl = medicine.Image_URL,
+                    ImageUrl = img,
                 };
                 if (medicine.Company_Id != null)
                 {
@@ -49,7 +52,13 @@ namespace Pharma_LinkAPI.Controllers
                 }
                 ret.Add(item);
             }
-            return ret;
+            int size = await _medicineRepositiry.sz();
+            var response = new GetAllViewDTO
+            {
+                medicines = ret,
+                TotalCount = (int)Math.Ceiling(size/getAll.pageSize),
+            };
+            return Ok(response);
         }
 
         [HttpGet("{id}")]

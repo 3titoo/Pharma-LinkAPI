@@ -25,6 +25,22 @@ namespace Pharma_LinkAPI.Controllers
             _jwtService = jwtService;
 
         }
+
+        [Authorize]
+        [HttpGet("GetUserInfo")]
+        public async Task<IActionResult> GetUserInfo()
+        {
+            var userName = User.Identity?.Name;
+            var user = await _userManager.FindByNameAsync(userName);
+            if (user == null)
+            {
+                return NotFound("User not found.");
+            }
+            return Ok(new {userName = user.UserName,role = user.Role});
+        }
+
+
+
         [Authorize(Roles = SD.Role_Admin)]
         [HttpPost("Register/{Id}")]
         public async Task<ActionResult<AuthentcationResponse>> Register(int Id)

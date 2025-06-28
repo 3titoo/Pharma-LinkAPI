@@ -7,6 +7,10 @@ namespace Pharma_LinkAPI.Repositries.Irepositry
     {
         Task<IDictionary<int, MedicineViewDTO>> GetMedicinesForCompany(int companyId);
         Task<IDictionary<int, Medicine>> GetMedicinesForCompanyTracking(int companyId);
+        
+        Task<IEnumerable<Medicine?>> GetMedicinesWithPages(int pageNumber, int pageSize);
+
+        Task<int> sz();
 
         Task<Medicine?> GetMedicineCompany(int companyId);
         Task<(string Name, string UserName)?> GetCompanyDetails(int id);
