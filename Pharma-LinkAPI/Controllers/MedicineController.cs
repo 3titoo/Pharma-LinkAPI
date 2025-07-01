@@ -39,7 +39,7 @@ namespace Pharma_LinkAPI.Controllers
                     Description = medicine.Description,
                     Price = medicine.Price,
                     InStock = medicine.InStock,
-                    ImageUrl = img,
+                    ImageUrl = "https://pharmalink.runasp.net/" + img,
                 };
                 if (medicine.Company_Id != null)
                 {
