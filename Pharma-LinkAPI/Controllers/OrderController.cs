@@ -503,7 +503,7 @@ namespace Pharma_LinkAPI.Controllers
                     Medicine CurMedicine = Medicines[item.MedicineID.Value];
                     if (CurMedicine == null)
                     {
-                        return NotFound("Medicine not found");
+                        throw new Exception("Medicine not found.");
                     }
                     CurMedicine.InStock += item.Count;
                 }
