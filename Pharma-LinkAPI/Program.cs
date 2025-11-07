@@ -133,19 +133,16 @@ using (var scope = app.Services.CreateScope())
     await IdentitySeeder.SeedRolesAndAdminAsync(services);
 }
 app.UseStaticFiles();
-// Configure the HTTP request pipeline.
-//if (app.Environment.IsDevelopment())
-//{
-    app.UseSwagger();
-    app.UseSwaggerUI(c =>
-    {
-        c.SwaggerEndpoint("/swagger/v1/swagger.json", "Pharma Link API V1");
-        // Enable the Authorize button in Swagger UI
-        c.OAuthClientId("swagger-ui");
-        c.OAuthAppName("Swagger UI");
-        c.OAuthUsePkce();
-    });
-//}
+app.UseSwagger();
+app.UseSwaggerUI(c =>
+{
+    c.SwaggerEndpoint("/swagger/v1/swagger.json", "Pharma Link API V1");
+    // Enable the Authorize button in Swagger UI
+    c.OAuthClientId("swagger-ui");
+    c.OAuthAppName("Swagger UI");
+    c.OAuthUsePkce();
+});
+app.MapGet("/", () => Results.Redirect("/swagger"));
 
 app.UseHttpsRedirection();
 
